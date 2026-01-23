@@ -91,8 +91,10 @@ const RecruitsSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <div className="p-8 border rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50">
-                <h3 className="mb-6 text-2xl font-bold">Offres en vedette</h3>
+              {/* <div className="p-8 border rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50"> */}
+              <div className="p-8 rounded-2xl bg-linear-to-br from-orange-50 to-amber-50">
+                {/* <h3 className="mb-6 text-2xl font-bold">Offres en vedette</h3> */}
+                <h3 className="mb-6 text-2xl font-bold">Offres</h3>
                 <div className="space-y-4">
                   {jobOffers.map((job) => (
                     <div

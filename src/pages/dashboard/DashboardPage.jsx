@@ -231,7 +231,7 @@ const DashboardPage = () => {
           {/* Section inférieure */}
           <div className="grid gap-6 mt-6 lg:grid-cols-3">
             {/* Statut des candidatures */}
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Statut des candidatures</CardTitle>
                 <CardDescription>Répartition par statut</CardDescription>
@@ -265,10 +265,10 @@ const DashboardPage = () => {
                   </Badge>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Progression du profil */}
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Progression du profil</CardTitle>
                 <CardDescription>Complétez votre profil</CardDescription>
@@ -314,7 +314,7 @@ const DashboardPage = () => {
                   Améliorer la visibilité
                 </Button>
               </CardFooter>
-            </Card>
+            </Card> */}
 
             {/* Conseils et recommandations */}
             <Card>
