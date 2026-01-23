@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3070:3070"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://test-project-api.reimca-app.com/api
+
+volumes:
+  geoserver_data:
