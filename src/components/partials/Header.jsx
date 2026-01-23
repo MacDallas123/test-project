@@ -76,6 +76,18 @@ const Header = () => {
       href: "/dashboard",
     },
     { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
+
+    // Temporary
+    {
+      icon: LogIn,
+      label: t("authMenu.login", "Connexion"),
+      href: "/auth/login",
+    },
+    {
+      icon: UserPlus,
+      label: t("authMenu.register", "Inscription"),
+      href: "/auth/register",
+    },
   ];
 
   const mainMenus = [
@@ -173,14 +185,14 @@ const Header = () => {
     {
       icon: LogIn,
       label: t("authMenu.login", "Connexion"),
-      href: "/login",
+      href: "/auth/login",
       className:
         "px-4 py-2 rounded-md text-primary border border-primary transition-colors duration-200 hover:bg-primary hover:text-white",
     },
     {
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
-      href: "/register",
+      href: "/auth/register",
       className:
         "px-4 py-2 rounded-md bg-primary/70 text-white border border-primary transition-colors duration-200 hover:bg-secondary/90 hover:border-secondary",
     },

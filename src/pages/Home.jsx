@@ -543,7 +543,9 @@ const Home = () => {
               <Button
                 asChild
                 size="lg"
-                className="gap-3 bg-purple-600 hover:bg-purple-700"
+                // className="gap-3 bg-purple-600 hover:bg-purple-700"
+                className="gap-3 text-purple-600 hover:text-purple-700"
+                variant="link"
               >
                 <Link to="/service/formulaire-cv">
                   <FileEdit className="w-5 h-5" />

@@ -24,7 +24,7 @@ const sampleOrder = {
     
     billing: {
       name: "Mr AAA",
-      email: "jean.dupont@email.com",
+      email: "mr.aaa@email.com",
       phone: "+33 6 12 34 56 78",
       address: "123 Avenue des Champs-Élysées",
       postalCode: "75008",

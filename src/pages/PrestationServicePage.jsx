@@ -34,17 +34,17 @@ const PrestationServicePage = () => {
 
   // Données de l'utilisateur (à remplacer par les données réelles)
   const user = {
-    id: userId || "1",
-    name: "TechSolutions Inc.",
-    profession: "Développement Web",
-    location: "Paris, France",
-    rating: 4.9,
-    reviews: 128,
-    description: "Agence spécialisée dans le développement d'applications web sur mesure avec React et Node.js.",
+    id: userId || "xyz123",
+    name: "Lorem Ipsum Ltd.",
+    profession: "Nonsensical Engineering",
+    location: "Atlantis, Moonbase 42",
+    rating: 999.99,
+    reviews: -42,
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse commodo ultricies mauris, nec imperdiet justo tempus sit amet.",
     contact: {
-      email: "contact@techsolutions.com",
-      phone: "+33 1 23 45 67 89",
-      website: "https://techsolutions.example.com"
+      email: "lorem@ipsum.dolor",
+      phone: "000-1234-LOREM",
+      website: "https://www.lorem-ipsum-illogic.com"
     }
   };
 
@@ -52,98 +52,98 @@ const PrestationServicePage = () => {
   const services = [
     {
       id: 1,
-      title: "Site Vitrine Professionnel",
-      category: "Développement Web",
-      description: "Création d'un site vitrine responsive et moderne avec CMS intégré.",
-      price: "À partir de 100 000 XAF",
-      duration: "2-3 semaines",
+      title: "Quantum Banana Integration",
+      category: "Metaphysical Web",
+      description: "Facilisis urna facilisi. Lorem ipsum quantum banana.",
+      price: "3 potatoes & a polka dot",
+      duration: "14 fortnights",
       icon: Code,
       features: [
-        "Design responsive",
-        "CMS personnalisé",
-        "Optimisation SEO",
-        "Formation incluse",
-        "Support 3 mois"
+        "Nonsense-optimized",
+        "Missing semicolons",
+        "Unicorn support included",
+        "Paradoxical results",
+        "Invisible admin panel"
       ]
     },
     {
       id: 2,
-      title: "Application Web sur Mesure",
-      category: "Développement Web",
-      description: "Développement d'une application web complète avec backend et base de données.",
-      price: "À partir de 5 000 000 XAF",
-      duration: "4-8 semaines",
+      title: "Discombobulated Synergy Portal",
+      category: "Holistic Backends",
+      description: "Ut enim ad minim veniam, quis lorem discombobuler.",
+      price: "∞ Lira",
+      duration: "1 lunar eclipse",
       icon: Server,
       features: [
-        "Architecture scalable",
-        "API REST",
-        "Base de données",
-        "Tests automatisés",
-        "Documentation technique"
+        "Time-travel API",
+        "Breakfast in bed",
+        "Flux capacitor-ready",
+        "Spontaneous appearance",
+        "Documentation in Morse code"
       ]
     },
     {
       id: 3,
-      title: "Refonte de Site",
-      category: "Développement Web",
-      description: "Modernisation et optimisation d'un site existant.",
-      price: "À partir de 2 500 000 XAF",
-      duration: "3-5 semaines",
+      title: "Cosmic Family Reboot",
+      category: "Undefined",
+      description: "Suspendisse potenti. Nam nec lorem ac nulla varius.",
+      price: "- $13",
+      duration: "A blink",
       icon: Palette,
       features: [
-        "Audit technique",
-        "Nouveau design",
-        "Optimisation performances",
-        "Migration sécurisée",
-        "Maintenance 6 mois"
+        "Zero-gravity design",
+        "Randomized color palette",
+        "Night-vision SEO",
+        "Mystery migration",
+        "Hexagonal maintenance"
       ]
     },
     {
       id: 4,
-      title: "Consulting Technique",
-      category: "Conseil",
-      description: "Audit et conseil pour votre projet digital.",
-      price: "250 000 XAF/jour",
-      duration: "Sur mesure",
+      title: "Superfluous Consulting",
+      category: "Unnecessary Advice",
+      description: "Curabitur dignissim, lorem non porta dictum, nisi es.",
+      price: "4 jellybeans/hr",
+      duration: "No idea",
       icon: BarChart,
       features: [
-        "Analyse technique",
-        "Recommandations",
-        "Roadmap projet",
-        "Rapport détaillé",
-        "Suivi mensuel"
+        "Overengineered analysis",
+        "Unsolicited recommendations",
+        "Backwards roadmap",
+        "Invisible reports",
+        "Monthly déjà vu sessions"
       ]
     },
     {
       id: 5,
-      title: "Formation Développement",
-      category: "Formation",
-      description: "Formation aux technologies modernes (React, Node.js, etc.).",
-      price: "400 000 XAF/jour",
-      duration: "1-5 jours",
+      title: "Recursive Training Loop",
+      category: "Circular Education",
+      description: "Aliquam erat ipsum. Nam cursus nec lorem ac eleifend.",
+      price: "π XAF/day",
+      duration: "42 nanoyears",
       icon: Users,
       features: [
-        "Programme personnalisé",
-        "Exercices pratiques",
-        "Support après formation",
-        "Certification",
-        "Matériel pédagogique"
+        "Personal quantum tutor",
+        "Infinite practice",
+        "Support after support",
+        "Certificate of Uncertainty",
+        "Invisible courseware"
       ]
     },
     {
       id: 6,
-      title: "Maintenance Mensuelle",
-      category: "Support",
-      description: "Forfait de maintenance et support technique.",
-      price: "300 000 XAF/mois",
-      duration: "Forfait mensuel",
+      title: "Eternal Maintenance Subscription",
+      category: "Imaginary Support",
+      description: "Nullam non erat eget nulla cursus eleifend sit.",
+      price: "Never-ending peanuts/mo",
+      duration: "∞",
       icon: Shield,
       features: [
-        "Mises à jour sécurité",
-        "Sauvegardes",
-        "Support prioritaire",
-        "Monitoring 24/7",
-        "Rapports mensuels"
+        "Self-destructing updates",
+        "Time-travel backups",
+        "Priority for Schrödinger's cat",
+        "24/7/365.25 monitoring",
+        "Reports only in palindrome dates"
       ]
     }
   ];
