@@ -77,7 +77,7 @@ const RecruitsSection = () => {
                   </div>
                 </div>
               </div>
-              <Button asChild size="lg" className="gap-3 mt-8">
+              <Button asChild size="lg" variant="link" className="gap-3 mt-8">
                 <Link to="/emploi">
                   <UserCheck className="w-5 h-5" />
                   Recherche d'emploi
