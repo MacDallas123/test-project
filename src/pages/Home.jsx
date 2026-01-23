@@ -362,14 +362,18 @@ const Home = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <div className="h-64 overflow-hidden border-4 shadow-lg aspect-w-16 rounded-2xl border-primary/20">
+              <div className="relative h-64 overflow-hidden border-4 shadow-lg aspect-w-16 rounded-2xl border-primary/20">
+                <span className="absolute text-lg text-gray-500 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
+                  ESPACE VIDEO
+                </span>
                 <iframe
-                  src="https://www.youtube.com/embed/5qap5aO4i9A"
+                  // src="https://www.youtube.com/embed/5qap5aO4i9A"
                   title="Présentation FIBEM ProMarket"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full"
+                  
                 ></iframe>
               </div>
               {/* <div className="grid grid-cols-2 gap-4">
