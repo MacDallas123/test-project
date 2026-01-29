@@ -1,603 +1,713 @@
-// JobsPage.jsx
-import { useState, useEffect } from "react";
+// JobsPage.jsx - Version Restauration
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
-  Search,
-  Filter,
-  MapPin,
   Briefcase,
-  Calendar,
+  MapPin,
   Clock,
-  DollarSign,
-  GraduationCap,
-  ExternalLink,
   Building,
   Users,
+  GraduationCap,
+  Calendar,
+  DollarSign,
   TrendingUp,
-  BookOpen,
+  ExternalLink,
+  Filter,
+  Search,
   Star,
   ChevronRight,
-  Eye,
-  FileText,
-  Send,
   Bookmark,
   Share2,
+  ChefHat,
+  Coffee,
+  Utensils,
+  Bike,
+  Car,
+  Package,
+  Truck,
+  Home,
+  User,
+  Shield,
+  Heart,
+  Zap,
+  CheckCircle
 } from "lucide-react";
 
 const JobsPage = () => {
-  const [jobs, setJobs] = useState([
+  const [savedJobs, setSavedJobs] = useState([]);
+  
+  // Données des restaurants
+  const restaurants = [
     {
       id: 1,
-      title: "Développeur Full Stack React/Node.js",
-      company: "TechSolutions Inc.",
-      location: "Yaoundé, Cameroun",
-      type: "CDI",
-      salary: "800,000 - 1,200,000 XAF",
-      experience: "2-3 ans",
-      remote: true,
-      description: "Nous recherchons un développeur full stack pour rejoindre notre équipe technique et participer au développement d'applications web innovantes.",
-      category: "Développement",
-      tags: ["React", "Node.js", "MongoDB", "TypeScript"],
-      datePosted: "Il y a 2 jours",
-      isInternshipAvailable: true,
-      companyLogo: "TS"
+      name: "Le Dakarois",
+      cuisine: "Africain",
+      location: "Dakar, Plateau",
+      rating: 4.8,
+      logoColor: "bg-orange-600",
+      description: "Restaurant traditionnel sénégalais, spécialiste du poulet yassa et thieboudienne"
     },
     {
       id: 2,
-      title: "Designer UX/UI Senior",
-      company: "DesignCreatives Studio",
-      location: "Douala, Cameroun",
-      type: "CDD",
-      salary: "700,000 - 1,000,000 XAF",
-      experience: "3-5 ans",
-      remote: true,
-      description: "Notre studio créatif recherche un designer UX/UI expérimenté pour concevoir des interfaces utilisateur intuitives et modernes.",
-      category: "Design",
-      tags: ["Figma", "UI Design", "Prototypage", "User Research"],
-      datePosted: "Il y a 3 jours",
-      isInternshipAvailable: true,
-      companyLogo: "DC"
+      name: "Burger House",
+      cuisine: "Fast-food",
+      location: "Dakar, Almadies",
+      rating: 4.7,
+      logoColor: "bg-red-600",
+      description: "Burgers artisanaux et cuisine rapide de qualité"
     },
     {
       id: 3,
-      title: "Marketing Digital Manager",
-      company: "MarketingBoost Agency",
-      location: "Yaoundé, Cameroun",
-      type: "CDI",
-      salary: "900,000 - 1,400,000 XAF",
-      experience: "4-6 ans",
-      remote: false,
-      description: "Responsable de la stratégie marketing digitale et des campagnes publicitaires pour nos clients internationaux.",
-      category: "Marketing",
-      tags: ["SEO", "Facebook Ads", "Analytics", "Content Marketing"],
-      datePosted: "Il y a 5 jours",
-      isInternshipAvailable: false,
-      companyLogo: "MB"
+      name: "Pizzeria Roma",
+      cuisine: "Italien",
+      location: "Dakar, Point E",
+      rating: 4.9,
+      logoColor: "bg-green-600",
+      description: "Pizzeria traditionnelle napolitaine au feu de bois"
     },
     {
       id: 4,
-      title: "Commercial B2B",
-      company: "LegalEase Consultants",
-      location: "Douala, Cameroun",
-      type: "CDI",
-      salary: "600,000 + Commission",
-      experience: "1-2 ans",
-      remote: false,
-      description: "Développement du portefeuille clients B2B dans le secteur des services juridiques aux entreprises.",
-      category: "Commercial",
-      tags: ["Vente", "Relation Client", "Négociation", "CRM"],
-      datePosted: "Il y a 1 semaine",
-      isInternshipAvailable: true,
-      companyLogo: "LE"
+      name: "Sushi Zen",
+      cuisine: "Japonais",
+      location: "Dakar, Ouakam",
+      rating: 4.8,
+      logoColor: "bg-blue-600",
+      description: "Sushi bar avec poissons frais importés quotidiennement"
     },
     {
       id: 5,
-      title: "Expert DevOps",
-      company: "FinTech Solutions",
-      location: "Remote",
+      name: "Café de Paris",
+      cuisine: "Café",
+      location: "Dakar, Plateau",
+      rating: 4.4,
+      logoColor: "bg-yellow-600",
+      description: "Café-brasserie avec spécialités françaises"
+    }
+  ];
+
+  // Offres d'emploi dans la restauration
+  const jobOffers = [
+    {
+      id: 1,
+      title: "Cuisinier Senior",
+      restaurantId: 1,
       type: "CDI",
-      salary: "1,200,000 - 1,800,000 XAF",
-      experience: "3-4 ans",
-      remote: true,
-      description: "Gestion de l'infrastructure cloud et automatisation des processus de déploiement pour nos applications financières.",
-      category: "IT & DevOps",
-      tags: ["AWS", "Docker", "Kubernetes", "CI/CD"],
-      datePosted: "Il y a 1 semaine",
-      isInternshipAvailable: false,
-      companyLogo: "FT"
+      location: "Plateau, Dakar",
+      salary: "300K-400K XOF",
+      experience: "3-5 ans",
+      category: "Cuisine",
+      description: "Recherche cuisinier expérimenté pour notre cuisine traditionnelle sénégalaise.",
+      skills: ["Cuisine africaine", "Gestion de brigade", "Hygiène alimentaire", "Créativité"],
+      postedDate: "Il y a 2 jours",
+      remote: false,
+      urgent: true,
+      schedule: "Temps plein",
+      contractType: "CDI"
+    },
+    {
+      id: 2,
+      title: "Serveur/Serveuse",
+      restaurantId: 2,
+      type: "CDD",
+      location: "Almadies, Dakar",
+      salary: "150K-200K XOF",
+      experience: "1-2 ans",
+      category: "Service",
+      description: "Recrutement serveurs dynamiques pour notre restaurant burger.",
+      skills: ["Accueil client", "Service de table", "Commande", "Caisse"],
+      postedDate: "Il y a 5 jours",
+      remote: false,
+      urgent: false,
+      schedule: "Temps plein",
+      contractType: "CDD 6 mois"
+    },
+    {
+      id: 3,
+      title: "Livreur à vélo",
+      restaurantId: 3,
+      type: "Freelance",
+      location: "Point E, Dakar",
+      salary: "À la course + pourboires",
+      experience: "Débutant accepté",
+      category: "Livraison",
+      description: "Recherche livreurs à vélo pour livraison de pizzas.",
+      skills: ["Conduite vélo", "Connaissance ville", "Ponctualité", "Service client"],
+      postedDate: "Il y a 1 semaine",
+      remote: false,
+      urgent: true,
+      schedule: "Horaires flexibles",
+      contractType: "Freelance"
+    },
+    {
+      id: 4,
+      title: "Apprenti Sushi Chef",
+      restaurantId: 4,
+      type: "Apprentissage",
+      location: "Ouakam, Dakar",
+      salary: "Formation rémunérée",
+      experience: "Étudiant/Débutant",
+      category: "Cuisine",
+      description: "Formation en préparation de sushis pour débutant motivé.",
+      skills: ["Précision", "Hygiene", "Apprentissage rapide", "Passion cuisine"],
+      postedDate: "Il y a 3 jours",
+      remote: false,
+      urgent: false,
+      schedule: "Temps plein",
+      contractType: "Contrat d'apprentissage"
+    },
+    {
+      id: 5,
+      title: "Livreur en scooter",
+      restaurantId: 2,
+      type: "CDI",
+      location: "Dakar (Toute la ville)",
+      salary: "250K-300K XOF",
+      experience: "1 an minimum",
+      category: "Livraison",
+      description: "Livreur expérimenté avec scooter personnel pour livraisons rapides.",
+      skills: ["Permis scooter", "GPS", "Service client", "Gestion des commandes"],
+      postedDate: "Il y a 1 jour",
+      remote: false,
+      urgent: true,
+      schedule: "Rotation",
+      contractType: "CDI"
     },
     {
       id: 6,
-      title: "Assistant Comptable",
-      company: "BuildMaster Construction",
-      location: "Yaoundé, Cameroun",
-      type: "Stage",
-      salary: "Gratification",
-      experience: "Étudiant",
+      title: "Responsable de salle",
+      restaurantId: 5,
+      type: "CDI",
+      location: "Plateau, Dakar",
+      salary: "400K-500K XOF",
+      experience: "5-7 ans",
+      category: "Management",
+      description: "Gestion d'équipe et organisation du service en salle.",
+      skills: ["Management", "Planification", "Service client", "Formation"],
+      postedDate: "Il y a 2 semaines",
       remote: false,
-      description: "Stage pour étudiant en comptabilité pour assister notre service comptable dans la gestion des opérations courantes.",
-      category: "Comptabilité",
-      tags: ["Sage", "Excel", "Comptabilité", "Facturation"],
-      datePosted: "Il y a 2 jours",
-      isInternshipAvailable: false,
-      companyLogo: "BM"
+      urgent: false,
+      schedule: "Temps plein",
+      contractType: "CDI"
     },
     {
       id: 7,
-      title: "Community Manager",
-      company: "MarketingBoost Agency",
-      location: "Remote",
+      title: "Plongeur/Pizzaïolo",
+      restaurantId: 3,
       type: "CDD",
-      salary: "500,000 - 700,000 XAF",
-      experience: "1-2 ans",
-      remote: true,
-      description: "Animation des communautés en ligne et gestion des réseaux sociaux pour nos clients.",
-      category: "Marketing",
-      tags: ["Social Media", "Content Creation", "Community", "Branding"],
-      datePosted: "Il y a 3 jours",
-      isInternshipAvailable: true,
-      companyLogo: "MB"
+      location: "Point E, Dakar",
+      salary: "180K-220K XOF",
+      experience: "Débutant accepté",
+      category: "Cuisine",
+      description: "Poste polyvalent: préparation pizzas et plonge.",
+      skills: ["Travail d'équipe", "Rapidité", "Hygiene", "Apprentissage"],
+      postedDate: "Il y a 4 jours",
+      remote: false,
+      urgent: false,
+      schedule: "Soirées et week-ends",
+      contractType: "CDD 3 mois"
     },
     {
       id: 8,
-      title: "Développeur Frontend",
-      company: "TechSolutions Inc.",
-      location: "Douala, Cameroun",
-      type: "Alternance",
-      salary: "300,000 - 500,000 XAF",
-      experience: "0-1 an",
-      remote: true,
-      description: "Contrat en alternance pour un développeur frontend souhaitant se spécialiser en React et Next.js.",
-      category: "Développement",
-      tags: ["React", "Next.js", "JavaScript", "CSS"],
-      datePosted: "Il y a 4 jours",
-      isInternshipAvailable: false,
-      companyLogo: "TS"
+      title: "Livreur voiture",
+      restaurantId: 4,
+      type: "Freelance",
+      location: "Grand Dakar",
+      salary: "À la course + bonus",
+      experience: "2 ans minimum",
+      category: "Livraison",
+      description: "Livreur avec véhicule personnel pour grandes commandes.",
+      skills: ["Permis B", "Véhicule personnel", "Service client", "Organisation"],
+      postedDate: "Il y a 6 jours",
+      remote: false,
+      urgent: false,
+      schedule: "Horaires flexibles",
+      contractType: "Freelance"
     }
-  ]);
-
-  const [filteredJobs, setFilteredJobs] = useState(jobs);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showRemoteOnly, setShowRemoteOnly] = useState(false);
-
-  // Catégories disponibles
-  const categories = [
-    { id: "all", label: "Toutes les catégories", count: jobs.length },
-    { id: "Développement", label: "Développement", count: jobs.filter(j => j.category === "Développement").length },
-    { id: "Design", label: "Design", count: jobs.filter(j => j.category === "Design").length },
-    { id: "Marketing", label: "Marketing", count: jobs.filter(j => j.category === "Marketing").length },
-    { id: "Commercial", label: "Commercial", count: jobs.filter(j => j.category === "Commercial").length },
-    { id: "IT & DevOps", label: "IT & DevOps", count: jobs.filter(j => j.category === "IT & DevOps").length },
-    { id: "Comptabilité", label: "Comptabilité", count: jobs.filter(j => j.category === "Comptabilité").length }
   ];
 
-  // Types de contrats
-  const contractTypes = [
-    { id: "all", label: "Tous les contrats" },
-    { id: "CDI", label: "CDI" },
-    { id: "CDD", label: "CDD" },
-    { id: "Stage", label: "Stage" },
-    { id: "Alternance", label: "Alternance" }
-  ];
+  // États pour les filtres
+  const [selectedCategory, setSelectedCategory] = useState("Tous");
+  const [selectedType, setSelectedType] = useState("Tous");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Filtrer les offres
-  useEffect(() => {
-    let filtered = jobs;
-
-    // Recherche par mot-clé
-    if (searchQuery) {
-      filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        job.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
-
-    // Filtre par catégorie
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(job => job.category === selectedCategory);
-    }
-
-    // Filtre remote
-    if (showRemoteOnly) {
-      filtered = filtered.filter(job => job.remote);
-    }
-
-    setFilteredJobs(filtered);
-  }, [searchQuery, selectedCategory, showRemoteOnly, jobs]);
-
-  const applyForJob = (jobId) => {
-    console.log(`Postuler pour l'offre ${jobId}`);
-    // Ici, vous pouvez rediriger vers un formulaire de candidature
+  // Trouver les informations du restaurant
+  const getRestaurantInfo = (restaurantId) => {
+    return restaurants.find(r => r.id === restaurantId) || restaurants[0];
   };
 
-  const requestInternship = (jobId) => {
-    console.log(`Demander un stage pour l'offre ${jobId}`);
-    // Ici, vous pouvez rediriger vers un formulaire de demande de stage
+  // Catégories et types uniques
+  const categories = ["Tous", "Cuisine", "Service", "Livraison", "Management"];
+  const jobTypes = ["Tous", "CDI", "CDD", "Freelance", "Apprentissage"];
+
+  // Filtrer les offres
+  const filteredJobs = jobOffers.filter(job => {
+    const matchesCategory = selectedCategory === "Tous" || job.category === selectedCategory;
+    const matchesType = selectedType === "Tous" || job.type === selectedType;
+    const matchesSearch = searchTerm === "" || 
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      getRestaurantInfo(job.restaurantId).name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesCategory && matchesType && matchesSearch;
+  });
+
+  const toggleSavedJob = (jobId) => {
+    setSavedJobs(prev => 
+      prev.includes(jobId) 
+        ? prev.filter(id => id !== jobId)
+        : [...prev, jobId]
+    );
+  };
+
+  // Icônes par catégorie
+  const getCategoryIcon = (category) => {
+    switch(category) {
+      case "Cuisine": return <ChefHat className="w-5 h-5" />;
+      case "Service": return <Utensils className="w-5 h-5" />;
+      case "Livraison": return <Bike className="w-5 h-5" />;
+      case "Management": return <Users className="w-5 h-5" />;
+      default: return <Briefcase className="w-5 h-5" />;
+    }
+  };
+
+  // Couleurs par catégorie
+  const getCategoryColor = (category) => {
+    switch(category) {
+      case "Cuisine": return "bg-orange-100 text-orange-800";
+      case "Service": return "bg-blue-100 text-blue-800";
+      case "Livraison": return "bg-green-100 text-green-800";
+      case "Management": return "bg-purple-100 text-purple-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* En-tête */}
-      <div className="border-b">
-        <div className="container px-4 py-8 mx-auto">
-          <div className="mb-6">
-            <h1 className="mb-2 text-2xl font-semibold">Offres d'emploi</h1>
-            <p className="text-muted-foreground">
-              Trouvez votre prochaine opportunité professionnelle
-            </p>
-          </div>
-
-          {/* Barre de recherche */}
-          <div className="mb-8">
-            <div className="relative">
-              <Search className="absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher un poste, une entreprise, un mot-clé..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-primary/5 via-white to-primary/5">
+        <div className="container px-4 py-12 mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 text-sm font-medium rounded-full bg-primary/10 text-primary">
+              <Briefcase className="w-4 h-4" />
+              Emplois Restauration
             </div>
-          </div>
-
-          {/* Filtres rapides */}
-          <div className="flex flex-wrap gap-3 mb-4">
-            <Button
-              variant={selectedCategory === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory("all")}
-            >
-              Toutes les catégories
-            </Button>
-            {categories.slice(1).map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                {category.label} ({category.count})
-              </Button>
-            ))}
-          </div>
-
-          {/* Filtres supplémentaires */}
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <Button
-              variant={showRemoteOnly ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowRemoteOnly(!showRemoteOnly)}
-            >
-              <MapPin className="w-3 h-3 mr-2" />
-              Télétravail seulement
-            </Button>
             
-            <div className="flex items-center gap-2">
-              <Filter className="w-3 h-3" />
-              <span>Type de contrat :</span>
-              <select 
-                className="bg-transparent border-none focus:outline-none"
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                {contractTypes.map(type => (
-                  <option key={type.id} value={type.id}>{type.label}</option>
-                ))}
-              </select>
+            <h1 className="mb-4 text-4xl font-bold md:text-5xl">
+              Trouvez votre emploi dans la restauration
+            </h1>
+            <p className="mb-8 text-lg text-gray-600">
+              Rejoignez nos restaurants partenaires et développez votre carrière
+            </p>
+            
+            {/* Barre de recherche */}
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="relative">
+                <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 left-4 top-1/2" />
+                <input
+                  type="text"
+                  placeholder="Rechercher un poste, un restaurant ou une compétence..."
+                  className="w-full py-3 pl-12 pr-4 border border-gray-300 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Stats rapides */}
+            <div className="grid max-w-lg grid-cols-2 gap-4 mx-auto sm:grid-cols-4">
+              <div className="p-4 text-center bg-white border shadow-sm rounded-xl">
+                <div className="text-2xl font-bold text-primary">{jobOffers.length}</div>
+                <div className="text-sm text-gray-600">Offres actives</div>
+              </div>
+              <div className="p-4 text-center bg-white border shadow-sm rounded-xl">
+                <div className="text-2xl font-bold text-primary">{restaurants.length}</div>
+                <div className="text-sm text-gray-600">Restaurants</div>
+              </div>
+              <div className="p-4 text-center bg-white border shadow-sm rounded-xl">
+                <div className="text-2xl font-bold text-primary">{jobOffers.filter(j => j.category === "Livraison").length}</div>
+                <div className="text-sm text-gray-600">Postes livraison</div>
+              </div>
+              <div className="p-4 text-center bg-white border shadow-sm rounded-xl">
+                <div className="text-2xl font-bold text-primary">{jobOffers.filter(j => j.urgent).length}</div>
+                <div className="text-sm text-gray-600">Urgent</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Contenu principal */}
+      {/* Section principale */}
       <div className="container px-4 py-8 mx-auto">
         <div className="flex flex-col gap-8 lg:flex-row">
-          {/* Colonne des offres */}
-          <div className="lg:w-2/3">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {filteredJobs.length} offre{filteredJobs.length > 1 ? 's' : ''} disponible{filteredJobs.length > 1 ? 's' : ''}
-                </h2>
-                {searchQuery && (
-                  <p className="text-sm text-muted-foreground">
-                    Résultats pour : "{searchQuery}"
-                  </p>
-                )}
+          {/* Filtres */}
+          <div className="lg:w-1/4">
+            <div className="sticky space-y-6 top-8">
+              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                <h3 className="flex items-center gap-2 mb-6 text-lg font-bold">
+                  <Filter className="w-5 h-5" />
+                  Filtres
+                </h3>
+                
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="mb-3 font-medium">Catégorie</h4>
+                    <div className="flex flex-col gap-2">
+                      {categories.map(category => (
+                        <button
+                          key={category}
+                          onClick={() => setSelectedCategory(category)}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                            selectedCategory === category
+                              ? "bg-primary text-white"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          {getCategoryIcon(category)}
+                          <span>{category}</span>
+                          {category !== "Tous" && (
+                            <span className="ml-auto text-xs opacity-70">
+                              {jobOffers.filter(j => j.category === category).length}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h4 className="mb-3 font-medium">Type de contrat</h4>
+                    <div className="space-y-2">
+                      {jobTypes.map(type => (
+                        <button
+                          key={type}
+                          onClick={() => setSelectedType(type)}
+                          className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-all ${
+                            selectedType === type
+                              ? "bg-primary text-white"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          <span>{type}</span>
+                          <span className="text-xs opacity-70">
+                            {jobOffers.filter(j => type === "Tous" ? true : j.type === type).length}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h4 className="mb-3 font-medium">Horaire</h4>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="checkbox" className="rounded text-primary" />
+                        <span>Temps plein</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="checkbox" className="rounded text-primary" />
+                        <span>Soirées/Week-ends</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="checkbox" className="rounded text-primary" />
+                        <span>Horaires flexibles</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                  <Bookmark className="w-4 h-4 mr-2" />
-                  Offres sauvegardées
+
+              {/* Conseils */}
+              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                <h3 className="mb-4 font-bold">Conseils de candidature</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 mt-0.5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm">Préparez un CV simple et clair</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 mt-0.5 text-blue-500 flex-shrink-0" />
+                    <span className="text-sm">Soyez ponctuel pour les entretiens</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <User className="w-5 h-5 mt-0.5 text-purple-500 flex-shrink-0" />
+                    <span className="text-sm">Mentionnez votre expérience en restauration</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 mt-0.5 text-amber-500 flex-shrink-0" />
+                    <span className="text-sm">Certification HACCP un plus</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Devenir livreur */}
+              <div className="p-6 border border-gray-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50">
+                <h3 className="mb-3 font-bold">🚴 Devenir livreur</h3>
+                <p className="mb-4 text-sm text-gray-600">
+                  Rejoignez notre équipe de livreurs et gagnez en toute flexibilité
+                </p>
+                <Button asChild variant="outline" size="sm" className="w-full">
+                  <Link to="/become-deliverer">
+                    <Bike className="w-4 h-4 mr-2" />
+                    Postuler comme livreur
+                  </Link>
                 </Button>
               </div>
             </div>
-
-            {/* Liste des offres */}
-            <div className="space-y-4">
-              {filteredJobs.length === 0 ? (
-                <Card className="border">
-                  <CardContent className="pt-6 text-center">
-                    <p className="mb-4 text-muted-foreground">Aucune offre ne correspond à vos critères</p>
-                    <Button variant="outline" onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCategory("all");
-                      setShowRemoteOnly(false);
-                    }}>
-                      Réinitialiser les filtres
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                filteredJobs.map((job) => (
-                  <Card key={job.id} className="transition-colors border hover:border-primary/50">
-                    <CardContent className="pt-6">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                        {/* Logo entreprise */}
-                        <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 rounded bg-primary/10">
-                          <span className="font-semibold text-primary">{job.companyLogo}</span>
-                        </div>
-                        
-                        {/* Contenu de l'offre */}
-                        <div className="flex-1">
-                          <div className="flex flex-col justify-between gap-2 mb-3 sm:flex-row sm:items-start">
-                            <div>
-                              <h3 className="mb-1 text-lg font-semibold">{job.title}</h3>
-                              <div className="flex items-center gap-3 mb-2 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Building className="w-3 h-3" />
-                                  <span>{job.company}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  <span>{job.location}</span>
-                                </div>
-                                {job.remote && (
-                                  <Badge variant="outline" className="text-xs">
-                                    Télétravail
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <div className="text-right">
-                              <div className="mb-1 font-semibold text-primary">{job.salary}</div>
-                              <div className="text-xs text-muted-foreground">XAF/mois</div>
-                            </div>
-                          </div>
-                          
-                          <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
-                            {job.description}
-                          </p>
-                          
-                          {/* Tags et infos */}
-                          <div className="space-y-3">
-                            <div className="flex flex-wrap gap-2">
-                              {job.tags.map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-4 text-sm">
-                              <div className="flex items-center gap-1">
-                                <Briefcase className="w-3 h-3" />
-                                <span>{job.type}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                <span>{job.experience}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>{job.datePosted}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                    
-                    <CardFooter className="pt-0">
-                      <div className="flex flex-col items-center justify-between w-full gap-3 sm:flex-row">
-                        <div className="text-sm text-muted-foreground">
-                          <Badge variant="outline" className="mr-2">
-                            {job.category}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => applyForJob(job.id)}
-                            className="gap-2"
-                          >
-                            <Eye className="w-4 h-4" />
-                            Voir l'offre
-                          </Button>
-                          
-                          {job.type !== "Stage" && job.isInternshipAvailable && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => requestInternship(job.id)}
-                              className="gap-2 text-blue-700 border-blue-300 hover:bg-blue-50"
-                            >
-                              <GraduationCap className="w-4 h-4" />
-                              Demander un stage
-                            </Button>
-                          )}
-                          
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            onClick={() => applyForJob(job.id)}
-                            className="gap-2"
-                          >
-                            <Send className="w-4 h-4" />
-                            Postuler
-                          </Button>
-                        </div>
-                      </div>
-                    </CardFooter>
-                  </Card>
-                ))
-              )}
-            </div>
-            
-            {/* Pagination */}
-            {filteredJobs.length > 0 && (
-              <div className="flex justify-center mt-8">
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">← Précédent</Button>
-                  <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">1</Button>
-                  <Button variant="outline" size="sm">2</Button>
-                  <Button variant="outline" size="sm">3</Button>
-                  <Button variant="outline" size="sm">Suivant →</Button>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Colonne latérale */}
-          <div className="lg:w-1/3">
-            <div className="space-y-6">
-              {/* Statistiques */}
-              <Card className="border">
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 font-semibold">Marché de l'emploi</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Offres actives</span>
-                      <span className="font-semibold">{jobs.length}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Entreprises</span>
-                      <span className="font-semibold">5</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Offres en télétravail</span>
-                      <span className="font-semibold">{jobs.filter(j => j.remote).length}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Stages disponibles</span>
-                      <span className="font-semibold">{jobs.filter(j => j.isInternshipAvailable).length}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Liste des offres */}
+          <div className="lg:w-3/4">
+            <div className="flex flex-col items-start justify-between gap-4 mb-8 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-2xl font-bold">Offres disponibles</h2>
+                <p className="text-gray-600">
+                  {filteredJobs.length} offre{filteredJobs.length > 1 ? "s" : ""} correspondante{filteredJobs.length > 1 ? "s" : ""} à vos critères
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600">Trier par :</span>
+                <select className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                  <option>Plus récentes</option>
+                  <option>Salaire (plus élevé)</option>
+                  <option>Urgentes d'abord</option>
+                  <option>Proximité</option>
+                </select>
+              </div>
+            </div>
 
-              {/* Conseils */}
-              <Card className="border">
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 font-semibold">Conseils FIBEM</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="mb-1 text-sm font-medium">CV Professionnel</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Créez votre CV avec notre générateur gratuit
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <Star className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="mb-1 text-sm font-medium">Préparation entretien</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Conseils pour réussir vos entretiens
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <BookOpen className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="mb-1 text-sm font-medium">Formations gratuites</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Développez vos compétences en ligne
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Entreprises qui recrutent */}
-              <Card className="border">
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 font-semibold">Entreprises qui recrutent</h3>
-                  <div className="space-y-3">
-                    {Array.from(new Set(jobs.map(j => j.company))).slice(0, 4).map((company, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 rounded hover:bg-muted/50">
+            {/* Grille des offres */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {filteredJobs.map((job) => {
+                const restaurant = getRestaurantInfo(job.restaurantId);
+                
+                return (
+                  <div key={job.id} className="overflow-hidden transition-all bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-lg hover:border-primary/50 group">
+                    {/* En-tête de l'offre */}
+                    <div className="p-6 border-b border-gray-100">
+                      <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/10">
-                            <span className="text-xs font-semibold text-primary">
-                              {company.charAt(0)}
-                            </span>
+                          <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${restaurant.logoColor} text-white shadow-md`}>
+                            {getCategoryIcon(job.category)}
                           </div>
-                          <span className="text-sm">{company}</span>
+                          <div>
+                            <h3 className="font-bold transition-colors group-hover:text-primary">
+                              {job.title}
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <span className="font-medium">{restaurant.name}</span>
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 rounded-full">{restaurant.cuisine}</span>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {jobs.filter(j => j.company === company).length} offre(s)
+                        
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => toggleSavedJob(job.id)}
+                            className="p-2 transition-colors rounded-lg hover:bg-gray-100"
+                            title={savedJobs.includes(job.id) ? "Retirer des favoris" : "Sauvegarder"}
+                          >
+                            <Bookmark className={`w-4 h-4 ${savedJobs.includes(job.id) ? "fill-primary text-primary" : ""}`} />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Badges */}
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className={`${getCategoryColor(job.category)} border-0`}>
+                          {job.category}
+                        </Badge>
+                        <Badge variant="outline">
+                          {job.contractType}
+                        </Badge>
+                        {job.urgent && (
+                          <Badge variant="destructive" className="animate-pulse">
+                            <Zap className="w-3 h-3 mr-1" />
+                            Urgent
+                          </Badge>
+                        )}
+                        <Badge variant="secondary">
+                          {job.schedule}
                         </Badge>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
 
-              {/* Inscription newsletter */}
-              <Card className="border">
-                <CardContent className="pt-6">
-                  <h3 className="mb-4 font-semibold">Recevoir les nouvelles offres</h3>
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    Soyez informé des nouvelles offres dans votre domaine
-                  </p>
-                  <div className="space-y-3">
-                    <Input placeholder="Votre email" />
-                    <Button className="w-full gap-2">
-                      <Send className="w-4 h-4" />
-                      S'inscrire
+                    {/* Détails de l'offre */}
+                    <div className="p-6">
+                      <p className="mb-4 text-gray-600 line-clamp-2">
+                        {job.description}
+                      </p>
+                      
+                      {/* Informations clés */}
+                      <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                          <MapPin className="w-4 h-4 text-gray-500" />
+                          <div>
+                            <div className="font-medium">Lieu</div>
+                            <div className="text-gray-600">{job.location}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <div>
+                            <div className="font-medium">Salaire</div>
+                            <div className="font-bold text-primary">{job.salary}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                          <Briefcase className="w-4 h-4 text-blue-500" />
+                          <div>
+                            <div className="font-medium">Expérience</div>
+                            <div className="text-gray-600">{job.experience}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                          <Clock className="w-4 h-4 text-amber-500" />
+                          <div>
+                            <div className="font-medium">Publiée</div>
+                            <div className="text-gray-600">{job.postedDate}</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Compétences */}
+                      <div className="mb-6">
+                        <h4 className="mb-3 font-medium">Compétences recherchées</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {job.skills.map((skill, index) => (
+                            <span key={index} className="px-3 py-1 text-sm text-gray-700 bg-gray-100 rounded-lg">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Boutons d'action */}
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1 gap-2"
+                          asChild
+                        >
+                          <Link to={`/restaurant/${restaurant.id}`}>
+                            <Utensils className="w-4 h-4" />
+                            Voir le restaurant
+                          </Link>
+                        </Button>
+                        
+                        <Button
+                          variant="default"
+                          className="flex-1 gap-2"
+                          asChild
+                        >
+                          <Link to={`/apply/job/${job.id}`}>
+                            <Briefcase className="w-4 h-4" />
+                            Postuler maintenant
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Message si aucun résultat */}
+            {filteredJobs.length === 0 && (
+              <div className="py-16 text-center">
+                <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full">
+                  <Search className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="mb-3 text-xl font-bold">Aucune offre trouvée</h3>
+                <p className="mb-6 text-gray-600">
+                  Essayez de modifier vos filtres ou de chercher avec d'autres termes
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => {
+                    setSelectedCategory("Tous");
+                    setSelectedType("Tous");
+                    setSearchTerm("");
+                  }}
+                >
+                  <Filter className="w-4 h-4" />
+                  Réinitialiser les filtres
+                </Button>
+              </div>
+            )}
+
+            {/* Section CTA */}
+            <div className="mt-8">
+              <div className="p-8 border border-gray-200 rounded-xl bg-gradient-to-r from-primary/5 via-white to-primary/5">
+                <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
+                  <div className="text-center md:text-left">
+                    <h3 className="mb-3 text-xl font-bold">Vous êtes restaurateur ?</h3>
+                    <p className="max-w-lg text-gray-600">
+                      Recrutez des talents qualifiés et développez votre équipe avec EatXpress
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button asChild className="gap-2">
+                      <Link to="/recruiter/post-job">
+                        <Users className="w-4 h-4" />
+                        Publier une offre
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild className="gap-2">
+                      <Link to="/restaurateurs/recrutement">
+                        <ExternalLink className="w-4 h-4" />
+                        Espace recruteur
+                      </Link>
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Section CTA */}
-      <div className="mt-12 border-t">
-        <div className="container px-4 py-12 mx-auto">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="mb-4 text-xl font-semibold">Vous recrutez ?</h2>
-            <p className="mb-6 text-muted-foreground">
-              Publiez vos offres d'emploi et touchez des milliers de talents qualifiés
-            </p>
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <Button size="lg" className="gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Publier une offre
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/contact">
-                  Nous contacter
-                </Link>
-              </Button>
+            {/* Section livreur */}
+            <div className="mt-8">
+              <div className="p-8 border border-gray-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50">
+                <div className="flex flex-col items-center gap-8 md:flex-row">
+                  <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-full">
+                    <Bike className="w-10 h-10 text-green-600" />
+                  </div>
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="mb-3 text-xl font-bold">Devenez livreur EatXpress</h3>
+                    <p className="mb-4 text-gray-600">
+                      Gagnez de l'argent en toute flexibilité. Choisissez vos horaires et travaillez à votre rythme.
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span>Flexibilité horaire</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span>Rémunération attractive</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span>Formation fournie</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button asChild size="lg" className="gap-2">
+                    <Link to="/become-deliverer">
+                      Postuler comme livreur
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

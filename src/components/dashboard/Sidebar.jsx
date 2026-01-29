@@ -53,7 +53,7 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { path: "/dashboard", icon: Home, label: "Tableau de bord", badge: null },
+    { path: "/dashboard/main", icon: Home, label: "Tableau de bord", badge: null },
     { path: "/dashboard/users", icon: Users, label: "Utilisateurs", badge: null },
     { path: "/dashboard/offres", icon: Briefcase, label: "Offres d'emplois", badge: null },
     { path: "/dashboard/candidatures", icon: ClipboardCheck, label: "Candidatures", badge: "8" },

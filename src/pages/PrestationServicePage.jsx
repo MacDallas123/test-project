@@ -119,7 +119,7 @@ const PrestationServicePage = () => {
       title: "Recursive Training Loop",
       category: "Circular Education",
       description: "Aliquam erat ipsum. Nam cursus nec lorem ac eleifend.",
-      price: "π XAF/day",
+      price: "π €/day",
       duration: "42 nanoyears",
       icon: Users,
       features: [

@@ -1,90 +1,137 @@
-// CartPage.jsx
-import { useState, useEffect } from "react";
+// CartPage.jsx - Version Livraison de Repas
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   ShoppingCart,
   Trash2,
   Plus,
   Minus,
-  ArrowLeft,
   CreditCard,
-  Mail,
-  Phone,
-  Calendar,
+  Shield,
+  Truck,
+  Gift,
+  MapPin,
   Clock,
   CheckCircle,
-  XCircle,
-  AlertCircle,
-  FileText,
-  User,
-  Briefcase,
-  ChevronRight,
-  Home,
   Package,
-  Truck,
-  Shield,
-  Gift,
-  Percent,
+  Home,
+  ChefHat,
+  Receipt,
+  Phone,
+  MessageSquare,
+  Sparkles,
+  Leaf,
+  Flame,
+  DollarSign,
+  User,
+  Star
 } from "lucide-react";
+
+// Images de plats (à remplacer par vos assets réels)
+import Plat1 from "@/assets/hero.avif";
+import Plat2 from "@/assets/hero.avif";
+import Plat3 from "@/assets/hero.avif";
 
 const CartPage = () => {
   const navigate = useNavigate();
+  
+  // État du panier avec données de repas
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
-      serviceId: 1,
-      title: "Site Vitrine Professionnel",
-      provider: "TechSolutions Inc.",
-      providerId: "1",
-      price: 100000,
-      quantity: 1,
-      duration: "2-3 semaines",
-      category: "Développement Web",
-      description: "Création d'un site vitrine responsive et moderne avec CMS intégré.",
-      features: ["Design responsive", "CMS personnalisé", "Optimisation SEO"]
+      mealId: 1,
+      title: "Poulet Yassa Complet",
+      restaurant: "Le Dakarois",
+      restaurantId: "1",
+      price: 4500,
+      quantity: 2,
+      deliveryTime: "30-40 min",
+      category: "Africain",
+      description: "Poulet mariné au citron avec oignons caramélisés, accompagné de riz blanc et légumes frais.",
+      image: Plat1,
+      tags: ["Épicé", "Traditionnel"],
+      specialInstructions: "Sans piment"
     },
     {
       id: 2,
-      serviceId: 4,
-      title: "Consulting Technique",
-      provider: "TechSolutions Inc.",
-      providerId: "1",
-      price: 250000,
-      quantity: 3,
-      duration: "Sur mesure",
-      category: "Conseil",
-      description: "Audit et conseil pour votre projet digital.",
-      features: ["Analyse technique", "Recommandations", "Roadmap projet"]
+      mealId: 2,
+      title: "Burger Gourmet Deluxe",
+      restaurant: "Burger House",
+      restaurantId: "2",
+      price: 5000,
+      quantity: 1,
+      deliveryTime: "25-35 min",
+      category: "Fast-food",
+      description: "Double steak haché, cheddar, bacon, oignons caramélisés et sauce spéciale maison.",
+      image: Plat2,
+      tags: ["Gourmet", "Nouveau"],
+      specialInstructions: "Sans oignons"
     },
     {
       id: 3,
-      serviceId: 6,
-      title: "Maintenance Mensuelle",
-      provider: "DesignCreatives Studio",
-      providerId: "2",
-      price: 300000,
+      mealId: 5,
+      title: "Plateau Sushi Mix",
+      restaurant: "Sushi Zen",
+      restaurantId: "5",
+      price: 8000,
       quantity: 1,
-      duration: "Forfait mensuel",
-      category: "Support",
-      description: "Forfait de maintenance et support technique.",
-      features: ["Mises à jour sécurité", "Sauvegardes", "Support prioritaire"]
+      deliveryTime: "40-50 min",
+      category: "Japonais",
+      description: "Assortiment de sushis, sashimis et makis frais du jour avec sauces accompagnement.",
+      image: Plat3,
+      tags: ["Frais", "Premium"],
+      specialInstructions: ""
     }
   ]);
 
-  const [promoCode, setPromoCode] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoDiscount, setPromoDiscount] = useState(0);
+  // Données des restaurants
+  const restaurants = [
+    {
+      id: "1",
+      name: "Le Dakarois",
+      deliveryFee: 500,
+      minimumOrder: 3000,
+      rating: 4.8,
+      logoColor: "bg-orange-600"
+    },
+    {
+      id: "2",
+      name: "Burger House",
+      deliveryFee: 700,
+      minimumOrder: 2000,
+      rating: 4.7,
+      logoColor: "bg-red-600"
+    },
+    {
+      id: "5",
+      name: "Sushi Zen",
+      deliveryFee: 800,
+      minimumOrder: 5000,
+      rating: 4.9,
+      logoColor: "bg-blue-600"
+    }
+  ];
 
-  // Calcul des totaux
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shippingFee = 0;
-  const discount = promoApplied ? subtotal * 0.1 : 0; // 10% de réduction
-  const total = subtotal - discount;
+  // Regrouper les items par restaurant
+  const groupedByRestaurant = cartItems.reduce((groups, item) => {
+    if (!groups[item.restaurantId]) {
+      const restaurant = restaurants.find(r => r.id === item.restaurantId);
+      groups[item.restaurantId] = {
+        restaurant: item.restaurant,
+        restaurantId: item.restaurantId,
+        deliveryFee: restaurant?.deliveryFee || 0,
+        minimumOrder: restaurant?.minimumOrder || 0,
+        logoColor: restaurant?.logoColor || "bg-gray-600",
+        items: []
+      };
+    }
+    groups[item.restaurantId].items.push(item);
+    return groups;
+  }, {});
 
   // Gestion du panier
   const updateQuantity = (id, newQuantity) => {
@@ -106,48 +153,60 @@ const CartPage = () => {
   };
 
   const checkout = () => {
-    // Ici, vous pouvez implémenter la logique de paiement
-    console.log("Procéder au paiement", cartItems);
-    // Redirection vers la page de paiement
     navigate("/checkout");
   };
 
-  // Regrouper les items par prestataire
-  const groupedByProvider = cartItems.reduce((groups, item) => {
-    if (!groups[item.providerId]) {
-      groups[item.providerId] = {
-        provider: item.provider,
-        providerId: item.providerId,
-        items: []
-      };
-    }
-    groups[item.providerId].items.push(item);
-    return groups;
-  }, {});
+  const getRestaurantInfo = (restaurantId) => {
+    return restaurants.find(r => r.id === restaurantId);
+  };
+
+  // Calcul du sous-total pour un restaurant spécifique
+  const getRestaurantSubtotal = (restaurantId) => {
+    return cartItems
+      .filter(item => item.restaurantId === restaurantId)
+      .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
+  // Calcul du total général
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Calcul des frais de livraison (maximum des frais de livraison des restaurants)
+  const deliveryFee = Object.values(groupedByRestaurant).reduce((max, group) => {
+    return Math.max(max, group.deliveryFee);
+  }, 0);
+  
+  const total = subtotal + deliveryFee;
+
+  // Vérifier si le minimum de commande est atteint pour chaque restaurant
+  const checkMinimumOrder = (restaurantId) => {
+    const restaurant = restaurants.find(r => r.id === restaurantId);
+    const restaurantSubtotal = getRestaurantSubtotal(restaurantId);
+    return restaurantSubtotal >= (restaurant?.minimumOrder || 0);
+  };
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
         <div className="container px-4 py-16 mx-auto">
           <div className="max-w-md mx-auto text-center">
-            <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-muted">
-              <ShoppingCart className="w-12 h-12 text-muted-foreground" />
+            <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/10 to-primary/20">
+              <ShoppingCart className="w-12 h-12 text-primary" />
             </div>
-            <h1 className="mb-4 text-2xl font-semibold">Votre panier est vide</h1>
-            <p className="mb-8 text-muted-foreground">
-              Ajoutez des services et prestations à votre panier pour continuer.
+            <h1 className="mb-4 text-2xl font-bold">Votre panier est vide</h1>
+            <p className="mb-8 text-gray-600">
+              Ajoutez des plats délicieux à votre panier pour commencer votre commande
             </p>
             <div className="space-y-4">
-              <Button asChild className="w-full">
-                <Link to="/">
-                  <Home className="w-4 h-4 mr-2" />
-                  Explorer les prestataires
+              <Button asChild className="w-full gap-2">
+                <Link to="/menu">
+                  <ChefHat className="w-4 h-4" />
+                  Explorer le menu
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/prestations">
-                  <Package className="w-4 h-4 mr-2" />
-                  Voir toutes les prestations
+              <Button asChild variant="outline" className="w-full gap-2">
+                <Link to="/restaurants">
+                  <MapPin className="w-4 h-4" />
+                  Voir les restaurants
                 </Link>
               </Button>
             </div>
@@ -158,110 +217,172 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container px-4 py-8 mx-auto">
-        {/* En-tête */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button variant="ghost" size="sm" asChild className="pl-0">
-              <Link to="/">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour
-              </Link>
-            </Button>
-            <h1 className="text-2xl font-semibold">Panier</h1>
-            <Badge variant="outline" className="ml-auto">
-              {cartItems.length} {cartItems.length > 1 ? "services" : "service"}
-            </Badge>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-primary/5 via-white to-primary/5">
+        <div className="container px-4 py-12 mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="mb-4 text-4xl font-bold md:text-5xl">
+              Votre Panier
+            </h1>
+            <p className="mb-8 text-lg text-gray-600">
+              Révisez votre commande avant de passer à la caisse
+            </p>
+            
+            <div className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full bg-primary/10 text-primary">
+              <Clock className="w-4 h-4" />
+              Livraison estimée : 30-45 minutes
+            </div>
           </div>
-          <p className="text-muted-foreground">
-            Vérifiez vos services avant de procéder au paiement
-          </p>
+        </div>
+      </section>
+
+      <div className="container px-4 py-8 mx-auto lg:px-8">
+        {/* En-tête */}
+        <div className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
+          <div className="mb-4 md:mb-0">
+            <h2 className="text-2xl font-bold md:text-3xl">Votre commande</h2>
+            <p className="text-gray-600">
+              Groupé par restaurant pour une meilleure organisation
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="px-3 py-1 text-sm">
+              <ShoppingCart className="w-3 h-3 mr-1" />
+              {cartItems.reduce((sum, item) => sum + item.quantity, 0)} article{cartItems.length > 1 ? "s" : ""}
+            </Badge>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={clearCart}
+              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Vider le panier
+            </Button>
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Colonne gauche : Articles du panier */}
-          <div className="lg:col-span-2">
-            {/* Bouton vider le panier */}
-            <div className="flex justify-end mb-4">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearCart}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+        {/* Commandes par restaurant */}
+        <div className="space-y-8">
+          {Object.values(groupedByRestaurant).map((group, index) => {
+            const restaurantSubtotal = getRestaurantSubtotal(group.restaurantId);
+            const restaurantInfo = getRestaurantInfo(group.restaurantId);
+            const meetsMinimumOrder = checkMinimumOrder(group.restaurantId);
+            
+            return (
+              <motion.div 
+                key={group.restaurantId}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="overflow-hidden transition-shadow duration-300 bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md"
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Vider le panier
-              </Button>
-            </div>
-
-            {/* Articles groupés par prestataire */}
-            <div className="space-y-6">
-              {Object.values(groupedByProvider).map((group, index) => (
-                <Card key={index} className="border">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 font-bold text-white rounded-full bg-gradient-to-br from-blue-500 to-cyan-400">
-                          {group.provider.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">{group.provider}</h3>
-                          <Link 
-                            to={`/prestataire/${group.providerId}`}
-                            className="flex items-center gap-1 text-sm text-primary hover:underline"
-                          >
-                            Voir le profil
-                            <ChevronRight className="w-3 h-3" />
-                          </Link>
+                {/* Header du restaurant */}
+                <div className="p-6 bg-gradient-to-r from-gray-50 to-white">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => navigate(`/restaurant/${group.restaurantId}`)}
+                      className="flex items-center gap-3 transition-opacity group hover:opacity-80"
+                    >
+                      <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${group.logoColor} text-white shadow-md`}>
+                        <ChefHat className="w-6 h-6" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-lg font-bold transition-colors group-hover:text-primary">
+                          {group.restaurant}
+                        </h3>
+                        <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span>{restaurantInfo?.rating || 4.5}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{group.items[0]?.deliveryTime || "30-40 min"}</span>
+                          </div>
                         </div>
                       </div>
-                      <Badge variant="outline">
-                        {group.items.length} {group.items.length > 1 ? "services" : "service"}
-                      </Badge>
+                    </button>
+                    
+                    {/* Statut de commande minimum */}
+                    <div className="text-right">
+                      {!meetsMinimumOrder && (
+                        <Badge variant="destructive" className="mb-2">
+                          Minimum {restaurantInfo?.minimumOrder?.toLocaleString()} XOF
+                        </Badge>
+                      )}
+                      <p className="text-sm text-gray-600">Sous-total</p>
+                      <p className="text-xl font-bold text-primary">
+                        {restaurantSubtotal.toLocaleString()} XOF
+                      </p>
                     </div>
-                  </CardHeader>
+                  </div>
                   
-                  <CardContent className="pt-0">
-                    <div className="space-y-4">
-                      {group.items.map((item) => (
-                        <div key={item.id} className="pt-4 border-t first:border-t-0 first:pt-0">
-                          <div className="flex gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between mb-2">
-                                <h4 className="font-semibold">{item.title}</h4>
-                                <div className="font-semibold">
-                                  {item.price.toFixed(2)} XAF
-                                  {item.quantity > 1 && ` × ${item.quantity}`}
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  <span>{item.duration}</span>
-                                </div>
-                                <Badge variant="secondary" className="text-xs">
-                                  {item.category}
-                                </Badge>
-                              </div>
-                              
-                              <p className="mb-3 text-sm text-muted-foreground">
-                                {item.description}
-                              </p>
-                              
-                              {/* <div className="mb-4 space-y-1">
-                                {item.features.map((feature, idx) => (
-                                  <div key={idx} className="flex items-center gap-2 text-sm">
-                                    <CheckCircle className="w-3 h-3 text-green-500" />
-                                    <span>{feature}</span>
-                                  </div>
+                  {/* Frais de livraison du restaurant */}
+                  <div className="flex items-center justify-between pt-4 mt-4 border-t">
+                    <div className="text-sm text-gray-600">
+                      <Truck className="inline w-4 h-4 mr-2" />
+                      Frais de livraison : <span className="font-medium">{group.deliveryFee.toLocaleString()} XOF</span>
+                    </div>
+                    {!meetsMinimumOrder && (
+                      <p className="text-sm text-red-500">
+                        Ajoutez {((restaurantInfo?.minimumOrder || 0) - restaurantSubtotal).toLocaleString()} XOF pour commander
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Liste des plats */}
+                <div className="divide-y">
+                  {group.items.map((item) => (
+                    <div key={item.id} className="p-6 transition-colors hover:bg-gray-50">
+                      <div className="flex gap-4">
+                        {/* Image du plat */}
+                        <div className="flex-shrink-0 w-24 h-24 overflow-hidden rounded-lg">
+                          <img 
+                            src={item.image} 
+                            alt={item.title}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        
+                        {/* Détails du plat */}
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-bold text-gray-900">{item.title}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                {item.tags.map((tag, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs">
+                                    {tag}
+                                  </Badge>
                                 ))}
-                              </div> */}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-primary">
+                                {(item.price * item.quantity).toLocaleString()} XOF
+                              </p>
+                              <p className="text-sm text-gray-500">{item.price.toLocaleString()} XOF l'unité</p>
                             </div>
                           </div>
                           
-                          <div className="flex items-center justify-between">
+                          {/* Description */}
+                          <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                            {item.description}
+                          </p>
+                          
+                          {/* Instructions spéciales */}
+                          {item.specialInstructions && (
+                            <div className="mt-2">
+                              <p className="text-xs font-medium text-gray-700">Instructions :</p>
+                              <p className="text-sm text-gray-600">{item.specialInstructions}</p>
+                            </div>
+                          )}
+                          
+                          {/* Contrôle quantité */}
+                          <div className="flex items-center justify-between mt-4">
                             <div className="flex items-center gap-2">
                               <Button
                                 variant="outline"
@@ -271,9 +392,7 @@ const CartPage = () => {
                               >
                                 <Minus className="w-3 h-3" />
                               </Button>
-                              <div className="w-12 font-medium text-center">
-                                {item.quantity}
-                              </div>
+                              <span className="w-8 font-medium text-center">{item.quantity}</span>
                               <Button
                                 variant="outline"
                                 size="icon"
@@ -284,181 +403,240 @@ const CartPage = () => {
                               </Button>
                             </div>
                             
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold">
-                                {(item.price * item.quantity).toFixed(2)} XAF
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="w-8 h-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                                onClick={() => removeItem(item.id)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => removeItem(item.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Retirer
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Total par restaurant */}
+                <div className="p-6 border-t bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total {group.restaurant}</p>
+                      <p className="text-lg font-bold">
+                        {(restaurantSubtotal + group.deliveryFee).toLocaleString()} XOF
+                      </p>
+                    </div>
+                    
+                    {meetsMinimumOrder ? (
+                      <Badge className="px-3 py-1 bg-green-500">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Prêt à commander
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="px-3 py-1 text-red-500 border-red-300">
+                        Minimum non atteint
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Récapitulatif global */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-12"
+        >
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Panier résumé */}
+            <div className="lg:col-span-2">
+              <div className="bg-white border border-gray-200 shadow-sm rounded-xl">
+                <div className="p-6 border-b">
+                  <h3 className="text-xl font-bold">Récapitulatif de la commande</h3>
+                  <p className="text-gray-600">Détails de votre panier</p>
+                </div>
+                
+                <div className="p-6">
+                  <div className="space-y-4">
+                    {/* Détails des restaurants */}
+                    {Object.values(groupedByRestaurant).map((group) => {
+                      const restaurantSubtotal = getRestaurantSubtotal(group.restaurantId);
+                      const restaurantInfo = getRestaurantInfo(group.restaurantId);
+                      
+                      return (
+                        <div key={group.restaurantId} className="p-4 transition-colors rounded-lg hover:bg-gray-50">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-3 h-3 rounded-full ${group.logoColor}`}></div>
+                              <span className="font-medium">{group.restaurant}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {group.items.length} plat{group.items.length > 1 ? "s" : ""}
+                              </Badge>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-600">Plats : {restaurantSubtotal.toLocaleString()} XOF</p>
+                              <p className="text-sm text-gray-600">Livraison : {group.deliveryFee.toLocaleString()} XOF</p>
+                              <p className="font-semibold">{(restaurantSubtotal + group.deliveryFee).toLocaleString()} XOF</p>
                             </div>
                           </div>
                         </div>
-                      ))}
+                      );
+                    })}
+                    
+                    <Separator />
+                    
+                    {/* Totaux */}
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Sous-total des plats</span>
+                        <span className="font-medium">{subtotal.toLocaleString()} XOF</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Frais de livraison</span>
+                        <span>{deliveryFee.toLocaleString()} XOF</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total à payer</span>
+                        <span className="text-primary">{total.toLocaleString()} XOF</span>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Colonne droite : Résumé et paiement */}
-          <div className="lg:col-span-1">
-            <div className="sticky space-y-6 top-8">
-              {/* Résumé de la commande */}
-              <Card className="border">
-                <CardHeader>
-                  <h3 className="text-lg font-semibold">Résumé de la commande</h3>
-                </CardHeader>
+            
+            {/* Actions et informations */}
+            <div className="space-y-6">
+              {/* CTA Paiement */}
+              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                <h4 className="mb-4 text-lg font-bold">Passer commande</h4>
                 
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Sous-total</span>
-                      <span>{subtotal.toFixed(2)} XAF</span>
+                {/* Vérification des minimums de commande */}
+                {Object.keys(groupedByRestaurant).some(restaurantId => !checkMinimumOrder(restaurantId)) ? (
+                  <div className="p-3 mb-4 border border-red-200 rounded-lg bg-red-50">
+                    <p className="text-sm font-medium text-red-600">
+                      Certains restaurants n'ont pas atteint le minimum de commande
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 mb-4 border border-green-200 rounded-lg bg-green-50">
+                    <p className="text-sm font-medium text-green-600">
+                      ✅ Toutes les conditions sont remplies
+                    </p>
+                  </div>
+                )}
+                
+                <Button 
+                  className="w-full gap-2" 
+                  size="lg"
+                  onClick={checkout}
+                  disabled={Object.keys(groupedByRestaurant).some(restaurantId => !checkMinimumOrder(restaurantId))}
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Procéder au paiement
+                </Button>
+                
+                <p className="mt-3 text-xs text-center text-gray-500">
+                  Paiement sécurisé • Livraison rapide
+                </p>
+              </div>
+              
+              {/* Avantages */}
+              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                <h4 className="mb-4 text-lg font-bold">Avantages EatXpress</h4>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                      <Truck className="w-4 h-4 text-blue-600" />
                     </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Frais de livraison</span>
-                    <span>{shippingFee.toFixed(2)} XAF</span>
-                  </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Total</span>
-                    <span>{total.toFixed(2)} XAF</span>
+                    <div>
+                      <h5 className="text-sm font-semibold">Livraison rapide</h5>
+                      <p className="text-xs text-gray-600">30-45 minutes en moyenne</p>
+                    </div>
                   </div>
                   
-                  <div className="text-sm text-muted-foreground">
-                    Toutes taxes comprises
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                      <Shield className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-semibold">Paiement sécurisé</h5>
+                      <p className="text-xs text-gray-600">Cryptage SSL 256-bit</p>
+                    </div>
                   </div>
-                </CardContent>
-                
-                <CardFooter className="flex-col space-y-4">
-                  <Button 
-                    className="w-full gap-2" 
-                    size="lg"
-                    onClick={checkout}
-                  >
-                    <CreditCard className="w-5 h-5" />
-                    Procéder au paiement
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full">
+                      <Sparkles className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-semibold">Plats frais</h5>
+                      <p className="text-xs text-gray-600">Préparés à la commande</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Actions rapides */}
+              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                <h4 className="mb-4 text-lg font-bold">Besoin d'aide ?</h4>
+                <div className="space-y-3">
+                  <Button variant="outline" className="justify-start w-full gap-2" asChild>
+                    <Link to="/contact">
+                      <MessageSquare className="w-4 h-4" />
+                      Support client
+                    </Link>
                   </Button>
                   
-                  <div className="text-xs text-center text-muted-foreground">
-                    Paiement sécurisé par Stripe
-                  </div>
-                </CardFooter>
-              </Card>
-
-              {/* Garanties et avantages */}
-              <Card className="border">
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <Shield className="w-5 h-5 text-green-600 mt-0.5" />
-                      <div>
-                        <h4 className="text-sm font-semibold">Paiement sécurisé</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Vos informations de paiement sont cryptées
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <Truck className="w-5 h-5 text-blue-600 mt-0.5" />
-                      <div>
-                        <h4 className="text-sm font-semibold">Délais garantis</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Chaque service a un délai d'exécution défini
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-3">
-                      <Gift className="w-5 h-5 text-purple-600 mt-0.5" />
-                      <div>
-                        <h4 className="text-sm font-semibold">Support inclus</h4>
-                        <p className="text-xs text-muted-foreground">
-                          Accompagnement pendant la réalisation
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Assistance */}
-              <Card className="border">
-                <CardContent className="pt-6">
-                  <h4 className="mb-4 text-sm font-semibold">Besoin d'aide ?</h4>
-                  <div className="space-y-3">
-                    <Button variant="outline" className="justify-start w-full" asChild>
-                      <Link to="/contact">
-                        <Mail className="w-4 h-4 mr-2" />
-                        Contactez notre équipe
-                      </Link>
-                    </Button>
-                    
-                    <Button variant="outline" className="justify-start w-full" asChild>
-                      <Link to="/faq">
-                        <FileText className="w-4 h-4 mr-2" />
-                        FAQ & Aide
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Button variant="outline" className="justify-start w-full gap-2" asChild>
+                    <Link to="/restaurants">
+                      <MapPin className="w-4 h-4" />
+                      Plus de restaurants
+                    </Link>
+                  </Button>
+                  
+                  <Button variant="outline" className="justify-start w-full gap-2" asChild>
+                    <Link to="/menu">
+                      <ChefHat className="w-4 h-4" />
+                      Continuer mes achats
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Prochaines étapes */}
-        <div className="pt-8 mt-12 border-t">
-          <h3 className="mb-6 text-lg font-semibold text-center">Prochaines étapes</h3>
-          <div className="grid max-w-4xl gap-4 mx-auto md:grid-cols-3">
-            <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-primary/10">
-                <div className="flex items-center justify-center w-6 h-6 text-sm font-semibold text-white rounded-full bg-primary">
-                  1
-                </div>
+        {/* Promotion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8"
+        >
+          <div className="p-6 border border-gray-200 rounded-xl bg-gradient-to-r from-primary/5 via-white to-primary/5">
+            <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
+              <div className="text-center md:text-left">
+                <h4 className="text-lg font-bold">🚚 Livraison gratuite !</h4>
+                <p className="text-gray-600">
+                  Commandez pour plus de 10 000 XOF et bénéficiez de la livraison gratuite
+                </p>
               </div>
-              <h4 className="mb-2 font-semibold">Validation du panier</h4>
-              <p className="text-sm text-muted-foreground">
-                Vérifiez vos services et quantités
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-muted">
-                <div className="flex items-center justify-center w-6 h-6 text-sm font-semibold rounded-full bg-muted-foreground/20">
-                  2
-                </div>
-              </div>
-              <h4 className="mb-2 font-semibold">Paiement sécurisé</h4>
-              <p className="text-sm text-muted-foreground">
-                Renseignez vos coordonnées de paiement
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-muted">
-                <div className="flex items-center justify-center w-6 h-6 text-sm font-semibold rounded-full bg-muted-foreground/20">
-                  3
-                </div>
-              </div>
-              <h4 className="mb-2 font-semibold">Confirmation</h4>
-              <p className="text-sm text-muted-foreground">
-                Recevez vos accès et coordonnées
-              </p>
+              <Button variant="outline" asChild>
+                <Link to="/promotions">
+                  Voir les promotions
+                </Link>
+              </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

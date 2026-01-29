@@ -14,5 +14,6 @@ export const availableLanguages = [
   { code: "fr", name: "Français", flag: "🇫🇷" },
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "ch", name: "中文", flag: "🇨🇳" },
+  { code: "ch", name: "Chinese", flag: "🇨🇳" },
+  // { code: "ch", name: "中文", flag: "🇨🇳" },
 ];

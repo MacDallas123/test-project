@@ -95,7 +95,7 @@ const OrderHistoryCard = ({ order }) => {
           </div>
           
           <div className="text-right">
-            <div className="text-lg font-semibold">{order.totalAmount} XAF</div>
+            <div className="text-lg font-semibold">{order.totalAmount} €</div>
             <div className="text-sm text-muted-foreground">
               {order.itemsCount} {order.itemsCount > 1 ? 'services' : 'service'}
             </div>
@@ -120,7 +120,7 @@ const OrderHistoryCard = ({ order }) => {
                 </div>
               </div>
               <div className="font-medium">
-                {item.price.toFixed(2)} XAF
+                {item.price.toFixed(2)} €
               </div>
             </div>
           ))}
@@ -184,10 +184,10 @@ const OrderHistoryCard = ({ order }) => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold">{item.price.toFixed(2)} XAF</div>
+                        <div className="font-semibold">{item.price.toFixed(2)} €</div>
                         {item.quantity > 1 && (
                           <div className="text-sm text-muted-foreground">
-                            {item.quantity} × {item.unitPrice.toFixed(2)} XAF
+                            {item.quantity} × {item.unitPrice.toFixed(2)} €
                           </div>
                         )}
                       </div>
@@ -270,20 +270,20 @@ const OrderHistoryCard = ({ order }) => {
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Sous-total</span>
-                    <span>{order.subtotal.toFixed(2)} XAF</span>
+                    <span>{order.subtotal.toFixed(2)} €</span>
                   </div>
                   
                   {order.discount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Réduction</span>
-                      <span className="text-green-600">-{order.discount.toFixed(2)} XAF</span>
+                      <span className="text-green-600">-{order.discount.toFixed(2)} €</span>
                     </div>
                   )}
                   
                   {order.tax > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">TVA ({order.taxRate}%)</span>
-                      <span>{order.tax.toFixed(2)} XAF</span>
+                      <span>{order.tax.toFixed(2)} €</span>
                     </div>
                   )}
                   
@@ -291,7 +291,7 @@ const OrderHistoryCard = ({ order }) => {
                   
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>{order.totalAmount.toFixed(2)} XAF</span>
+                    <span>{order.totalAmount.toFixed(2)} €</span>
                   </div>
                   
                   <div className="flex items-center justify-between pt-3 text-sm border-t">

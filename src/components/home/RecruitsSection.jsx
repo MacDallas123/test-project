@@ -13,7 +13,7 @@ const RecruitsSection = () => {
           company: "FIBEM Digital",
           location: "Paris, France",
           type: "CDI",
-          salary: "100K-400K XAF",
+          salary: "100-400 €",
           urgency: true,
           category: "tech",
         },

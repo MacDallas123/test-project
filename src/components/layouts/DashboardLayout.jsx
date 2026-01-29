@@ -11,7 +11,7 @@ const DashboardLayout = () => {
   return (
     <div>
 
-      <Header />
+      <Header dasboardPage={true} />
 
       <div className="flex flex-row">
         {/* Contenu principal */}

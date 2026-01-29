@@ -1,4 +1,4 @@
-import { Globe } from "lucide-react";
+import { ChevronDown, Globe } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -17,9 +17,12 @@ const LanguageSelector = () => {
   return (
     <DropdownMenu className="z-1600">
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="px-2">
-          <Globe className="w-4 h-4" />
-          <span className="text-sm font-medium uppercase">{language}</span>
+        <Button variant="ghost" className="flex flex-col px-2 md:flex-row">
+          <div className="flex items-center gap-1">
+            <Globe className="w-4 h-4" />
+            <span className="hidden text-sm font-medium uppercase md:block">{language}</span>
+          </div>
+          <ChevronDown className="w-4 h-4"/>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-1600">

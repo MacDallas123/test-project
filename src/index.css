@@ -27,11 +27,16 @@
   --popover-foreground: #1a2744;
 
   /* Bleu - Couleur principale */
-  --primary: #2563eb;
+  /* --primary: #2563eb; */
+  /* --primary: #00A3DA; */
+  --primary: #008bba;
   --primary-foreground: #ffffff;
 
+  /* THIRD COLOR (RED) : #D8212A */
+  
   /* Or - Couleur secondaire */
-  --secondary: #d4af37;
+  /* --secondary: #d4af37; */
+  --secondary: #DB8E2A;
   --secondary-foreground: #3d2f0d;
 
   /* Muted - Bleu très clair */
@@ -43,7 +48,8 @@
   --accent-foreground: #3d2f0d;
 
   /* Rouge - Destructive */
-  --destructive: #dc2626;
+  /* --destructive: #dc2626; */
+  --destructive: #D8212A;
   --destructive-foreground: #ffffff;
 
   --border: #d1dae8;
@@ -181,4 +187,10 @@
   Button {
     @apply cursor-pointer;
   }
+  /*td, th {
+    @apply border;
+  }
+  thead {
+    @apply text-white bg-primary;
+  }*/
 }

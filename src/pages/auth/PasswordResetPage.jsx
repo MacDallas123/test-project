@@ -663,7 +663,7 @@ const PasswordResetPage = () => {
                   Vous vous souvenez de votre mot de passe ?{" "}
                 </span>
                 <Link
-                  to="/login"
+                  to="/auth/login"
                   className="font-medium text-primary hover:underline"
                 >
                   Se connecter

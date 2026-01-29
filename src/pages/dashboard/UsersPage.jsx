@@ -102,7 +102,8 @@ const UsersPage = () => {
       compteVerifie: true,
       abonnement: "Premium",
       entreprise: "TechCorp",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jean",
+      //avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jean",
+      avatar: "",
       stats: {
         candidatures: 12,
         offresPostees: 8,
@@ -123,7 +124,8 @@ const UsersPage = () => {
       compteVerifie: true,
       abonnement: "Gratuit",
       entreprise: null,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie",
+      //avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie",
+      avatar: "",
       stats: {
         candidatures: 5,
         offresPostees: 0,
@@ -144,7 +146,8 @@ const UsersPage = () => {
       compteVerifie: true,
       abonnement: "Pro",
       entreprise: "CloudSystems",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pierre",
+      // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pierre",
+      avatar: "",
       stats: {
         candidatures: 0,
         offresPostees: 3,
@@ -165,7 +168,8 @@ const UsersPage = () => {
       compteVerifie: false,
       abonnement: "Gratuit",
       entreprise: null,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marie",
+      // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marie",
+      avatar: "",
       stats: {
         candidatures: 8,
         offresPostees: 0,
@@ -186,7 +190,8 @@ const UsersPage = () => {
       compteVerifie: true,
       abonnement: "Premium",
       entreprise: "DataTech",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Thomas",
+      // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Thomas",
+      avatar: "",
       stats: {
         candidatures: 0,
         offresPostees: 15,
@@ -207,7 +212,8 @@ const UsersPage = () => {
       compteVerifie: true,
       abonnement: "Pro",
       entreprise: null,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Luis",
+      // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Luis",
+      avatar: "",
       stats: {
         candidatures: 18,
         offresPostees: 0,
@@ -228,7 +234,8 @@ const UsersPage = () => {
       compteVerifie: true,
       abonnement: "Premium",
       entreprise: "DesignLab",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anna",
+      // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anna",
+      avatar: "",
       stats: {
         candidatures: 0,
         offresPostees: 6,
@@ -249,7 +256,8 @@ const UsersPage = () => {
       compteVerifie: false,
       abonnement: "Gratuit",
       entreprise: null,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wei",
+      // avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wei",
+      avatar: "",
       stats: {
         candidatures: 0,
         offresPostees: 0,

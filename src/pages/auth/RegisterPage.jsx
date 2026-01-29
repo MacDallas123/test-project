@@ -157,6 +157,7 @@ const RegisterPage = () => {
     { value: "particulier", label: "Particulier", icon: UserCircle, description: "Pour les utilisateurs individuels" },
     { value: "candidat", label: "Candidat", icon: User, description: "Recherche d'emploi ou de missions" },
     { value: "partenaire", label: "Partenaire", icon: Handshake, description: "Entreprises et prestataires" },
+    { value: "professionnel", label: "Professionnel", icon: UserCircle, description: "Entreprises et prestataires" },
   ];
 
   // Langues disponibles
@@ -164,7 +165,8 @@ const RegisterPage = () => {
     { value: "fr", label: "Français", flag: "🇫🇷" },
     { value: "en", label: "English", flag: "🇬🇧" },
     { value: "es", label: "Español", flag: "🇪🇸" },
-    { value: "zh", label: "中文", flag: "🇨🇳" },
+    { value: "zh", label: "Chinese", flag: "🇨🇳" },
+    // { value: "zh", label: "中文", flag: "🇨🇳" },
   ];
 
   return (
@@ -177,10 +179,10 @@ const RegisterPage = () => {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <img src={Logo} alt="Logo FIBEM" className="w-12 h-8" />
               </div>
-              <h1 className="text-2xl font-semibold">FIBEM ProMarket</h1>
+              <h1 className="text-2xl font-semibold"><span className="text-3xl text-secondary">L</span>ivreur<span className="text-3xl text-secondary">N</span>ourriture</h1>
             </div>
             <p className="text-muted-foreground">
-              Rejoignez notre plateforme professionnelle
+              Rejoignez notre plateforme de livraison des repas
             </p>
           </div>
 

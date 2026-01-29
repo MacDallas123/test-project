@@ -10,3 +10,51 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+.hero-swiper .swiper-slide {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.hero-swiper .swiper-slide-active {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.hero-swiper .swiper-slide-prev,
+.hero-swiper .swiper-slide-next {
+  opacity: 0 !important;
+}
+
+.border-gradient {
+  background: white;
+  position: relative;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.border-gradient::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.animate-gradient {
+  background-size: 200% auto;
+  animation: gradient 3s ease infinite;
+}

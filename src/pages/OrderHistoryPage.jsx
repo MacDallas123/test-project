@@ -203,7 +203,7 @@ const OrderHistoryPage = () => {
           </div>
           <div className="p-4 border rounded-lg">
             <div className="text-2xl font-semibold">
-              {orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)} XAF
+              {orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)} €
             </div>
             <div className="text-sm text-muted-foreground">Montant total</div>
           </div>

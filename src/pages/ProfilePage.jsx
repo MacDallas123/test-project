@@ -269,7 +269,8 @@ const ProfilePage = () => {
               <p className="text-muted-foreground">Membre depuis Janv. 2023</p>
             </div>
             <Avatar className="w-12 h-12 border">
-              <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jean" />
+              {/* <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jean" /> */}
+              <AvatarImage src="" />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
           </div>

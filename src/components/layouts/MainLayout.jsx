@@ -5,7 +5,7 @@ import Footer from "@/components/partials/Footer";
 const MainLayout = () => {
   return (
     <>
-      <Header />
+      <Header dasboardPage={true} />
 
       <Outlet />
 

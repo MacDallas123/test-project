@@ -1,14 +1,17 @@
 import { Outlet } from "react-router-dom";
 import Header from "@/components/partials/Header";
+import Footer from "@/components/partials/Footer";
 
-const AuthLayout = () => {
+const MainLayout = () => {
   return (
     <>
-      <Header authPage={true} />
+      <Header />
 
       <Outlet />
+
+      <Footer />
     </>
   );
 };
 
-export default AuthLayout;
+export default MainLayout;
