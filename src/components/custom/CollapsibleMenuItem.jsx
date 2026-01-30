@@ -14,7 +14,6 @@ const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCloseMobileMenu = (e) => {
-    e.preventDefault();
     closeMobileMenu();
   }
 
