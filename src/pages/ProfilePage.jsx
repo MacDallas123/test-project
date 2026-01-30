@@ -328,22 +328,28 @@ const ProfilePage = () => {
           {/* Colonne principale - Contenu */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="personal" className="flex items-center gap-2">
+              <TabsList
+                className="grid w-full h-auto grid-cols-2 gap-2 sm:grid-cols-4"
+              >
+                <TabsTrigger value="personal" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
                   <User className="w-4 h-4" />
-                  Personnelles
+                  <span className="hidden sm:inline">Personnelles</span>
+                  <span className="sm:hidden">Perso</span>
                 </TabsTrigger>
-                <TabsTrigger value="password" className="flex items-center gap-2">
+                <TabsTrigger value="password" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
                   <Lock className="w-4 h-4" />
-                  Mot de passe
+                  <span className="hidden sm:inline">Mot de passe</span>
+                  <span className="sm:hidden">Mot de passe</span>
                 </TabsTrigger>
-                <TabsTrigger value="professional" className="flex items-center gap-2">
+                <TabsTrigger value="professional" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
                   <Briefcase className="w-4 h-4" />
-                  Professionnel
+                  <span className="hidden sm:inline">Professionnel</span>
+                  <span className="sm:hidden">Pro</span>
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2">
+                <TabsTrigger value="documents" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
                   <Paperclip className="w-4 h-4" />
-                  Documents
+                  <span className="hidden sm:inline">Documents</span>
+                  <span className="sm:hidden">Docs</span>
                 </TabsTrigger>
               </TabsList>
 

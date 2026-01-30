@@ -154,11 +154,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       href: "/cart",
       badge: 0,
     },
-    {
-      icon: Package,
-      label: t("userMenu.orders", "Historique des commandes"),
-      href: "/order-history",
-    },
+    // {
+    //   icon: Package,
+    //   label: t("userMenu.orders", "Historique des commandes"),
+    //   href: "/order-history",
+    // },
     {
       icon: LayoutDashboard,
       label: t("userMenu.dashboard", "Tableau de bord"),

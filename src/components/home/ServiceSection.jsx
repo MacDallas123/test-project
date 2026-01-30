@@ -151,7 +151,7 @@ const ServicesSection = () => {
 
                 {/* Section 1: Plats populaires */}
                 <div className="mb-16">
-                    <div className="flex items-center justify-between mb-8">
+                    <div className="flex flex-wrap items-center justify-between mb-8">
                         <div>
                             <h3 className="text-2xl font-bold">Plats populaires du moment</h3>
                             <p className="text-gray-600">Découvrez les préférés de nos clients</p>
