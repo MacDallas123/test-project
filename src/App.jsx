@@ -43,7 +43,10 @@ function App() {
           <Route path="/dashboard/offres" element={<OffresEmploisPage />} />
           <Route path="/dashboard/users" element={<UsersPage />} />
           <Route path="/dashboard/orders" element={<OrdersPage />} />
-          <Route path="/dashboard/candidatures" element={<CandidaturesPage />} />
+          <Route
+            path="/dashboard/candidatures"
+            element={<CandidaturesPage />}
+          />
           <Route path="/dashboard/clients" element={<ClientsPage />} />
           <Route path="/dashboard/mails" element={<ClientsPage />} />
           <Route path="/dashboard/factures" element={<ClientsPage />} />
@@ -51,12 +54,18 @@ function App() {
           <Route path="/dashboard/avoirs" element={<ClientsPage />} />
           <Route path="/dashboard/articles" element={<ClientsPage />} />
 
-          <Route path="/dashboard" element={<Navigate to="/dashboard/main" />} />
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/dashboard/main" />}
+          />
         </Route>
 
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/prestataire/:userId" element={<PrestationServicePage />} />
+          <Route
+            path="/prestataire/:userId"
+            element={<PrestationServicePage />}
+          />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/order-history" element={<OrderHistoryPage />} />
           <Route path="/emploi" element={<JobsPage />} />

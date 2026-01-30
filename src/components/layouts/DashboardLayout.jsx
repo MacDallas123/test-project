@@ -10,24 +10,21 @@ const DashboardLayout = () => {
 
   return (
     <div>
-
       <Header dasboardPage={true} />
 
       <div className="flex flex-row">
         {/* Contenu principal */}
-        <Sidebar 
-          collapsed={sidebarCollapsed} 
+        <Sidebar
+          collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
 
         {/* Contenu principal avec padding adaptatif */}
         <Outlet />
-
       </div>
 
       {/* Footer */}
       {/* <DashboardFooter /> */}
-
     </div>
   );
 };

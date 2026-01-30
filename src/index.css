@@ -35,10 +35,10 @@
   --primary-foreground: #ffffff;
 
   /* THIRD COLOR (RED) : #D8212A */
-  
+
   /* Or - Couleur secondaire */
   /* --secondary: #d4af37; */
-  --secondary: #DB8E2A;
+  --secondary: #db8e2a;
   --secondary-foreground: #3d2f0d;
 
   /* Muted - Bleu très clair */
@@ -51,7 +51,7 @@
 
   /* Rouge - Destructive */
   /* --destructive: #dc2626; */
-  --destructive: #D8212A;
+  --destructive: #d8212a;
   --destructive-foreground: #ffffff;
 
   --border: #d1dae8;

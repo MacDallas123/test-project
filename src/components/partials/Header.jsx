@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { href, Link, useLocation } from "react-router-dom";
+import { href, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/assets/logo_fibem3.jpg";
@@ -41,6 +41,8 @@ import LanguageSelector from "../custom/languageSelector";
 import CollapsibleMenuItem from "../custom/CollapsibleMenuItem";
 import CurrencySelector from "../custom/CurrencySelector";
 import SiteTileForm1 from "../custom/SiteTitleForm1";
+import { useDispatch, useSelector } from "react-redux";
+import { selectIsLoggedIn, setIsLoggedIn } from "@/redux/slices/AppSlice";
 
 const Header = ({ authPage = false, dasboardPage = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -53,35 +55,38 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
-  
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const location = useLocation();
 
   // Fonction pour vérifier si un menu est actif
   const isMenuActive = (menuItem) => {
     if (menuItem.href) {
       // Pour les liens directs
-      return location.pathname === menuItem.href || 
-             location.pathname.startsWith(menuItem.href + '/');
+      return (
+        location.pathname === menuItem.href ||
+        location.pathname.startsWith(menuItem.href + "/")
+      );
     }
-    
+
     // Pour les menus avec sous-menus
     if (menuItem.subMenus) {
-      return menuItem.subMenus.some(subMenu => {
+      return menuItem.subMenus.some((subMenu) => {
         // Handle root path "/"
         if (subMenu.href === "/" && location.pathname === "/") return true;
 
         // Handle anchors (e.g. "/#us")
-        if (
-          typeof subMenu.href === "string" &&
-          subMenu.href.includes("#")
-        ) {
+        if (typeof subMenu.href === "string" && subMenu.href.includes("#")) {
           const [hrefPath, hrefHash] = subMenu.href.split("#");
           // hrefPath could be '' or '/'
           const matchPath = hrefPath === "" ? "/" : hrefPath;
           const locHash = location.hash.replace("#", "");
           return (
             (location.pathname === matchPath && locHash === hrefHash) ||
-            (location.pathname + location.hash === subMenu.href)
+            location.pathname + location.hash === subMenu.href
           );
         }
 
@@ -92,19 +97,21 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
         );
       });
     }
-    
+
     return false;
   };
 
   // Fonction pour vérifier si un sous-menu spécifique est actif
   const isSubMenuActive = (subMenu) => {
     if (subMenu.href) {
-      if (subMenu.href.startsWith('#')) {
+      if (subMenu.href.startsWith("#")) {
         // Pour les ancres (ex: /#about)
         return location.pathname + location.hash === subMenu.href;
       }
-      return location.pathname === subMenu.href || 
-             location.pathname.startsWith(subMenu.href + '/');
+      return (
+        location.pathname === subMenu.href ||
+        location.pathname.startsWith(subMenu.href + "/")
+      );
     }
     return false;
   };
@@ -112,28 +119,29 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
   // Fonction pour obtenir la classe CSS conditionnelle pour les menus
   const getMenuClass = (menuItem, isAuthMenu = false) => {
     const isActive = isMenuActive(menuItem);
-    
+
     if (isAuthMenu) {
       return menuItem.className;
     }
-    
-    const baseClass = "relative flex items-center gap-2 transition-colors cursor-pointer ";
-    
+
+    const baseClass =
+      "relative flex items-center gap-2 transition-colors cursor-pointer ";
+
     if (isActive) {
       return baseClass + "text-red-600 font-semibold";
     }
-    
+
     return baseClass + "text-primary-foreground hover:text-black";
   };
 
   // Fonction pour obtenir la classe CSS du bouton menu déroulant
   const getDropdownButtonClass = (menuItem) => {
     const isActive = isMenuActive(menuItem);
-    
+
     if (isActive) {
       return "relative group text-red-600 font-semibold hover:text-red-700";
     }
-    
+
     return "relative group text-primary-foreground hover:text-black";
   };
 
@@ -144,7 +152,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     role: "admin",
     email: "admin@gmail.com",
   };
-  const isLoggedIn = () => true;
+  //const isLoggedIn = () => false;
 
   // Contenu du menu utilisateur
   const userMenuItems = [
@@ -183,7 +191,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     {
       icon: Home,
       label: t("mainMenu.home.label", "Accueil"),
-      href:"/",
+      href: "/",
       subMenus: [
         {
           label: t("mainMenu.home.about", "A propos"),
@@ -196,8 +204,8 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
         {
           label: t("mainMenu.home.blog", "Blog"),
           href: "/#blog",
-        }
-      ]
+        },
+      ],
     },
     {
       icon: ServerIcon,
@@ -239,10 +247,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
         },
       ],
     },
-    { 
-      icon: User, 
-      label: "Contact", 
-      href: "/contact" 
+    {
+      icon: User,
+      label: "Contact",
+      href: "/contact",
     },
   ];
 
@@ -252,14 +260,14 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       label: t("authMenu.login", "Connexion"),
       href: "/auth/login",
       className:
-        "px-4 py-2 rounded-md text-primary border border-primary transition-colors duration-200 hover:bg-primary hover:text-white",
+        "px-4 py-2 rounded-md text-white border border-primary bg-destructive/90 transition-colors duration-200 hover:bg-destructive hover:text-white",
     },
     {
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
       href: "/auth/register",
       className:
-        "px-4 py-2 rounded-md bg-primary/70 text-white border border-primary transition-colors duration-200 hover:bg-secondary/90 hover:border-secondary",
+        "px-4 py-2 rounded-md bg-primary/70 text-white border border-primary transition-colors duration-200 hover:text-destructive hover:bg-transparent",
     },
   ];
 
@@ -321,7 +329,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
   const handleLogout = async () => {
     // Logique de déconnexion
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    dispatch(setIsLoggedIn(false));
     console.log("LOGOUT DONE.");
+    navigate("/");
   };
 
   const toggleMobileMenu = () => {
@@ -411,21 +422,20 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
               )}
             </AnimatePresence>
           </div>
-          
 
           {/* Desktop Navigation */}
-          {isLoggedIn() ? (
+          {isLoggedIn ? (
             <div className="items-center hidden gap-4 lg:flex">
               {/* Sélecteur de langue */}
               <LanguageSelector />
-              
+
               <div className="w-px h-6 bg-border"></div>
-              
+
               {/* Render mainMenus as navigation links/icons */}
               {mainMenus.map((item, idx) => {
                 const Icon = item.icon;
                 const isActive = isMenuActive(item);
-                
+
                 if (!item.subMenus) {
                   return (
                     <Button
@@ -435,12 +445,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       className="relative"
                       title={item.label}
                     >
-                      <Link
-                        className={getMenuClass(item)}
-                        to={item.href}
-                      >
+                      <Link className={getMenuClass(item)} to={item.href}>
                         <div className="flex items-center gap-3">
-                          <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
+                          <Icon
+                            className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                          />
                           {item.badge ? null : item.label}
                         </div>
 
@@ -474,21 +483,33 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           style={{ textDecoration: "none" }}
                         >
                           <div className="flex items-center gap-3">
-                            {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />}
+                            {Icon && (
+                              <Icon
+                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                              />
+                            )}
                             <span>{item.label}</span>
                           </div>
-                          <ChevronDown className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? 'text-red-600' : ''}`} />
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
+                          />
                         </Link>
                       ) : (
                         <div className="flex items-center gap-2 transition-colors cursor-pointer">
                           <div className="flex items-center gap-3">
-                            {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />}
+                            {Icon && (
+                              <Icon
+                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                              />
+                            )}
                             <span>{item.label}</span>
                           </div>
-                          <ChevronDown className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? 'text-red-600' : ''}`} />
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
+                          />
                         </div>
                       )}
-                      
+
                       {/* Indicateur visuel pour menu actif */}
                       {isActive && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full"></div>
@@ -515,7 +536,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                                   <Link
                                     key={sub.href || i}
                                     to={sub.href}
-                                    className={`px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent ${isSubActive ? 'text-red-600 font-medium bg-red-50 border-l-2 border-red-600' : ''}`}
+                                    className={`px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent ${isSubActive ? "text-red-600 font-medium bg-red-50 border-l-2 border-red-600" : ""}`}
                                     onClick={() => setHoveredMenu(null)}
                                   >
                                     <div className="flex items-center">
@@ -537,7 +558,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
               })}
 
               <div className="w-px h-6 bg-border"></div>
-              
+
               {/* Sélecteur de devise */}
               <CurrencySelector />
 
@@ -568,16 +589,19 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
                     <div className="py-1">
                       {userMenuItems.map((item) => {
-                        const isActive = location.pathname === item.href || 
-                                        location.pathname.startsWith(item.href + '/');
+                        const isActive =
+                          location.pathname === item.href ||
+                          location.pathname.startsWith(item.href + "/");
                         return (
                           <Link
                             key={item.href}
                             to={item.href}
-                            className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent hover:text-accent-foreground ${isActive ? 'text-red-600 font-medium bg-red-50' : ''}`}
+                            className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent hover:text-accent-foreground ${isActive ? "text-red-600 font-medium bg-red-50" : ""}`}
                             onClick={() => setUserMenuOpen(false)}
                           >
-                            <item.icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
+                            <item.icon
+                              className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                            />
                             {item.label}
                             {item.badge != null ? (
                               <Badge>{item.badge}</Badge>
@@ -655,7 +679,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {isLoggedIn()
+        {isLoggedIn
           ? isMobileMenuOpen && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -786,9 +810,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           `}
                         />
                         <span
-                          className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40 ${isActive ? 'text-red-600' : ''}`}
+                          className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40 ${isActive ? "text-red-600" : ""}`}
                         >
-                          <item.icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
+                          <item.icon
+                            className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                          />
                           {item.label}
                         </span>
                       </Link>

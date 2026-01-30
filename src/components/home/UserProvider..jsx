@@ -1,4 +1,4 @@
-import { ExternalLink, ChevronLeft, ChevronRight,} from "lucide-react";
+import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
@@ -11,7 +11,8 @@ const UserProvider = () => {
       id: 1,
       name: "Professionnel 1",
       category: "Lorem Ipsum",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque risus mi.",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque risus mi.",
       avatar: "bg-gradient-to-br from-slate-300 to-gray-400",
       website: "https://professionnel1.fake",
     },
@@ -19,7 +20,8 @@ const UserProvider = () => {
       id: 2,
       name: "Partenaire 1",
       category: "Dolor Sit",
-      description: "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia.",
+      description:
+        "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia.",
       avatar: "bg-gradient-to-br from-yellow-300 to-pink-400",
       website: "https://partenaire1.fake",
     },
@@ -27,7 +29,8 @@ const UserProvider = () => {
       id: 3,
       name: "Entreprise 1",
       category: "Amet Consectetur",
-      description: "Maecenas non leo laoreet, condimentum lorem nec, vulputate massa. Cras ultricies ligula.",
+      description:
+        "Maecenas non leo laoreet, condimentum lorem nec, vulputate massa. Cras ultricies ligula.",
       avatar: "bg-gradient-to-br from-red-200 to-orange-300",
       website: "https://entreprisefausse.fake",
     },
@@ -35,7 +38,8 @@ const UserProvider = () => {
       id: 4,
       name: "WORKER 2.0",
       category: "Adipiscing Elit",
-      description: "Suspendisse potenti. Proin consequat, ipsum eu venenatis semper, justo turpis posuere tortor.",
+      description:
+        "Suspendisse potenti. Proin consequat, ipsum eu venenatis semper, justo turpis posuere tortor.",
       avatar: "bg-gradient-to-br from-blue-200 to-teal-300",
       website: "https://professionliberale.fake",
     },
@@ -43,7 +47,8 @@ const UserProvider = () => {
       id: 5,
       name: "Partenaire XF",
       category: "Vestibulum Orci",
-      description: "Morbi ut blandit risus. Donec mollis nec tellus et rutrum. Orci varius natoque penatibus.",
+      description:
+        "Morbi ut blandit risus. Donec mollis nec tellus et rutrum. Orci varius natoque penatibus.",
       avatar: "bg-gradient-to-br from-green-200 to-lime-300",
       website: "https://fauxprestataire.fake",
     },
@@ -51,7 +56,8 @@ const UserProvider = () => {
       id: 6,
       name: "Particulier ALT. CO.",
       category: "Ultricies Ligula",
-      description: "Integer facilisis, ex nec sollicitudin ullamcorper, purus dui varius augue.",
+      description:
+        "Integer facilisis, ex nec sollicitudin ullamcorper, purus dui varius augue.",
       avatar: "bg-gradient-to-br from-purple-200 to-indigo-300",
       website: "https://particulierfictif.fake",
     },
@@ -63,9 +69,15 @@ const UserProvider = () => {
     if (scrollContainerRef.current) {
       const scrollAmount = 280; // 340
       if (direction === "left") {
-        scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        scrollContainerRef.current.scrollBy({
+          left: -scrollAmount,
+          behavior: "smooth",
+        });
       } else {
-        scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        scrollContainerRef.current.scrollBy({
+          left: scrollAmount,
+          behavior: "smooth",
+        });
       }
     }
   };
@@ -108,10 +120,7 @@ const UserProvider = () => {
               className="relative flex h-full py-16 pb-8 space-x-6 overflow-x-auto scrollbar-hide"
             >
               {providers.map((provider) => (
-                <div
-                  key={provider.id}
-                  className="w-64 shrink-0"
-                >
+                <div key={provider.id} className="w-64 shrink-0">
                   <Card className="h-full transition-shadow duration-300 border-none shadow-sm hover:shadow-md">
                     {/* Avatar circulaire centré */}
                     <div className="flex justify-center py-2">
@@ -124,7 +133,9 @@ const UserProvider = () => {
 
                     <CardContent className="pt-6 text-center">
                       <div className="mb-3">
-                        <h3 className="text-lg font-semibold">{provider.name}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {provider.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground">
                           {provider.category}
                         </p>

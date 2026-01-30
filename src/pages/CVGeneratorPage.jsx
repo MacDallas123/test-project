@@ -39,7 +39,7 @@ const CVGeneratorPage = () => {
   const [activeSection, setActiveSection] = useState("personal");
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
-  
+
   // États pour le CV
   const [cvData, setCvData] = useState({
     // Informations personnelles
@@ -58,7 +58,7 @@ const CVGeneratorPage = () => {
       portfolio: "",
       summary: "",
     },
-    
+
     // Compétences
     skills: [
       { id: 1, name: "React", level: "Expert" },
@@ -66,7 +66,7 @@ const CVGeneratorPage = () => {
       { id: 3, name: "Node.js", level: "Avancé" },
       { id: 4, name: "UI/UX Design", level: "Intermédiaire" },
     ],
-    
+
     // Formation
     education: [
       {
@@ -77,7 +77,8 @@ const CVGeneratorPage = () => {
         startDate: "2018-09",
         endDate: "2020-06",
         current: false,
-        description: "Spécialisation en développement web et intelligence artificielle",
+        description:
+          "Spécialisation en développement web et intelligence artificielle",
       },
       {
         id: 2,
@@ -90,7 +91,7 @@ const CVGeneratorPage = () => {
         description: "Mention Bien",
       },
     ],
-    
+
     // Expérience professionnelle
     experience: [
       {
@@ -101,7 +102,8 @@ const CVGeneratorPage = () => {
         startDate: "2021-03",
         endDate: "",
         current: true,
-        description: "Développement d'applications web React/Node.js. Gestion d'équipe de 3 développeurs. Architecture et déploiement sur AWS.",
+        description:
+          "Développement d'applications web React/Node.js. Gestion d'équipe de 3 développeurs. Architecture et déploiement sur AWS.",
       },
       {
         id: 2,
@@ -111,16 +113,18 @@ const CVGeneratorPage = () => {
         startDate: "2020-07",
         endDate: "2021-02",
         current: false,
-        description: "Création d'interfaces utilisateur responsive. Collaboration avec les designers UX/UI. Optimisation des performances.",
+        description:
+          "Création d'interfaces utilisateur responsive. Collaboration avec les designers UX/UI. Optimisation des performances.",
       },
     ],
-    
+
     // Projets
     projects: [
       {
         id: 1,
         name: "Plateforme E-commerce",
-        description: "Développement d'une plateforme e-commerce avec React et Node.js",
+        description:
+          "Développement d'une plateforme e-commerce avec React et Node.js",
         technologies: ["React", "Node.js", "MongoDB", "Stripe"],
         link: "https://github.com/user/ecommerce",
       },
@@ -132,20 +136,30 @@ const CVGeneratorPage = () => {
         link: "https://github.com/user/task-manager",
       },
     ],
-    
+
     // Langues
     languages: [
       { id: 1, name: "Français", level: "Langue maternelle" },
       { id: 2, name: "Anglais", level: "Courant (C1)" },
       { id: 3, name: "Espagnol", level: "Intermédiaire (B1)" },
     ],
-    
+
     // Certifications
     certifications: [
-      { id: 1, name: "AWS Certified Developer", issuer: "Amazon Web Services", date: "2022" },
-      { id: 2, name: "React Advanced Patterns", issuer: "Frontend Masters", date: "2021" },
+      {
+        id: 1,
+        name: "AWS Certified Developer",
+        issuer: "Amazon Web Services",
+        date: "2022",
+      },
+      {
+        id: 2,
+        name: "React Advanced Patterns",
+        issuer: "Frontend Masters",
+        date: "2021",
+      },
     ],
-    
+
     // Paramètres du CV
     settings: {
       template: "modern",
@@ -158,56 +172,59 @@ const CVGeneratorPage = () => {
 
   // Gestion des changements
   const handleInputChange = (section, field, value) => {
-    setCvData(prev => ({
+    setCvData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handleArrayChange = (section, index, field, value) => {
-    setCvData(prev => ({
+    setCvData((prev) => ({
       ...prev,
-      [section]: prev[section].map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      [section]: prev[section].map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
   const addItem = (section, defaultItem) => {
-    setCvData(prev => ({
+    setCvData((prev) => ({
       ...prev,
-      [section]: [...prev[section], { id: Date.now(), ...defaultItem }]
+      [section]: [...prev[section], { id: Date.now(), ...defaultItem }],
     }));
   };
 
   const removeItem = (section, id) => {
-    setCvData(prev => ({
+    setCvData((prev) => ({
       ...prev,
-      [section]: prev[section].filter(item => item.id !== id)
+      [section]: prev[section].filter((item) => item.id !== id),
     }));
   };
 
   const moveItem = (section, index, direction) => {
     const items = [...cvData[section]];
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+
     if (newIndex >= 0 && newIndex < items.length) {
       [items[index], items[newIndex]] = [items[newIndex], items[index]];
-      setCvData(prev => ({
+      setCvData((prev) => ({
         ...prev,
-        [section]: items
+        [section]: items,
       }));
     }
   };
 
   // Ajouter une compétence
-  const [newSkill, setNewSkill] = useState({ name: "", level: "Intermédiaire" });
+  const [newSkill, setNewSkill] = useState({
+    name: "",
+    level: "Intermédiaire",
+  });
   const addSkill = () => {
     if (newSkill.name.trim()) {
-      addItem('skills', newSkill);
+      addItem("skills", newSkill);
       setNewSkill({ name: "", level: "Intermédiaire" });
     }
   };
@@ -216,7 +233,7 @@ const CVGeneratorPage = () => {
   const handleGenerateCV = async () => {
     setIsGenerating(true);
     // Simulation de génération
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsGenerating(false);
     setPreviewMode(true);
   };
@@ -245,29 +262,33 @@ const CVGeneratorPage = () => {
 
   // Rendu de la section active
   const renderActiveSection = () => {
-    switch(activeSection) {
+    switch (activeSection) {
       case "personal":
         return (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold">Informations personnelles</h3>
-            
+
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName">Prénom *</Label>
                 <Input
                   id="firstName"
                   value={cvData.personal.firstName}
-                  onChange={(e) => handleInputChange('personal', 'firstName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personal", "firstName", e.target.value)
+                  }
                   placeholder="Jean"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="lastName">Nom *</Label>
                 <Input
                   id="lastName"
                   value={cvData.personal.lastName}
-                  onChange={(e) => handleInputChange('personal', 'lastName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personal", "lastName", e.target.value)
+                  }
                   placeholder="Dupont"
                 />
               </div>
@@ -277,7 +298,9 @@ const CVGeneratorPage = () => {
                 <Input
                   id="title"
                   value={cvData.personal.title}
-                  onChange={(e) => handleInputChange('personal', 'title', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personal", "title", e.target.value)
+                  }
                   placeholder="Ex: Développeur Full Stack Senior"
                 />
               </div>
@@ -290,7 +313,9 @@ const CVGeneratorPage = () => {
                     id="email"
                     type="email"
                     value={cvData.personal.email}
-                    onChange={(e) => handleInputChange('personal', 'email', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("personal", "email", e.target.value)
+                    }
                     placeholder="jean.dupont@email.com"
                   />
                 </div>
@@ -303,7 +328,9 @@ const CVGeneratorPage = () => {
                   <Input
                     id="phone"
                     value={cvData.personal.phone}
-                    onChange={(e) => handleInputChange('personal', 'phone', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("personal", "phone", e.target.value)
+                    }
                     placeholder="+33 6 12 34 56 78"
                   />
                 </div>
@@ -316,7 +343,9 @@ const CVGeneratorPage = () => {
                   <Input
                     id="city"
                     value={cvData.personal.city}
-                    onChange={(e) => handleInputChange('personal', 'city', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("personal", "city", e.target.value)
+                    }
                     placeholder="Paris"
                   />
                 </div>
@@ -327,7 +356,9 @@ const CVGeneratorPage = () => {
                 <Input
                   id="country"
                   value={cvData.personal.country}
-                  onChange={(e) => handleInputChange('personal', 'country', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personal", "country", e.target.value)
+                  }
                   placeholder="France"
                 />
               </div>
@@ -339,7 +370,9 @@ const CVGeneratorPage = () => {
                   <Input
                     id="linkedin"
                     value={cvData.personal.linkedin}
-                    onChange={(e) => handleInputChange('personal', 'linkedin', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("personal", "linkedin", e.target.value)
+                    }
                     placeholder="https://linkedin.com/in/jeandupont"
                   />
                 </div>
@@ -352,7 +385,9 @@ const CVGeneratorPage = () => {
                   <Input
                     id="github"
                     value={cvData.personal.github}
-                    onChange={(e) => handleInputChange('personal', 'github', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("personal", "github", e.target.value)
+                    }
                     placeholder="https://github.com/jeandupont"
                   />
                 </div>
@@ -365,7 +400,9 @@ const CVGeneratorPage = () => {
                   <Input
                     id="portfolio"
                     value={cvData.personal.portfolio}
-                    onChange={(e) => handleInputChange('personal', 'portfolio', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("personal", "portfolio", e.target.value)
+                    }
                     placeholder="https://jeandupont.dev"
                   />
                 </div>
@@ -376,7 +413,9 @@ const CVGeneratorPage = () => {
                 <Textarea
                   id="summary"
                   value={cvData.personal.summary}
-                  onChange={(e) => handleInputChange('personal', 'summary', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personal", "summary", e.target.value)
+                  }
                   placeholder="Décrivez votre profil professionnel en quelques lignes..."
                   rows={4}
                 />
@@ -393,12 +432,17 @@ const CVGeneratorPage = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Compétences</h3>
-              <Badge variant="outline">{cvData.skills.length} compétences</Badge>
+              <Badge variant="outline">
+                {cvData.skills.length} compétences
+              </Badge>
             </div>
 
             <div className="space-y-4">
               {cvData.skills.map((skill, index) => (
-                <div key={skill.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                <div
+                  key={skill.id}
+                  className="flex items-center gap-4 p-4 border rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium">{skill.name}</span>
@@ -407,7 +451,7 @@ const CVGeneratorPage = () => {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => moveItem('skills', index, 'up')}
+                        onClick={() => moveItem("skills", index, "up")}
                         disabled={index === 0}
                         className="p-1 rounded hover:bg-muted disabled:opacity-30"
                       >
@@ -415,7 +459,7 @@ const CVGeneratorPage = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => moveItem('skills', index, 'down')}
+                        onClick={() => moveItem("skills", index, "down")}
                         disabled={index === cvData.skills.length - 1}
                         className="p-1 rounded hover:bg-muted disabled:opacity-30"
                       >
@@ -427,7 +471,7 @@ const CVGeneratorPage = () => {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => removeItem('skills', skill.id)}
+                    onClick={() => removeItem("skills", skill.id)}
                     className="text-red-500 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -445,7 +489,9 @@ const CVGeneratorPage = () => {
                   <Label>Nom de la compétence</Label>
                   <Input
                     value={newSkill.name}
-                    onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
+                    onChange={(e) =>
+                      setNewSkill({ ...newSkill, name: e.target.value })
+                    }
                     placeholder="Ex: React, Python, Gestion de projet..."
                   />
                 </div>
@@ -454,7 +500,9 @@ const CVGeneratorPage = () => {
                   <select
                     className="w-full px-3 py-2 border rounded-md"
                     value={newSkill.level}
-                    onChange={(e) => setNewSkill({...newSkill, level: e.target.value})}
+                    onChange={(e) =>
+                      setNewSkill({ ...newSkill, level: e.target.value })
+                    }
                   >
                     <option value="Débutant">Débutant</option>
                     <option value="Intermédiaire">Intermédiaire</option>
@@ -472,7 +520,10 @@ const CVGeneratorPage = () => {
             <div className="p-4 border rounded-lg bg-muted/30">
               <h4 className="mb-2 font-medium">Conseils</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Mettez en avant les compétences pertinentes pour le poste visé</li>
+                <li>
+                  • Mettez en avant les compétences pertinentes pour le poste
+                  visé
+                </li>
                 <li>• Privilégiez 8-12 compétences principales</li>
                 <li>• Classez-les par ordre de maîtrise ou pertinence</li>
                 <li>• Incluez des compétences techniques et transversales</li>
@@ -485,8 +536,12 @@ const CVGeneratorPage = () => {
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Expérience professionnelle</h3>
-              <Badge variant="outline">{cvData.experience.length} expériences</Badge>
+              <h3 className="text-xl font-semibold">
+                Expérience professionnelle
+              </h3>
+              <Badge variant="outline">
+                {cvData.experience.length} expériences
+              </Badge>
             </div>
 
             <div className="space-y-4">
@@ -498,7 +553,7 @@ const CVGeneratorPage = () => {
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => moveItem('experience', index, 'up')}
+                          onClick={() => moveItem("experience", index, "up")}
                           disabled={index === 0}
                           className="p-1 rounded hover:bg-muted disabled:opacity-30"
                         >
@@ -506,7 +561,7 @@ const CVGeneratorPage = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => moveItem('experience', index, 'down')}
+                          onClick={() => moveItem("experience", index, "down")}
                           disabled={index === cvData.experience.length - 1}
                           className="p-1 rounded hover:bg-muted disabled:opacity-30"
                         >
@@ -517,7 +572,7 @@ const CVGeneratorPage = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeItem('experience', exp.id)}
+                        onClick={() => removeItem("experience", exp.id)}
                         className="text-red-500 hover:text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -530,7 +585,14 @@ const CVGeneratorPage = () => {
                       <Label>Poste *</Label>
                       <Input
                         value={exp.title}
-                        onChange={(e) => handleArrayChange('experience', index, 'title', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "title",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Ex: Développeur Full Stack"
                       />
                     </div>
@@ -539,7 +601,14 @@ const CVGeneratorPage = () => {
                       <Label>Entreprise *</Label>
                       <Input
                         value={exp.company}
-                        onChange={(e) => handleArrayChange('experience', index, 'company', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "company",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Nom de l'entreprise"
                       />
                     </div>
@@ -548,7 +617,14 @@ const CVGeneratorPage = () => {
                       <Label>Lieu</Label>
                       <Input
                         value={exp.location}
-                        onChange={(e) => handleArrayChange('experience', index, 'location', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "location",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Ex: Paris, France"
                       />
                     </div>
@@ -559,10 +635,19 @@ const CVGeneratorPage = () => {
                         <input
                           type="checkbox"
                           checked={exp.current}
-                          onChange={(e) => handleArrayChange('experience', index, 'current', e.target.checked)}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "experience",
+                              index,
+                              "current",
+                              e.target.checked,
+                            )
+                          }
                           className="rounded"
                         />
-                        <Label className="!mb-0">Je travaille toujours ici</Label>
+                        <Label className="!mb-0">
+                          Je travaille toujours ici
+                        </Label>
                       </div>
                     </div>
 
@@ -571,16 +656,30 @@ const CVGeneratorPage = () => {
                       <Input
                         type="month"
                         value={exp.startDate}
-                        onChange={(e) => handleArrayChange('experience', index, 'startDate', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "startDate",
+                            e.target.value,
+                          )
+                        }
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Date de fin {!exp.current && '*'}</Label>
+                      <Label>Date de fin {!exp.current && "*"}</Label>
                       <Input
                         type="month"
                         value={exp.endDate}
-                        onChange={(e) => handleArrayChange('experience', index, 'endDate', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "endDate",
+                            e.target.value,
+                          )
+                        }
                         disabled={exp.current}
                       />
                     </div>
@@ -589,7 +688,14 @@ const CVGeneratorPage = () => {
                       <Label>Description *</Label>
                       <Textarea
                         value={exp.description}
-                        onChange={(e) => handleArrayChange('experience', index, 'description', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "description",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Décrivez vos missions, responsabilités et réalisations..."
                         rows={4}
                       />
@@ -605,15 +711,17 @@ const CVGeneratorPage = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => addItem('experience', {
-                title: "",
-                company: "",
-                location: "",
-                startDate: "",
-                endDate: "",
-                current: false,
-                description: "",
-              })}
+              onClick={() =>
+                addItem("experience", {
+                  title: "",
+                  company: "",
+                  location: "",
+                  startDate: "",
+                  endDate: "",
+                  current: false,
+                  description: "",
+                })
+              }
               className="w-full gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -627,7 +735,9 @@ const CVGeneratorPage = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Formation</h3>
-              <Badge variant="outline">{cvData.education.length} formations</Badge>
+              <Badge variant="outline">
+                {cvData.education.length} formations
+              </Badge>
             </div>
 
             <div className="space-y-4">
@@ -639,7 +749,7 @@ const CVGeneratorPage = () => {
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => moveItem('education', index, 'up')}
+                          onClick={() => moveItem("education", index, "up")}
                           disabled={index === 0}
                           className="p-1 rounded hover:bg-muted disabled:opacity-30"
                         >
@@ -647,7 +757,7 @@ const CVGeneratorPage = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => moveItem('education', index, 'down')}
+                          onClick={() => moveItem("education", index, "down")}
                           disabled={index === cvData.education.length - 1}
                           className="p-1 rounded hover:bg-muted disabled:opacity-30"
                         >
@@ -658,7 +768,7 @@ const CVGeneratorPage = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeItem('education', edu.id)}
+                        onClick={() => removeItem("education", edu.id)}
                         className="text-red-500 hover:text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -671,7 +781,14 @@ const CVGeneratorPage = () => {
                       <Label>Diplôme *</Label>
                       <Input
                         value={edu.degree}
-                        onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "degree",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Ex: Master en Informatique"
                       />
                     </div>
@@ -680,7 +797,14 @@ const CVGeneratorPage = () => {
                       <Label>Établissement *</Label>
                       <Input
                         value={edu.school}
-                        onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "school",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Ex: Université Paris-Saclay"
                       />
                     </div>
@@ -689,7 +813,14 @@ const CVGeneratorPage = () => {
                       <Label>Lieu</Label>
                       <Input
                         value={edu.location}
-                        onChange={(e) => handleArrayChange('education', index, 'location', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "location",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Ex: Paris, France"
                       />
                     </div>
@@ -700,7 +831,14 @@ const CVGeneratorPage = () => {
                         <input
                           type="checkbox"
                           checked={edu.current}
-                          onChange={(e) => handleArrayChange('education', index, 'current', e.target.checked)}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "education",
+                              index,
+                              "current",
+                              e.target.checked,
+                            )
+                          }
                           className="rounded"
                         />
                         <Label className="!mb-0">Formation en cours</Label>
@@ -712,16 +850,30 @@ const CVGeneratorPage = () => {
                       <Input
                         type="month"
                         value={edu.startDate}
-                        onChange={(e) => handleArrayChange('education', index, 'startDate', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "startDate",
+                            e.target.value,
+                          )
+                        }
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Date de fin {!edu.current && '*'}</Label>
+                      <Label>Date de fin {!edu.current && "*"}</Label>
                       <Input
                         type="month"
                         value={edu.endDate}
-                        onChange={(e) => handleArrayChange('education', index, 'endDate', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "endDate",
+                            e.target.value,
+                          )
+                        }
                         disabled={edu.current}
                       />
                     </div>
@@ -730,7 +882,14 @@ const CVGeneratorPage = () => {
                       <Label>Description</Label>
                       <Textarea
                         value={edu.description}
-                        onChange={(e) => handleArrayChange('education', index, 'description', e.target.value)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "description",
+                            e.target.value,
+                          )
+                        }
                         placeholder="Mention, spécialisation, projets réalisés..."
                         rows={3}
                       />
@@ -743,15 +902,17 @@ const CVGeneratorPage = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => addItem('education', {
-                degree: "",
-                school: "",
-                location: "",
-                startDate: "",
-                endDate: "",
-                current: false,
-                description: "",
-              })}
+              onClick={() =>
+                addItem("education", {
+                  degree: "",
+                  school: "",
+                  location: "",
+                  startDate: "",
+                  endDate: "",
+                  current: false,
+                  description: "",
+                })
+              }
               className="w-full gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -770,23 +931,29 @@ const CVGeneratorPage = () => {
                 <div className="space-y-2">
                   <Label>Modèle de CV</Label>
                   <div className="grid grid-cols-2 gap-3">
-                    {["moderne", "classique", "créatif", "minimaliste"].map((template) => (
-                      <button
-                        key={template}
-                        type="button"
-                        onClick={() => handleInputChange('settings', 'template', template)}
-                        className={`p-4 border rounded-lg text-center transition-colors ${
-                          cvData.settings.template === template
-                            ? "border-primary bg-primary/10"
-                            : "hover:border-primary/50"
-                        }`}
-                      >
-                        <div className="mb-2 text-sm font-medium capitalize">{template}</div>
-                        <div className="w-3/4 h-1 mx-auto mb-1 rounded bg-primary/30"></div>
-                        <div className="w-2/3 h-1 mx-auto mb-1 rounded bg-primary/20"></div>
-                        <div className="w-1/2 h-1 mx-auto rounded bg-primary/10"></div>
-                      </button>
-                    ))}
+                    {["moderne", "classique", "créatif", "minimaliste"].map(
+                      (template) => (
+                        <button
+                          key={template}
+                          type="button"
+                          onClick={() =>
+                            handleInputChange("settings", "template", template)
+                          }
+                          className={`p-4 border rounded-lg text-center transition-colors ${
+                            cvData.settings.template === template
+                              ? "border-primary bg-primary/10"
+                              : "hover:border-primary/50"
+                          }`}
+                        >
+                          <div className="mb-2 text-sm font-medium capitalize">
+                            {template}
+                          </div>
+                          <div className="w-3/4 h-1 mx-auto mb-1 rounded bg-primary/30"></div>
+                          <div className="w-2/3 h-1 mx-auto mb-1 rounded bg-primary/20"></div>
+                          <div className="w-1/2 h-1 mx-auto rounded bg-primary/10"></div>
+                        </button>
+                      ),
+                    )}
                   </div>
                 </div>
 
@@ -796,23 +963,35 @@ const CVGeneratorPage = () => {
                     <input
                       type="color"
                       value={cvData.settings.color}
-                      onChange={(e) => handleInputChange('settings', 'color', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("settings", "color", e.target.value)
+                      }
                       className="w-12 h-12 cursor-pointer"
                     />
                     <div className="flex-1">
                       <Input
                         value={cvData.settings.color}
-                        onChange={(e) => handleInputChange('settings', 'color', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("settings", "color", e.target.value)
+                        }
                         placeholder="#3b82f6"
                       />
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444"].map((color) => (
+                    {[
+                      "#3b82f6",
+                      "#10b981",
+                      "#8b5cf6",
+                      "#f59e0b",
+                      "#ef4444",
+                    ].map((color) => (
                       <button
                         key={color}
                         type="button"
-                        onClick={() => handleInputChange('settings', 'color', color)}
+                        onClick={() =>
+                          handleInputChange("settings", "color", color)
+                        }
                         className="w-8 h-8 border rounded-full"
                         style={{ backgroundColor: color }}
                       />
@@ -827,12 +1006,16 @@ const CVGeneratorPage = () => {
                   <select
                     className="w-full px-3 py-2 border rounded-md"
                     value={cvData.settings.font}
-                    onChange={(e) => handleInputChange('settings', 'font', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("settings", "font", e.target.value)
+                    }
                   >
                     <option value="Inter">Inter (Moderne)</option>
                     <option value="Roboto">Roboto (Neutre)</option>
                     <option value="Open Sans">Open Sans (Lisible)</option>
-                    <option value="Merriweather">Merriweather (Classique)</option>
+                    <option value="Merriweather">
+                      Merriweather (Classique)
+                    </option>
                     <option value="Montserrat">Montserrat (Élégant)</option>
                   </select>
                 </div>
@@ -844,14 +1027,20 @@ const CVGeneratorPage = () => {
                       type="checkbox"
                       id="showPhoto"
                       checked={cvData.settings.showPhoto}
-                      onChange={(e) => handleInputChange('settings', 'showPhoto', e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "settings",
+                          "showPhoto",
+                          e.target.checked,
+                        )
+                      }
                       className="rounded"
                     />
                     <Label htmlFor="showPhoto" className="!mb-0">
                       Inclure une photo
                     </Label>
                   </div>
-                  
+
                   {cvData.settings.showPhoto && (
                     <div className="mt-2">
                       <Input
@@ -861,7 +1050,11 @@ const CVGeneratorPage = () => {
                           if (e.target.files[0]) {
                             const reader = new FileReader();
                             reader.onload = (event) => {
-                              handleInputChange('settings', 'photoUrl', event.target.result);
+                              handleInputChange(
+                                "settings",
+                                "photoUrl",
+                                event.target.result,
+                              );
                             };
                             reader.readAsDataURL(e.target.files[0]);
                           }
@@ -904,11 +1097,20 @@ const CVGeneratorPage = () => {
 
   // Rendu du CV
   const renderCVPreview = () => {
-    const { personal, skills, experience, education, languages, certifications, projects, settings } = cvData;
+    const {
+      personal,
+      skills,
+      experience,
+      education,
+      languages,
+      certifications,
+      projects,
+      settings,
+    } = cvData;
     const fullName = `${personal.firstName} ${personal.lastName}`.trim();
 
     return (
-      <div 
+      <div
         ref={cvRef}
         className="max-w-4xl p-8 mx-auto text-gray-800 bg-white border shadow-sm"
         style={{ fontFamily: settings.font }}
@@ -917,23 +1119,26 @@ const CVGeneratorPage = () => {
         <div className="mb-8">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h1 className="mb-2 text-3xl font-bold" style={{ color: settings.color }}>
+              <h1
+                className="mb-2 text-3xl font-bold"
+                style={{ color: settings.color }}
+              >
                 {fullName || "Votre Nom"}
               </h1>
               {personal.title && (
                 <h2 className="mb-4 text-xl text-gray-600">{personal.title}</h2>
               )}
-              
+
               {personal.summary && (
                 <p className="mb-4 text-gray-700">{personal.summary}</p>
               )}
             </div>
-            
+
             {settings.showPhoto && settings.photoUrl && (
               <div className="ml-6">
                 <div className="w-24 h-24 overflow-hidden border-2 border-gray-200 rounded-full">
-                  <img 
-                    src={settings.photoUrl} 
+                  <img
+                    src={settings.photoUrl}
                     alt={fullName}
                     className="object-cover w-full h-full"
                   />
@@ -959,12 +1164,17 @@ const CVGeneratorPage = () => {
             {personal.city && (
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" style={{ color: settings.color }} />
-                <span>{personal.city}, {personal.country}</span>
+                <span>
+                  {personal.city}, {personal.country}
+                </span>
               </div>
             )}
             {personal.linkedin && (
               <div className="flex items-center gap-2">
-                <Linkedin className="w-4 h-4" style={{ color: settings.color }} />
+                <Linkedin
+                  className="w-4 h-4"
+                  style={{ color: settings.color }}
+                />
                 <span>LinkedIn</span>
               </div>
             )}
@@ -977,21 +1187,34 @@ const CVGeneratorPage = () => {
             {/* Expérience */}
             {experience.length > 0 && (
               <div>
-                <h3 className="pb-2 mb-4 text-xl font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>
+                <h3
+                  className="pb-2 mb-4 text-xl font-bold border-b"
+                  style={{ borderColor: settings.color, color: settings.color }}
+                >
                   Expérience Professionnelle
                 </h3>
                 <div className="space-y-6">
                   {experience.map((exp, index) => (
-                    <div key={index} className="pb-4 border-b border-gray-100 last:border-0">
+                    <div
+                      key={index}
+                      className="pb-4 border-b border-gray-100 last:border-0"
+                    >
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4 className="text-lg font-bold">{exp.title}</h4>
-                          <div className="font-medium text-gray-600">{exp.company}</div>
-                          {exp.location && <div className="text-sm text-gray-500">{exp.location}</div>}
+                          <div className="font-medium text-gray-600">
+                            {exp.company}
+                          </div>
+                          {exp.location && (
+                            <div className="text-sm text-gray-500">
+                              {exp.location}
+                            </div>
+                          )}
                         </div>
                         <div className="text-right">
                           <div className="font-medium text-gray-600">
-                            {exp.startDate} - {exp.current ? "Présent" : exp.endDate}
+                            {exp.startDate} -{" "}
+                            {exp.current ? "Présent" : exp.endDate}
                           </div>
                         </div>
                       </div>
@@ -1005,26 +1228,39 @@ const CVGeneratorPage = () => {
             {/* Formation */}
             {education.length > 0 && (
               <div>
-                <h3 className="pb-2 mb-4 text-xl font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>
+                <h3
+                  className="pb-2 mb-4 text-xl font-bold border-b"
+                  style={{ borderColor: settings.color, color: settings.color }}
+                >
                   Formation
                 </h3>
                 <div className="space-y-4">
                   {education.map((edu, index) => (
-                    <div key={index} className="pb-4 border-b border-gray-100 last:border-0">
+                    <div
+                      key={index}
+                      className="pb-4 border-b border-gray-100 last:border-0"
+                    >
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4 className="font-bold">{edu.degree}</h4>
                           <div className="text-gray-600">{edu.school}</div>
-                          {edu.location && <div className="text-sm text-gray-500">{edu.location}</div>}
+                          {edu.location && (
+                            <div className="text-sm text-gray-500">
+                              {edu.location}
+                            </div>
+                          )}
                         </div>
                         <div className="text-right">
                           <div className="text-gray-600">
-                            {edu.startDate} - {edu.current ? "Présent" : edu.endDate}
+                            {edu.startDate} -{" "}
+                            {edu.current ? "Présent" : edu.endDate}
                           </div>
                         </div>
                       </div>
                       {edu.description && (
-                        <p className="text-sm text-gray-700">{edu.description}</p>
+                        <p className="text-sm text-gray-700">
+                          {edu.description}
+                        </p>
                       )}
                     </div>
                   ))}
@@ -1038,12 +1274,18 @@ const CVGeneratorPage = () => {
             {/* Compétences */}
             {skills.length > 0 && (
               <div>
-                <h3 className="pb-2 mb-4 text-xl font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>
+                <h3
+                  className="pb-2 mb-4 text-xl font-bold border-b"
+                  style={{ borderColor: settings.color, color: settings.color }}
+                >
                   Compétences
                 </h3>
                 <div className="space-y-2">
                   {skills.map((skill, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <span className="font-medium">{skill.name}</span>
                       <Badge variant="outline" className="text-xs">
                         {skill.level}
@@ -1057,14 +1299,22 @@ const CVGeneratorPage = () => {
             {/* Langues */}
             {languages.length > 0 && (
               <div>
-                <h3 className="pb-2 mb-4 text-xl font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>
+                <h3
+                  className="pb-2 mb-4 text-xl font-bold border-b"
+                  style={{ borderColor: settings.color, color: settings.color }}
+                >
                   Langues
                 </h3>
                 <div className="space-y-2">
                   {languages.map((lang, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <span className="font-medium">{lang.name}</span>
-                      <span className="text-sm text-gray-600">{lang.level}</span>
+                      <span className="text-sm text-gray-600">
+                        {lang.level}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1074,7 +1324,10 @@ const CVGeneratorPage = () => {
             {/* Certifications */}
             {certifications.length > 0 && (
               <div>
-                <h3 className="pb-2 mb-4 text-xl font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>
+                <h3
+                  className="pb-2 mb-4 text-xl font-bold border-b"
+                  style={{ borderColor: settings.color, color: settings.color }}
+                >
                   Certifications
                 </h3>
                 <div className="space-y-3">
@@ -1093,7 +1346,9 @@ const CVGeneratorPage = () => {
 
         {/* Pied de page */}
         <div className="pt-4 mt-8 text-xs text-center text-gray-500 border-t border-gray-200">
-          CV généré <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture • {new Date().getFullYear()}
+          CV généré <span className="text-3xl text-secondary">L</span>ivrer
+          <span className="text-3xl text-secondary">N</span>ourriture •{" "}
+          {new Date().getFullYear()}
         </div>
       </div>
     );
@@ -1125,7 +1380,7 @@ const CVGeneratorPage = () => {
                   {sections.map((section) => {
                     const Icon = section.icon;
                     const itemCount = cvData[section.id]?.length || 0;
-                    
+
                     return (
                       <button
                         key={section.id}
@@ -1142,8 +1397,12 @@ const CVGeneratorPage = () => {
                           <span>{section.name}</span>
                         </div>
                         {itemCount > 0 && (
-                          <Badge 
-                            variant={activeSection === section.id ? "secondary" : "outline"} 
+                          <Badge
+                            variant={
+                              activeSection === section.id
+                                ? "secondary"
+                                : "outline"
+                            }
                             className="text-xs"
                           >
                             {itemCount}
@@ -1160,14 +1419,21 @@ const CVGeneratorPage = () => {
                 <h3 className="mb-3 font-semibold">Progression</h3>
                 <div className="space-y-3">
                   {sections.map((section) => {
-                    const isComplete = section.id === "personal" 
-                      ? cvData.personal.firstName && cvData.personal.lastName && cvData.personal.email
-                      : section.id === "experience"
-                      ? cvData.experience.length > 0 && cvData.experience.every(e => e.title && e.company)
-                      : section.id === "education"
-                      ? cvData.education.length > 0 && cvData.education.every(e => e.degree && e.school)
-                      : cvData[section.id]?.length > 0;
-                    
+                    const isComplete =
+                      section.id === "personal"
+                        ? cvData.personal.firstName &&
+                          cvData.personal.lastName &&
+                          cvData.personal.email
+                        : section.id === "experience"
+                          ? cvData.experience.length > 0 &&
+                            cvData.experience.every((e) => e.title && e.company)
+                          : section.id === "education"
+                            ? cvData.education.length > 0 &&
+                              cvData.education.every(
+                                (e) => e.degree && e.school,
+                              )
+                            : cvData[section.id]?.length > 0;
+
                     return (
                       <div key={section.id} className="flex items-center gap-3">
                         {isComplete ? (
@@ -1195,7 +1461,7 @@ const CVGeneratorPage = () => {
                     <Eye className="w-4 h-4" />
                     {previewMode ? "Masquer l'aperçu" : "Aperçu du CV"}
                   </Button>
-                  
+
                   <Button
                     type="button"
                     variant="default"
@@ -1221,7 +1487,7 @@ const CVGeneratorPage = () => {
           </div>
 
           {/* Formulaire principal */}
-          <div className={`${previewMode ? 'lg:col-span-2' : 'lg:col-span-2'}`}>
+          <div className={`${previewMode ? "lg:col-span-2" : "lg:col-span-2"}`}>
             {previewMode ? (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -1270,8 +1536,8 @@ const CVGeneratorPage = () => {
                     <Share2 className="w-4 h-4" />
                     Partager
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="gap-2"
                     onClick={() => {
                       // Réinitialiser le CV
@@ -1315,19 +1581,22 @@ const CVGeneratorPage = () => {
               </div>
             ) : (
               <div className="border rounded-lg">
-                <div className="p-6">
-                  {renderActiveSection()}
-                </div>
-                
+                <div className="p-6">{renderActiveSection()}</div>
+
                 <div className="flex items-center justify-between p-4 border-t">
                   <div className="text-sm text-muted-foreground">
-                    {activeSection === "personal" && "Remplissez vos informations de base"}
-                    {activeSection === "skills" && "Ajoutez vos compétences techniques et transversales"}
-                    {activeSection === "experience" && "Décrivez votre parcours professionnel"}
-                    {activeSection === "education" && "Ajoutez vos diplômes et formations"}
-                    {activeSection === "settings" && "Personnalisez l'apparence de votre CV"}
+                    {activeSection === "personal" &&
+                      "Remplissez vos informations de base"}
+                    {activeSection === "skills" &&
+                      "Ajoutez vos compétences techniques et transversales"}
+                    {activeSection === "experience" &&
+                      "Décrivez votre parcours professionnel"}
+                    {activeSection === "education" &&
+                      "Ajoutez vos diplômes et formations"}
+                    {activeSection === "settings" &&
+                      "Personnalisez l'apparence de votre CV"}
                   </div>
-                  
+
                   <Button
                     type="button"
                     variant="default"
@@ -1359,7 +1628,9 @@ const CVGeneratorPage = () => {
             <div className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
               <div>
-                <h4 className="mb-2 font-semibold">Conseils pour un CV efficace</h4>
+                <h4 className="mb-2 font-semibold">
+                  Conseils pour un CV efficace
+                </h4>
                 <ul className="grid grid-cols-1 gap-2 text-sm text-muted-foreground md:grid-cols-2">
                   <li>• Soyez concis et pertinent</li>
                   <li>• Adaptez votre CV à chaque candidature</li>

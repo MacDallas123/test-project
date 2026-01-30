@@ -67,7 +67,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import UserProvider from "@/components/home/UserProvider.";
-import RecruitsSection from "@/components/home/RecruitsSection"
+import RecruitsSection from "@/components/home/RecruitsSection";
 import HomeHero from "@/components/home/HomeHero";
 import CharacteristicsSection from "@/components/home/CharacteristicsSection";
 import ServicesSection from "@/components/home/ServiceSection";
@@ -142,21 +142,27 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
       {/* Hero Section */}
-      <HomeHero /> 
+      <HomeHero />
 
       {/* Caracteristiques */}
       <CharacteristicsSection />
-      
+
       {/* Section À Propos / Qui sommes-nous ? */}
       <section className="px-4 py-20 bg-muted/30">
-          <div className="flex flex-col items-center justify-center mb-12">
-            <h2 className="mb-4 text-3xl font-bold text-center md:text-4xl drop-shadow">
-              {t("aboutSection.heading", "LivrerNourriture, bien plus qu'un service digital")}
-            </h2>
-            <p className="max-w-2xl text-lg text-center text-muted-foreground">
-              {t("aboutSection.subheading", "Bénéficiez d'une expertise locale et d'un accompagnement humain, pour transformer durablement votre activité.")}
-            </p>
-          </div>
+        <div className="flex flex-col items-center justify-center mb-12">
+          <h2 className="mb-4 text-3xl font-bold text-center md:text-4xl drop-shadow">
+            {t(
+              "aboutSection.heading",
+              "LivrerNourriture, bien plus qu'un service digital",
+            )}
+          </h2>
+          <p className="max-w-2xl text-lg text-center text-muted-foreground">
+            {t(
+              "aboutSection.subheading",
+              "Bénéficiez d'une expertise locale et d'un accompagnement humain, pour transformer durablement votre activité.",
+            )}
+          </p>
+        </div>
         <div className="container mx-auto">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div
@@ -173,7 +179,9 @@ const Home = () => {
                 <span className="text-primary">rapide et fiable</span>
               </h2>
               <p className="mb-6 text-lg text-muted-foreground">
-                Depuis plusieurs années, LivrerNourriture simplifie vos repas du quotidien en vous livrant vos plats préférés, où que vous soyez, avec rapidité et gourmandise.
+                Depuis plusieurs années, LivrerNourriture simplifie vos repas du
+                quotidien en vous livrant vos plats préférés, où que vous soyez,
+                avec rapidité et gourmandise.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
@@ -181,7 +189,9 @@ const Home = () => {
                   <div>
                     <h4 className="font-semibold">Notre Mission</h4>
                     <p className="text-muted-foreground">
-                      Offrir à chacun la possibilité de savourer facilement de délicieux repas, livrés directement à domicile ou au bureau, avec un service irréprochable.
+                      Offrir à chacun la possibilité de savourer facilement de
+                      délicieux repas, livrés directement à domicile ou au
+                      bureau, avec un service irréprochable.
                     </p>
                   </div>
                 </div>
@@ -190,7 +200,9 @@ const Home = () => {
                   <div>
                     <h4 className="font-semibold">Notre Vision</h4>
                     <p className="text-muted-foreground">
-                      Devenir la solution de référence pour la commande et la livraison de repas, en connectant gourmets et restaurateurs en toute simplicité.
+                      Devenir la solution de référence pour la commande et la
+                      livraison de repas, en connectant gourmets et
+                      restaurateurs en toute simplicité.
                     </p>
                   </div>
                 </div>
@@ -199,7 +211,8 @@ const Home = () => {
                   <div>
                     <h4 className="font-semibold">Nos Valeurs</h4>
                     <p className="text-muted-foreground">
-                      Qualité, rapidité, convivialité, et un engagement local pour soutenir vos restaurants préférés.
+                      Qualité, rapidité, convivialité, et un engagement local
+                      pour soutenir vos restaurants préférés.
                     </p>
                   </div>
                 </div>
@@ -207,7 +220,9 @@ const Home = () => {
             </motion.div>
 
             <div className="flex flex-col items-center justify-center py-12">
-              <span className="mb-4 text-3xl font-extrabold text-primary">LivrerNourriture</span>
+              <span className="mb-4 text-3xl font-extrabold text-primary">
+                LivrerNourriture
+              </span>
               <p className="max-w-xs mb-4 text-lg text-center text-muted-foreground">
                 Commandez votre plat préféré. Livré à la maison, simplement.
               </p>
@@ -305,7 +320,6 @@ const Home = () => {
 
       {/* Section CV FIBEM */}
       <ServicesSection />
-      
     </div>
   );
 };

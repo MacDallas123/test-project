@@ -38,12 +38,12 @@ import {
 const ApplicationFormPage = () => {
   const { id, type } = useParams();
   const navigate = useNavigate();
-  
+
   // États pour les étapes
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   // Données de l'offre simulée
   const jobOffer = {
     id: parseInt(id) || 1,
@@ -54,7 +54,8 @@ const ApplicationFormPage = () => {
     location: "Localisation",
     salary: type === "internship" ? "Gratification légale" : "45K-60K €",
     category: "Développement",
-    description: "Nous recherchons une personne pour ce poste dans l'entreprise",
+    description:
+      "Nous recherchons une personne pour ce poste dans l'entreprise",
   };
 
   // États pour le formulaire
@@ -74,7 +75,7 @@ const ApplicationFormPage = () => {
       github: "",
       portfolio: "",
     },
-    
+
     // Étape 2: Formation
     education: [
       {
@@ -86,9 +87,9 @@ const ApplicationFormPage = () => {
         endDate: "",
         current: false,
         description: "",
-      }
+      },
     ],
-    
+
     // Étape 3: Expérience professionnelle
     experience: [
       {
@@ -101,9 +102,9 @@ const ApplicationFormPage = () => {
         endDate: "",
         current: false,
         description: "",
-      }
+      },
     ],
-    
+
     // Étape 4: Compétences et documents
     skills: [],
     coverLetter: "",
@@ -128,64 +129,64 @@ const ApplicationFormPage = () => {
 
   // Gestion des changements de formulaire
   const handleInputChange = (section, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const handleArrayChange = (section, index, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [section]: prev[section].map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      [section]: prev[section].map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
     }));
   };
 
   const addItem = (section) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [section]: [...prev[section], { id: Date.now() }]
+      [section]: [...prev[section], { id: Date.now() }],
     }));
   };
 
   const removeItem = (section, id) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [section]: prev[section].filter(item => item.id !== id)
+      [section]: prev[section].filter((item) => item.id !== id),
     }));
   };
 
   const addSkill = () => {
     if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        skills: [...prev.skills, skillInput.trim()]
+        skills: [...prev.skills, skillInput.trim()],
       }));
       setSkillInput("");
     }
   };
 
   const removeSkill = (skill) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter(s => s !== skill)
+      skills: prev.skills.filter((s) => s !== skill),
     }));
   };
 
   const handleFileUpload = (fileType, file) => {
-    if (fileType === 'cv') setCvFile(file);
-    else if (fileType === 'coverLetter') setCoverLetterFile(file);
+    if (fileType === "cv") setCvFile(file);
+    else if (fileType === "coverLetter") setCoverLetterFile(file);
     else setOtherFiles([...otherFiles, file]);
   };
 
   const removeFile = (fileType, index) => {
-    if (fileType === 'cv') setCvFile(null);
-    else if (fileType === 'coverLetter') setCoverLetterFile(null);
+    if (fileType === "cv") setCvFile(null);
+    else if (fileType === "coverLetter") setCoverLetterFile(null);
     else setOtherFiles(otherFiles.filter((_, i) => i !== index));
   };
 
@@ -208,31 +209,35 @@ const ApplicationFormPage = () => {
     setIsSubmitting(true);
 
     // Simuler l'envoi
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     console.log("Candidature soumise:", {
       jobOffer,
       formData,
       files: {
         cv: cvFile,
         coverLetter: coverLetterFile,
-        others: otherFiles
-      }
+        others: otherFiles,
+      },
     });
-    
+
     setIsSubmitted(true);
     setIsSubmitting(false);
   };
 
   // Rendu de l'étape actuelle
   const renderStep = () => {
-    switch(currentStep) {
+    switch (currentStep) {
       case 1:
         return (
           <div className="space-y-6">
             <div className="mb-6">
-              <h3 className="mb-2 text-xl font-semibold">Informations personnelles</h3>
-              <p className="text-muted-foreground">Renseignez vos coordonnées et informations de contact</p>
+              <h3 className="mb-2 text-xl font-semibold">
+                Informations personnelles
+              </h3>
+              <p className="text-muted-foreground">
+                Renseignez vos coordonnées et informations de contact
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -241,18 +246,30 @@ const ApplicationFormPage = () => {
                 <Input
                   id="firstName"
                   value={formData.personalInfo.firstName}
-                  onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "personalInfo",
+                      "firstName",
+                      e.target.value,
+                    )
+                  }
                   required
                   placeholder="Votre prénom"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="lastName">Nom *</Label>
                 <Input
                   id="lastName"
                   value={formData.personalInfo.lastName}
-                  onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "personalInfo",
+                      "lastName",
+                      e.target.value,
+                    )
+                  }
                   required
                   placeholder="Votre nom"
                 />
@@ -264,7 +281,9 @@ const ApplicationFormPage = () => {
                   id="email"
                   type="email"
                   value={formData.personalInfo.email}
-                  onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personalInfo", "email", e.target.value)
+                  }
                   required
                   placeholder="votre@email.com"
                 />
@@ -275,7 +294,9 @@ const ApplicationFormPage = () => {
                 <Input
                   id="phone"
                   value={formData.personalInfo.phone}
-                  onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personalInfo", "phone", e.target.value)
+                  }
                   required
                   placeholder="+33 6 12 34 56 78"
                 />
@@ -286,7 +307,9 @@ const ApplicationFormPage = () => {
                 <Input
                   id="address"
                   value={formData.personalInfo.address}
-                  onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personalInfo", "address", e.target.value)
+                  }
                   placeholder="Adresse complète"
                 />
               </div>
@@ -296,7 +319,9 @@ const ApplicationFormPage = () => {
                 <Input
                   id="city"
                   value={formData.personalInfo.city}
-                  onChange={(e) => handleInputChange('personalInfo', 'city', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("personalInfo", "city", e.target.value)
+                  }
                   placeholder="Ville"
                 />
               </div>
@@ -306,7 +331,13 @@ const ApplicationFormPage = () => {
                 <Input
                   id="postalCode"
                   value={formData.personalInfo.postalCode}
-                  onChange={(e) => handleInputChange('personalInfo', 'postalCode', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "personalInfo",
+                      "postalCode",
+                      e.target.value,
+                    )
+                  }
                   placeholder="75000"
                 />
               </div>
@@ -317,7 +348,13 @@ const ApplicationFormPage = () => {
                   id="birthDate"
                   type="date"
                   value={formData.personalInfo.birthDate}
-                  onChange={(e) => handleInputChange('personalInfo', 'birthDate', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "personalInfo",
+                      "birthDate",
+                      e.target.value,
+                    )
+                  }
                 />
               </div>
 
@@ -328,7 +365,13 @@ const ApplicationFormPage = () => {
                   <Input
                     id="linkedin"
                     value={formData.personalInfo.linkedin}
-                    onChange={(e) => handleInputChange('personalInfo', 'linkedin', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "personalInfo",
+                        "linkedin",
+                        e.target.value,
+                      )
+                    }
                     placeholder="URL de votre profil"
                   />
                 </div>
@@ -341,7 +384,13 @@ const ApplicationFormPage = () => {
                   <Input
                     id="github"
                     value={formData.personalInfo.github}
-                    onChange={(e) => handleInputChange('personalInfo', 'github', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "personalInfo",
+                        "github",
+                        e.target.value,
+                      )
+                    }
                     placeholder="URL de votre profil"
                   />
                 </div>
@@ -354,7 +403,13 @@ const ApplicationFormPage = () => {
                   <Input
                     id="portfolio"
                     value={formData.personalInfo.portfolio}
-                    onChange={(e) => handleInputChange('personalInfo', 'portfolio', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "personalInfo",
+                        "portfolio",
+                        e.target.value,
+                      )
+                    }
                     placeholder="URL de votre portfolio"
                   />
                 </div>
@@ -368,7 +423,9 @@ const ApplicationFormPage = () => {
           <div className="space-y-6">
             <div className="mb-6">
               <h3 className="mb-2 text-xl font-semibold">Formation</h3>
-              <p className="text-muted-foreground">Ajoutez vos diplômes et formations</p>
+              <p className="text-muted-foreground">
+                Ajoutez vos diplômes et formations
+              </p>
             </div>
 
             {formData.education.map((edu, index) => (
@@ -380,7 +437,7 @@ const ApplicationFormPage = () => {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeItem('education', edu.id)}
+                      onClick={() => removeItem("education", edu.id)}
                       className="text-red-500 hover:text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -393,7 +450,14 @@ const ApplicationFormPage = () => {
                     <Label>Diplôme *</Label>
                     <Input
                       value={edu.degree || ""}
-                      onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "degree",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Ex: Master en Informatique"
                       required
                     />
@@ -403,7 +467,14 @@ const ApplicationFormPage = () => {
                     <Label>Établissement *</Label>
                     <Input
                       value={edu.school || ""}
-                      onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "school",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Ex: Université Paris-Saclay"
                       required
                     />
@@ -413,7 +484,14 @@ const ApplicationFormPage = () => {
                     <Label>Domaine d'études</Label>
                     <Input
                       value={edu.field || ""}
-                      onChange={(e) => handleArrayChange('education', index, 'field', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "field",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Ex: Informatique, Développement Web"
                     />
                   </div>
@@ -425,7 +503,14 @@ const ApplicationFormPage = () => {
                         type="checkbox"
                         id={`current-${edu.id}`}
                         checked={edu.current || false}
-                        onChange={(e) => handleArrayChange('education', index, 'current', e.target.checked)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "education",
+                            index,
+                            "current",
+                            e.target.checked,
+                          )
+                        }
                         className="rounded"
                       />
                       <Label htmlFor={`current-${edu.id}`} className="!mb-0">
@@ -439,17 +524,31 @@ const ApplicationFormPage = () => {
                     <Input
                       type="date"
                       value={edu.startDate || ""}
-                      onChange={(e) => handleArrayChange('education', index, 'startDate', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "startDate",
+                          e.target.value,
+                        )
+                      }
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Date de fin {!edu.current && '*'}</Label>
+                    <Label>Date de fin {!edu.current && "*"}</Label>
                     <Input
                       type="date"
                       value={edu.endDate || ""}
-                      onChange={(e) => handleArrayChange('education', index, 'endDate', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "endDate",
+                          e.target.value,
+                        )
+                      }
                       disabled={edu.current}
                       required={!edu.current}
                     />
@@ -459,7 +558,14 @@ const ApplicationFormPage = () => {
                     <Label>Description</Label>
                     <Textarea
                       value={edu.description || ""}
-                      onChange={(e) => handleArrayChange('education', index, 'description', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "description",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Décrivez votre formation, les matières principales, les projets réalisés..."
                       rows={3}
                     />
@@ -471,7 +577,7 @@ const ApplicationFormPage = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => addItem('education')}
+              onClick={() => addItem("education")}
               className="w-full"
             >
               <GraduationCap className="w-4 h-4 mr-2" />
@@ -484,8 +590,12 @@ const ApplicationFormPage = () => {
         return (
           <div className="space-y-6">
             <div className="mb-6">
-              <h3 className="mb-2 text-xl font-semibold">Expérience professionnelle</h3>
-              <p className="text-muted-foreground">Décrivez votre parcours professionnel</p>
+              <h3 className="mb-2 text-xl font-semibold">
+                Expérience professionnelle
+              </h3>
+              <p className="text-muted-foreground">
+                Décrivez votre parcours professionnel
+              </p>
             </div>
 
             {formData.experience.map((exp, index) => (
@@ -497,7 +607,7 @@ const ApplicationFormPage = () => {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeItem('experience', exp.id)}
+                      onClick={() => removeItem("experience", exp.id)}
                       className="text-red-500 hover:text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -510,7 +620,14 @@ const ApplicationFormPage = () => {
                     <Label>Poste *</Label>
                     <Input
                       value={exp.title || ""}
-                      onChange={(e) => handleArrayChange('experience', index, 'title', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "title",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Ex: Développeur Full Stack"
                       required
                     />
@@ -520,7 +637,14 @@ const ApplicationFormPage = () => {
                     <Label>Entreprise *</Label>
                     <Input
                       value={exp.company || ""}
-                      onChange={(e) => handleArrayChange('experience', index, 'company', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "company",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Nom de l'entreprise"
                       required
                     />
@@ -531,7 +655,14 @@ const ApplicationFormPage = () => {
                     <select
                       className="w-full px-3 py-2 border rounded-md"
                       value={exp.employmentType || "CDI"}
-                      onChange={(e) => handleArrayChange('experience', index, 'employmentType', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "employmentType",
+                          e.target.value,
+                        )
+                      }
                     >
                       <option value="CDI">CDI</option>
                       <option value="CDD">CDD</option>
@@ -546,7 +677,14 @@ const ApplicationFormPage = () => {
                     <Label>Lieu</Label>
                     <Input
                       value={exp.location || ""}
-                      onChange={(e) => handleArrayChange('experience', index, 'location', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "location",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Ex: Paris, France"
                     />
                   </div>
@@ -558,10 +696,20 @@ const ApplicationFormPage = () => {
                         type="checkbox"
                         id={`current-exp-${exp.id}`}
                         checked={exp.current || false}
-                        onChange={(e) => handleArrayChange('experience', index, 'current', e.target.checked)}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "experience",
+                            index,
+                            "current",
+                            e.target.checked,
+                          )
+                        }
                         className="rounded"
                       />
-                      <Label htmlFor={`current-exp-${exp.id}`} className="!mb-0">
+                      <Label
+                        htmlFor={`current-exp-${exp.id}`}
+                        className="!mb-0"
+                      >
                         Je travaille toujours ici
                       </Label>
                     </div>
@@ -572,17 +720,31 @@ const ApplicationFormPage = () => {
                     <Input
                       type="date"
                       value={exp.startDate || ""}
-                      onChange={(e) => handleArrayChange('experience', index, 'startDate', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "startDate",
+                          e.target.value,
+                        )
+                      }
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Date de fin {!exp.current && '*'}</Label>
+                    <Label>Date de fin {!exp.current && "*"}</Label>
                     <Input
                       type="date"
                       value={exp.endDate || ""}
-                      onChange={(e) => handleArrayChange('experience', index, 'endDate', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "endDate",
+                          e.target.value,
+                        )
+                      }
                       disabled={exp.current}
                       required={!exp.current}
                     />
@@ -592,7 +754,14 @@ const ApplicationFormPage = () => {
                     <Label>Description *</Label>
                     <Textarea
                       value={exp.description || ""}
-                      onChange={(e) => handleArrayChange('experience', index, 'description', e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "description",
+                          e.target.value,
+                        )
+                      }
                       placeholder="Décrivez vos missions, responsabilités et réalisations..."
                       rows={4}
                       required
@@ -605,7 +774,7 @@ const ApplicationFormPage = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => addItem('experience')}
+              onClick={() => addItem("experience")}
               className="w-full"
             >
               <Briefcase className="w-4 h-4 mr-2" />
@@ -618,8 +787,12 @@ const ApplicationFormPage = () => {
         return (
           <div className="space-y-6">
             <div className="mb-6">
-              <h3 className="mb-2 text-xl font-semibold">Compétences & Documents</h3>
-              <p className="text-muted-foreground">Ajoutez vos compétences et téléchargez vos documents</p>
+              <h3 className="mb-2 text-xl font-semibold">
+                Compétences & Documents
+              </h3>
+              <p className="text-muted-foreground">
+                Ajoutez vos compétences et téléchargez vos documents
+              </p>
             </div>
 
             {/* Compétences */}
@@ -632,13 +805,15 @@ const ApplicationFormPage = () => {
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     placeholder="Ex: React, Node.js, Python..."
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addSkill())
+                    }
                   />
                   <Button type="button" onClick={addSkill}>
                     Ajouter
                   </Button>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-2">
                   {formData.skills.map((skill, index) => (
                     <Badge key={index} variant="secondary" className="gap-1">
@@ -663,7 +838,12 @@ const ApplicationFormPage = () => {
                 <Textarea
                   id="coverLetter"
                   value={formData.coverLetter}
-                  onChange={(e) => setFormData(prev => ({ ...prev, coverLetter: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      coverLetter: e.target.value,
+                    }))
+                  }
                   placeholder="Expliquez pourquoi vous êtes le candidat idéal pour ce poste..."
                   rows={6}
                 />
@@ -679,7 +859,12 @@ const ApplicationFormPage = () => {
                     id="availability"
                     className="w-full px-3 py-2 border rounded-md"
                     value={formData.availability}
-                    onChange={(e) => setFormData(prev => ({ ...prev, availability: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        availability: e.target.value,
+                      }))
+                    }
                     required
                   >
                     <option value="">Sélectionnez...</option>
@@ -693,11 +878,18 @@ const ApplicationFormPage = () => {
 
                 {type !== "internship" && (
                   <div className="space-y-2">
-                    <Label htmlFor="desiredSalary">Prétentions salariales</Label>
+                    <Label htmlFor="desiredSalary">
+                      Prétentions salariales
+                    </Label>
                     <Input
                       id="desiredSalary"
                       value={formData.desiredSalary}
-                      onChange={(e) => setFormData(prev => ({ ...prev, desiredSalary: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          desiredSalary: e.target.value,
+                        }))
+                      }
                       placeholder="Ex: 45 000 € annuels"
                     />
                   </div>
@@ -709,7 +901,12 @@ const ApplicationFormPage = () => {
                     <Input
                       id="noticePeriod"
                       value={formData.noticePeriod}
-                      onChange={(e) => setFormData(prev => ({ ...prev, noticePeriod: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          noticePeriod: e.target.value,
+                        }))
+                      }
                       placeholder="Ex: 1 mois"
                     />
                   </div>
@@ -721,7 +918,7 @@ const ApplicationFormPage = () => {
               {/* Téléchargement de fichiers */}
               <div className="space-y-4">
                 <h4 className="font-semibold">Documents à télécharger</h4>
-                
+
                 <div className="space-y-3">
                   {/* CV */}
                   <div className="p-4 border rounded-lg">
@@ -730,7 +927,9 @@ const ApplicationFormPage = () => {
                         <FileText className="w-5 h-5 text-primary" />
                         <Label className="font-medium">CV *</Label>
                       </div>
-                      <span className="text-xs text-muted-foreground">PDF, DOC, DOCX (max. 5MB)</span>
+                      <span className="text-xs text-muted-foreground">
+                        PDF, DOC, DOCX (max. 5MB)
+                      </span>
                     </div>
                     {cvFile ? (
                       <div className="flex items-center justify-between p-2 rounded bg-muted">
@@ -746,7 +945,9 @@ const ApplicationFormPage = () => {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(URL.createObjectURL(cvFile), '_blank')}
+                            onClick={() =>
+                              window.open(URL.createObjectURL(cvFile), "_blank")
+                            }
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -754,7 +955,7 @@ const ApplicationFormPage = () => {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeFile('cv')}
+                            onClick={() => removeFile("cv")}
                             className="text-red-500 hover:text-red-600 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -770,7 +971,10 @@ const ApplicationFormPage = () => {
                         <Input
                           type="file"
                           accept=".pdf,.doc,.docx"
-                          onChange={(e) => e.target.files[0] && handleFileUpload('cv', e.target.files[0])}
+                          onChange={(e) =>
+                            e.target.files[0] &&
+                            handleFileUpload("cv", e.target.files[0])
+                          }
                           className="hidden"
                           id="cv-upload"
                         />
@@ -782,16 +986,16 @@ const ApplicationFormPage = () => {
                       </div>
                     )}
 
-                        <div className="mt-4">
-                          <Button
-                            type="button"
-                            variant="link"
-                            onClick={() => navigate("/cv")}
-                          >
-                            <FileText  className="w-4 h-4"/>
-                            Générer un CV
-                          </Button>
-                        </div>
+                    <div className="mt-4">
+                      <Button
+                        type="button"
+                        variant="link"
+                        onClick={() => navigate("/cv")}
+                      >
+                        <FileText className="w-4 h-4" />
+                        Générer un CV
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Lettre de motivation facultative */}
@@ -799,22 +1003,33 @@ const ApplicationFormPage = () => {
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <FileText className="w-5 h-5 text-blue-500" />
-                        <Label className="font-medium">Lettre de motivation</Label>
+                        <Label className="font-medium">
+                          Lettre de motivation
+                        </Label>
                       </div>
-                      <span className="text-xs text-muted-foreground">Optionnel</span>
+                      <span className="text-xs text-muted-foreground">
+                        Optionnel
+                      </span>
                     </div>
                     {coverLetterFile ? (
                       <div className="flex items-center justify-between p-2 rounded bg-muted">
                         <div className="flex items-center gap-2">
                           <FileText className="w-4 h-4" />
-                          <span className="text-sm">{coverLetterFile.name}</span>
+                          <span className="text-sm">
+                            {coverLetterFile.name}
+                          </span>
                         </div>
                         <div className="flex gap-2">
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(URL.createObjectURL(coverLetterFile), '_blank')}
+                            onClick={() =>
+                              window.open(
+                                URL.createObjectURL(coverLetterFile),
+                                "_blank",
+                              )
+                            }
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -822,7 +1037,7 @@ const ApplicationFormPage = () => {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeFile('coverLetter')}
+                            onClick={() => removeFile("coverLetter")}
                             className="text-red-500 hover:text-red-600 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -838,7 +1053,10 @@ const ApplicationFormPage = () => {
                         <Input
                           type="file"
                           accept=".pdf,.doc,.docx"
-                          onChange={(e) => e.target.files[0] && handleFileUpload('coverLetter', e.target.files[0])}
+                          onChange={(e) =>
+                            e.target.files[0] &&
+                            handleFileUpload("coverLetter", e.target.files[0])
+                          }
                           className="hidden"
                           id="coverletter-upload"
                         />
@@ -858,13 +1076,18 @@ const ApplicationFormPage = () => {
                         <FileText className="w-5 h-5 text-green-500" />
                         <Label className="font-medium">Autres documents</Label>
                       </div>
-                      <span className="text-xs text-muted-foreground">Relevés de notes, certificats, etc.</span>
+                      <span className="text-xs text-muted-foreground">
+                        Relevés de notes, certificats, etc.
+                      </span>
                     </div>
-                    
+
                     {otherFiles.length > 0 && (
                       <div className="mb-3 space-y-2">
                         {otherFiles.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 rounded bg-muted">
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-2 rounded bg-muted"
+                          >
                             <div className="flex items-center gap-2">
                               <FileText className="w-4 h-4" />
                               <span className="text-sm">{file.name}</span>
@@ -874,7 +1097,12 @@ const ApplicationFormPage = () => {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => window.open(URL.createObjectURL(file), '_blank')}
+                                onClick={() =>
+                                  window.open(
+                                    URL.createObjectURL(file),
+                                    "_blank",
+                                  )
+                                }
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
@@ -882,7 +1110,7 @@ const ApplicationFormPage = () => {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => removeFile('other', index)}
+                                onClick={() => removeFile("other", index)}
                                 className="text-red-500 hover:text-red-600 hover:bg-red-50"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -898,13 +1126,20 @@ const ApplicationFormPage = () => {
                       multiple
                       accept=".pdf,.jpg,.png,.doc,.docx"
                       onChange={(e) => {
-                        Array.from(e.target.files).forEach(file => handleFileUpload('other', file));
+                        Array.from(e.target.files).forEach((file) =>
+                          handleFileUpload("other", file),
+                        );
                       }}
                       className="hidden"
                       id="other-upload"
                     />
                     <Label htmlFor="other-upload">
-                      <Button type="button" variant="outline" as="span" className="w-full">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        as="span"
+                        className="w-full"
+                      >
                         <Upload className="w-4 h-4 mr-2" />
                         Ajouter d'autres documents
                       </Button>
@@ -940,7 +1175,11 @@ const ApplicationFormPage = () => {
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                       <h5 className="font-semibold">{jobOffer.title}</h5>
-                      <Badge variant={jobOffer.type === "Stage" ? "default" : "secondary"}>
+                      <Badge
+                        variant={
+                          jobOffer.type === "Stage" ? "default" : "secondary"
+                        }
+                      >
                         {jobOffer.type}
                       </Badge>
                     </div>
@@ -964,12 +1203,15 @@ const ApplicationFormPage = () => {
 
               {/* Informations personnelles */}
               <div className="p-4 border rounded-lg">
-                <h4 className="mb-3 font-semibold">Informations personnelles</h4>
+                <h4 className="mb-3 font-semibold">
+                  Informations personnelles
+                </h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-muted-foreground">Nom complet :</span>
                     <p className="font-medium">
-                      {formData.personalInfo.firstName} {formData.personalInfo.lastName}
+                      {formData.personalInfo.firstName}{" "}
+                      {formData.personalInfo.lastName}
                     </p>
                   </div>
                   <div>
@@ -981,9 +1223,12 @@ const ApplicationFormPage = () => {
                     <p className="font-medium">{formData.personalInfo.phone}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Localisation :</span>
+                    <span className="text-muted-foreground">
+                      Localisation :
+                    </span>
                     <p className="font-medium">
-                      {formData.personalInfo.city && `${formData.personalInfo.city}, `}
+                      {formData.personalInfo.city &&
+                        `${formData.personalInfo.city}, `}
                       {formData.personalInfo.country}
                     </p>
                   </div>
@@ -1013,7 +1258,7 @@ const ApplicationFormPage = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   <div>
                     <h5 className="flex items-center gap-1 mb-2 text-sm font-semibold">
                       <Briefcase className="w-4 h-4" />
@@ -1055,20 +1300,25 @@ const ApplicationFormPage = () => {
                       </>
                     )}
                   </div>
-                  
+
                   {coverLetterFile && (
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="font-medium">Lettre de motivation :</span>
+                      <span className="font-medium">
+                        Lettre de motivation :
+                      </span>
                       <span>{coverLetterFile.name}</span>
                     </div>
                   )}
-                  
+
                   {otherFiles.length > 0 && (
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span className="font-medium">Autres documents :</span>
-                      <span>{otherFiles.length} fichier{otherFiles.length > 1 ? 's' : ''}</span>
+                      <span>
+                        {otherFiles.length} fichier
+                        {otherFiles.length > 1 ? "s" : ""}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -1079,9 +1329,13 @@ const ApplicationFormPage = () => {
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-amber-800">Avant de soumettre</h4>
+                    <h4 className="font-semibold text-amber-800">
+                      Avant de soumettre
+                    </h4>
                     <ul className="mt-2 space-y-1 text-sm text-amber-700">
-                      <li>• Vérifiez l'exactitude de toutes les informations</li>
+                      <li>
+                        • Vérifiez l'exactitude de toutes les informations
+                      </li>
                       <li>• Assurez-vous que votre CV est à jour</li>
                       <li>• Votre candidature sera envoyée à l'entreprise</li>
                       <li>• Vous recevrez une confirmation par email</li>
@@ -1109,22 +1363,30 @@ const ApplicationFormPage = () => {
             </div>
             <h1 className="mb-4 text-3xl font-bold">Candidature envoyée !</h1>
             <p className="mb-6 text-muted-foreground">
-              Votre candidature pour le poste de <span className="font-semibold">{jobOffer.title}</span> chez {jobOffer.company} a été soumise avec succès.
+              Votre candidature pour le poste de{" "}
+              <span className="font-semibold">{jobOffer.title}</span> chez{" "}
+              {jobOffer.company} a été soumise avec succès.
             </p>
-            
+
             <div className="p-4 mb-8 border rounded-lg bg-muted/30">
               <h3 className="mb-3 font-semibold">Prochaines étapes</h3>
               <div className="space-y-3 text-sm text-left">
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full bg-primary">1</div>
+                  <div className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full bg-primary">
+                    1
+                  </div>
                   <span>Confirmation par email dans les 24h</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full bg-primary">2</div>
+                  <div className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full bg-primary">
+                    2
+                  </div>
                   <span>Examen de votre candidature par l'entreprise</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full bg-primary">3</div>
+                  <div className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white rounded-full bg-primary">
+                    3
+                  </div>
                   <span>Réponse sous 7 à 14 jours ouvrables</span>
                 </div>
               </div>
@@ -1175,12 +1437,14 @@ const ApplicationFormPage = () => {
                   <span className="font-medium">{jobOffer.company}</span>
                 </div>
                 <span>•</span>
-                <Badge variant={jobOffer.type === "Stage" ? "default" : "secondary"}>
+                <Badge
+                  variant={jobOffer.type === "Stage" ? "default" : "secondary"}
+                >
                   {jobOffer.type}
                 </Badge>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="w-4 h-4" />
               <span>Formulaire en {steps.length} étapes</span>
@@ -1202,7 +1466,7 @@ const ApplicationFormPage = () => {
                     const Icon = step.icon;
                     const isActive = currentStep === step.number;
                     const isCompleted = currentStep > step.number;
-                    
+
                     return (
                       <div
                         key={step.number}
@@ -1210,17 +1474,19 @@ const ApplicationFormPage = () => {
                           isActive
                             ? "bg-primary text-primary-foreground"
                             : isCompleted
-                            ? "bg-green-50 border border-green-200"
-                            : "hover:bg-muted"
+                              ? "bg-green-50 border border-green-200"
+                              : "hover:bg-muted"
                         }`}
                       >
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                          isActive
-                            ? "bg-primary-foreground text-primary"
-                            : isCompleted
-                            ? "bg-green-100 text-green-600"
-                            : "bg-muted"
-                        }`}>
+                        <div
+                          className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                            isActive
+                              ? "bg-primary-foreground text-primary"
+                              : isCompleted
+                                ? "bg-green-100 text-green-600"
+                                : "bg-muted"
+                          }`}
+                        >
                           {isCompleted ? (
                             <CheckCircle className="w-4 h-4" />
                           ) : (
@@ -1228,7 +1494,9 @@ const ApplicationFormPage = () => {
                           )}
                         </div>
                         <div className="flex-1">
-                          <div className="text-sm font-medium">Étape {step.number}</div>
+                          <div className="text-sm font-medium">
+                            Étape {step.number}
+                          </div>
                           <div className="text-xs">{step.title}</div>
                         </div>
                         {isActive && (
@@ -1272,7 +1540,7 @@ const ApplicationFormPage = () => {
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div 
+                  <div
                     className="h-full transition-all duration-300 bg-primary"
                     style={{ width: `${(currentStep / steps.length) * 100}%` }}
                   ></div>
@@ -1289,10 +1557,8 @@ const ApplicationFormPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Contenu de l'étape */}
               <div className="border rounded-lg">
-                <div className="p-6">
-                  {renderStep()}
-                </div>
-                
+                <div className="p-6">{renderStep()}</div>
+
                 {/* Navigation */}
                 <div className="flex items-center justify-between p-4 border-t">
                   <Button
@@ -1305,7 +1571,7 @@ const ApplicationFormPage = () => {
                     <ChevronLeft className="w-4 h-4" />
                     Précédent
                   </Button>
-                  
+
                   <div className="flex items-center gap-3">
                     {currentStep < steps.length ? (
                       <Button

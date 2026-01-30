@@ -1,4 +1,11 @@
-import { DollarSign, Euro, PoundSterling,  Bitcoin, JapaneseYenIcon, ChevronDown } from "lucide-react";
+import {
+  DollarSign,
+  Euro,
+  PoundSterling,
+  Bitcoin,
+  JapaneseYenIcon,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -20,7 +27,7 @@ export const availableCurrencies = [
     countryCode: "FR", // France (Eurozone)
     flag: "🇪🇺",
     icon: <Euro className="w-4 h-4" />,
-    locale: "fr-FR"
+    locale: "fr-FR",
   },
   {
     code: "USD",
@@ -29,7 +36,7 @@ export const availableCurrencies = [
     countryCode: "US",
     flag: "🇺🇸",
     icon: <DollarSign className="w-4 h-4" />,
-    locale: "en-US"
+    locale: "en-US",
   },
   {
     code: "GBP",
@@ -38,7 +45,7 @@ export const availableCurrencies = [
     countryCode: "GB",
     flag: "🇬🇧",
     icon: <PoundSterling className="w-4 h-4" />,
-    locale: "en-GB"
+    locale: "en-GB",
   },
   {
     code: "CAD",
@@ -47,7 +54,7 @@ export const availableCurrencies = [
     countryCode: "CA",
     flag: "🇨🇦",
     icon: <DollarSign className="w-4 h-4" />,
-    locale: "en-CA"
+    locale: "en-CA",
   },
   {
     code: "XOF",
@@ -56,7 +63,7 @@ export const availableCurrencies = [
     countryCode: "SN", // Senegal (WAEMU)
     flag: "🇨🇫",
     icon: <span className="text-xs font-bold">F</span>,
-    locale: "fr-CF"
+    locale: "fr-CF",
   },
   {
     code: "JPY",
@@ -65,8 +72,8 @@ export const availableCurrencies = [
     countryCode: "JP",
     flag: "🇯🇵",
     icon: <JapaneseYenIcon className="w-4 h-4" />,
-    locale: "ja-JP"
-  }
+    locale: "ja-JP",
+  },
 ];
 
 const CurrencySelector = () => {
@@ -74,14 +81,16 @@ const CurrencySelector = () => {
 
   // Si vous n'avez pas encore le contexte, voici un hook temporaire
   // const { currency, setCurrency } = useState("EUR");
-  
-  const currentCurrency = availableCurrencies.find(c => c.code === currency) || availableCurrencies[0];
+
+  const currentCurrency =
+    availableCurrencies.find((c) => c.code === currency) ||
+    availableCurrencies[0];
 
   const handleCurrencyChange = (currencyCode) => {
     changeCurrency(currencyCode);
     // Optionnel: Sauvegarder dans localStorage
     localStorage.setItem("preferredCurrency", currencyCode);
-    
+
     // Optionnel: Rafraîchir les prix si nécessaire
     // window.location.reload(); // Ou mieux: mettre à jour le contexte global
   };
@@ -89,12 +98,17 @@ const CurrencySelector = () => {
   return (
     <DropdownMenu className="z-1600">
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex flex-col gap-1 px-2 md:flex-row text-primary-foreground">
+        <Button
+          variant="ghost"
+          className="flex flex-col gap-1 px-2 md:flex-row text-primary-foreground"
+        >
           <div className="flex items-center gap-1">
             {currentCurrency.icon}
-            <span className="hidden text-sm font-medium md:block">{currentCurrency.code}</span>
+            <span className="hidden text-sm font-medium md:block">
+              {currentCurrency.code}
+            </span>
           </div>
-          <ChevronDown className="w-4 h-4"/>
+          <ChevronDown className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 z-1600">
@@ -110,9 +124,9 @@ const CurrencySelector = () => {
               <div className="flex items-center gap-3">
                 {/* <div className="text-lg">{currencyItem.flag}</div> */}
                 <ReactCountryFlag
-                    svg
-                    countryCode={currencyItem.countryCode}
-                    className="w-4 h-4"
+                  svg
+                  countryCode={currencyItem.countryCode}
+                  className="w-4 h-4"
                 />
                 <div>
                   <div className="font-medium">{currencyItem.name}</div>
@@ -127,7 +141,7 @@ const CurrencySelector = () => {
             </DropdownMenuItem>
           ))}
         </div>
-        
+
         {/* Exemple de prix formaté pour comparaison */}
         {/* <DropdownMenuSeparator />
         <div className="px-2 py-1.5 text-xs text-muted-foreground">

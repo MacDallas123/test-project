@@ -7,7 +7,14 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import {
@@ -28,6 +35,8 @@ import {
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
 import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAction, selectUser, setIsLoggedIn } from "@/redux/slices/AppSlice";
 
 //type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -36,13 +45,27 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState("email");
-    const { t } = useLanguage();
 
-    // Schéma de validation avec Zod
-const loginSchema = z.object({
+  const [loginData, setLoginData] = useState({
+    identifier: "",
+    password: ""
+  });
+  
+  const dispatch = useDispatch();
+  const selectUserFS = useSelector(selectUser);
+
+  const { t } = useLanguage();
+
+  // Schéma de validation avec Zod
+  const loginSchema = z.object({
     identifier: z
       .string()
-      .min(1, { message: t("login.identifier.required", "L'email ou le numéro de téléphone est requis") })
+      .min(1, {
+        message: t(
+          "login.identifier.required",
+          "L'email ou le numéro de téléphone est requis",
+        ),
+      })
       .refine(
         (value) => {
           // Valider soit comme email, soit comme numéro de téléphone
@@ -51,16 +74,26 @@ const loginSchema = z.object({
           return emailRegex.test(value) || phoneRegex.test(value);
         },
         {
-          message: t("login.identifier.incorrect", "Veuillez entrer un email valide ou un numéro de téléphone"),
-        }
+          message: t(
+            "login.identifier.incorrect",
+            "Veuillez entrer un email valide ou un numéro de téléphone",
+          ),
+        },
       ),
     password: z
       .string()
-      .min(6, { message: t("login.password.tooShort", "Le mot de passe doit contenir au moins 6 caractères")  })
-      .max(50, { message: t("login.identifier.tooLong", "Le mot de passe est trop long") }),
+      .min(6, {
+        message: t(
+          "login.password.tooShort",
+          "Le mot de passe doit contenir au moins 6 caractères",
+        ),
+      })
+      .max(50, {
+        message: t("login.identifier.tooLong", "Le mot de passe est trop long"),
+      }),
     rememberMe: z.boolean().optional(),
   });
-  
+
   // Initialisation de React Hook Form
   const {
     register,
@@ -84,7 +117,7 @@ const loginSchema = z.object({
   const detectIdentifierType = (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
-    
+
     if (emailRegex.test(value)) {
       setLoginMethod("email");
     } else if (phoneRegex.test(value)) {
@@ -95,16 +128,16 @@ const loginSchema = z.object({
   // Soumission du formulaire
   const onSubmit = async (data) => {
     setIsLoading(true);
-    
+
     try {
       // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      dispatch(setIsLoggedIn(true));
+
       console.log("Connexion avec:", data);
-      
+
       // Redirection vers le dashboard
       navigate("/dashboard");
-      
     } catch (error) {
       console.error("Erreur de connexion:", error);
     } finally {
@@ -113,8 +146,9 @@ const loginSchema = z.object({
   };
 
   // Connexion avec les comptes de démo
-  const handleDemoLogin = (type) => {
-    setIsLoading(true);
+  const handleDemoLogin = (type, identifier, password) => {
+    dispatch(loginAction({ identifier, password }));
+    /*setIsLoading(true);
     
     const demoCredentials = {
       user: { identifier: "client@demo.com", password: "demo123" },
@@ -131,7 +165,7 @@ const loginSchema = z.object({
       console.log(`Connexion démo ${type}:`, demo);
       navigate("/dashboard");
       setIsLoading(false);
-    }, 800);
+    }, 800);*/
   };
 
   return (
@@ -179,7 +213,10 @@ const loginSchema = z.object({
                     <Input
                       id="identifier"
                       type="text"
-                      placeholder={t("login.identifier.placeholder", "Email ou numero de telephone")}
+                      placeholder={t(
+                        "login.identifier.placeholder",
+                        "Email ou numero de telephone",
+                      )}
                       className="pl-10"
                       {...register("identifier", {
                         onChange: (e) => detectIdentifierType(e.target.value),
@@ -228,7 +265,9 @@ const loginSchema = z.object({
                       className="absolute transform -translate-y-1/2 right-3 top-1/2"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={
-                        showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"
+                        showPassword
+                          ? "Cacher le mot de passe"
+                          : "Afficher le mot de passe"
                       }
                     >
                       {showPassword ? (
@@ -262,10 +301,12 @@ const loginSchema = z.object({
                       Se souvenir de moi
                     </label>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 text-sm">
                     <Shield className="w-4 h-4 text-green-500" />
-                    <span className="text-muted-foreground">Connexion sécurisée</span>
+                    <span className="text-muted-foreground">
+                      Connexion sécurisée
+                    </span>
                   </div>
                 </div>
 
@@ -303,7 +344,7 @@ const loginSchema = z.object({
                   S'inscrire gratuitement
                 </Link>
               </div>
-              
+
               <div className="text-xs text-center text-muted-foreground">
                 En vous connectant, vous acceptez nos{" "}
                 <Link to="/terms" className="text-primary hover:underline">

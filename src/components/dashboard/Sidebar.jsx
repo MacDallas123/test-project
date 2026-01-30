@@ -53,17 +53,52 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { path: "/dashboard/main", icon: Home, label: "Tableau de bord", badge: null },
-    { path: "/dashboard/users", icon: Users, label: "Utilisateurs", badge: null },
-    { path: "/dashboard/offres", icon: Briefcase, label: "Offres d'emplois", badge: null },
-    { path: "/dashboard/candidatures", icon: ClipboardCheck, label: "Candidatures", badge: "8" },
-    { path: "/dashboard/orders", icon: ShoppingBag, label: "Commandes", badge: "5" },
+    {
+      path: "/dashboard/main",
+      icon: Home,
+      label: "Tableau de bord",
+      badge: null,
+    },
+    {
+      path: "/dashboard/users",
+      icon: Users,
+      label: "Utilisateurs",
+      badge: null,
+    },
+    {
+      path: "/dashboard/offres",
+      icon: Briefcase,
+      label: "Offres d'emplois",
+      badge: null,
+    },
+    {
+      path: "/dashboard/candidatures",
+      icon: ClipboardCheck,
+      label: "Candidatures",
+      badge: "8",
+    },
+    {
+      path: "/dashboard/orders",
+      icon: ShoppingBag,
+      label: "Commandes",
+      badge: "5",
+    },
     { path: "/dashboard/clients", icon: User2, label: "Clients", badge: "3" },
     { path: "/dashboard/mails", icon: Mail, label: "Mails", badge: null },
-    { path: "/dashboard/factures", icon: CreditCard, label: "Factures", badge: "5" },
+    {
+      path: "/dashboard/factures",
+      icon: CreditCard,
+      label: "Factures",
+      badge: "5",
+    },
     { path: "/dashboard/devis", icon: FileText, label: "Devis", badge: null },
     { path: "/dashboard/avoirs", icon: Receipt, label: "Avoirs", badge: null },
-    { path: "/dashboard/articles", icon: Package, label: "Produits/Prestations", badge: null },
+    {
+      path: "/dashboard/articles",
+      icon: Package,
+      label: "Produits/Prestations",
+      badge: null,
+    },
   ];
 
   const secondaryItems = [
@@ -74,21 +109,27 @@ const Sidebar = () => {
   const SidebarContent = () => (
     <>
       {/* En-tête utilisateur */}
-      <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"} p-4`}>
+      <div
+        className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"} p-4`}
+      >
         <Avatar className={`${isCollapsed ? "w-8 h-8" : "w-10 h-10"}`}>
           <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" />
           <AvatarFallback>AD</AvatarFallback>
         </Avatar>
-        
+
         {!isCollapsed && (
           <div className="flex-1 min-w-0">
             <p className="font-semibold truncate">Admin Dashboard</p>
-            <p className="text-xs truncate text-muted-foreground">Administrateur</p>
+            <p className="text-xs truncate text-muted-foreground">
+              Administrateur
+            </p>
           </div>
         )}
-        
+
         {!isCollapsed && (
-          <Badge variant="outline" className="text-xs">Admin</Badge>
+          <Badge variant="outline" className="text-xs">
+            Admin
+          </Badge>
         )}
       </div>
 
@@ -100,7 +141,7 @@ const Sidebar = () => {
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
-            
+
             return (
               <li key={item.path}>
                 <NavLink
@@ -115,12 +156,19 @@ const Sidebar = () => {
                   onClick={() => setIsMobileOpen(false)}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-5 h-5 ${isCollapsed ? "" : "shrink-0"}`} />
-                    {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    <Icon
+                      className={`w-5 h-5 ${isCollapsed ? "" : "shrink-0"}`}
+                    />
+                    {!isCollapsed && (
+                      <span className="truncate">{item.label}</span>
+                    )}
                   </div>
-                  
+
                   {!isCollapsed && item.badge && (
-                    <Badge variant={isActive ? "secondary" : "outline"} className="text-xs">
+                    <Badge
+                      variant={isActive ? "secondary" : "outline"}
+                      className="text-xs"
+                    >
                       {item.badge}
                     </Badge>
                   )}
@@ -136,7 +184,7 @@ const Sidebar = () => {
         <ul className="space-y-1">
           {secondaryItems.map((item) => {
             const Icon = item.icon;
-            
+
             return (
               <li key={item.path}>
                 <NavLink
@@ -151,7 +199,9 @@ const Sidebar = () => {
                   onClick={() => setIsMobileOpen(false)}
                 >
                   <Icon className="w-5 h-5" />
-                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                  {!isCollapsed && (
+                    <span className="truncate">{item.label}</span>
+                  )}
                 </NavLink>
               </li>
             );
@@ -182,12 +232,14 @@ const Sidebar = () => {
       )}
 
       {/* Sidebar desktop */}
-      <aside className={`
+      <aside
+        className={`
         hidden md:flex flex-col h-screen bg-background border-r
         sticky left-0 top-0 z-40
         transition-all duration-300 ease-in-out
         ${isCollapsed ? "w-16" : "w-64"}
-      `}>
+      `}
+      >
         {/* Bouton de réduction */}
         <Button
           variant="ghost"
@@ -206,13 +258,15 @@ const Sidebar = () => {
       </aside>
 
       {/* Sidebar mobile */}
-      <aside className={`
+      <aside
+        className={`
         md:hidden flex flex-col bg-background border-r
         fixed left-0 top-16 z-50 bottom-0
         transition-transform duration-300 ease-in-out
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         w-64
-      `}>
+      `}
+      >
         {/* Bouton de fermeture mobile */}
         <Button
           variant="ghost"
@@ -220,11 +274,11 @@ const Sidebar = () => {
           className="absolute right-0 z-50 border rounded-full shadow-md translate-x-2/3 top-6 bg-background"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
         >
-          {isMobileOpen ? 
+          {isMobileOpen ? (
             <X className="w-4 h-4" />
-           : 
-            <ChevronRight className="w-4 h-4"/>
-          }
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
         </Button>
 
         <SidebarContent />

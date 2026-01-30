@@ -9,7 +9,7 @@ export const LanguageProvider = ({ children }) => {
   const changeLanguage = (lang, reactFlag = null) => {
     if (translations[lang]) {
       setLanguage(lang);
-      if(reactFlag) setFlag(reactFlag);
+      if (reactFlag) setFlag(reactFlag);
     }
   };
 

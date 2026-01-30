@@ -18,26 +18,29 @@ const LanguageSelector = () => {
   return (
     <DropdownMenu className="z-1600">
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex flex-col px-2 md:flex-row text-primary-foreground">
+        <Button
+          variant="ghost"
+          className="flex flex-col px-2 md:flex-row text-primary-foreground"
+        >
           <div className="flex items-center gap-1">
             {/* <Globe className="w-4 h-4" /> */}
-            <ReactCountryFlag
-                svg
-                countryCode={flag}
-                className="w-4 h-4"
-            />
-            <span className="hidden text-sm font-medium uppercase md:block">{language}</span>
+            <ReactCountryFlag svg countryCode={flag} className="w-4 h-4" />
+            <span className="hidden text-sm font-medium uppercase md:block">
+              {language}
+            </span>
           </div>
-          <ChevronDown className="w-4 h-4"/>
+          <ChevronDown className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="z-1600">
-        <DropdownMenuLabel>{t("language_choice", "Choix du language")}</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          {t("language_choice", "Choix du language")}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {availableLanguages.map((lang, index) => {
           return (
             <DropdownMenuItem
-                key={index}
+              key={index}
               className="cursor-pointer"
               onClick={() => changeLanguage(lang.code, lang.reactFlag)}
             >

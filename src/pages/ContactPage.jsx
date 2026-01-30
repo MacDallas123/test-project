@@ -6,15 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
+import {
+  Mail,
+  Phone,
+  MapPin,
   Send,
   Clock,
   Building2,
   MessageCircle,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 
 const contactInfo = [
@@ -55,16 +55,16 @@ const ContactPage = () => {
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -73,17 +73,17 @@ const ContactPage = () => {
     setIsSubmitting(true);
 
     // Simuler l'envoi du formulaire
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     console.log("Message envoyé:", formData);
-    
+
     setIsSubmitted(true);
     setFormData({
       fullname: "",
       email: "",
       phone: "",
       subject: "",
-      message: ""
+      message: "",
     });
 
     setIsSubmitting(false);
@@ -112,7 +112,8 @@ const ContactPage = () => {
               Contactez nous
             </h1>
             <p className="mb-8 text-lg text-muted-foreground">
-              Découvrez les opportunités professionnelles proposées par nos entreprises partenaires
+              Découvrez les opportunités professionnelles proposées par nos
+              entreprises partenaires
             </p>
           </div>
         </div>
@@ -135,8 +136,12 @@ const ContactPage = () => {
                     <MessageCircle className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">Envoyez-nous un message</h2>
-                    <p className="text-muted-foreground">Nous vous répondrons rapidement</p>
+                    <h2 className="text-2xl font-bold">
+                      Envoyez-nous un message
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Nous vous répondrons rapidement
+                    </p>
                   </div>
                 </div>
 
@@ -149,12 +154,15 @@ const ContactPage = () => {
                     <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full">
                       <Send className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="mb-2 text-2xl font-bold">Message envoyé !</h3>
+                    <h3 className="mb-2 text-2xl font-bold">
+                      Message envoyé !
+                    </h3>
                     <p className="text-muted-foreground">
-                      Merci pour votre message. Notre équipe vous contactera très rapidement.
+                      Merci pour votre message. Notre équipe vous contactera
+                      très rapidement.
                     </p>
-                    <Button 
-                      variant="default" 
+                    <Button
+                      variant="default"
                       className="mt-6"
                       onClick={() => setIsSubmitted(false)}
                     >
@@ -165,7 +173,10 @@ const ContactPage = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label htmlFor="fullname" className="block mb-2 text-sm font-medium">
+                        <label
+                          htmlFor="fullname"
+                          className="block mb-2 text-sm font-medium"
+                        >
                           Nom complet *
                         </label>
                         <Input
@@ -179,7 +190,10 @@ const ContactPage = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="email" className="block mb-2 text-sm font-medium">
+                        <label
+                          htmlFor="email"
+                          className="block mb-2 text-sm font-medium"
+                        >
                           Email *
                         </label>
                         <Input
@@ -197,7 +211,10 @@ const ContactPage = () => {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label htmlFor="phone" className="block mb-2 text-sm font-medium">
+                        <label
+                          htmlFor="phone"
+                          className="block mb-2 text-sm font-medium"
+                        >
                           Téléphone
                         </label>
                         <Input
@@ -210,7 +227,10 @@ const ContactPage = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="subject" className="block mb-2 text-sm font-medium">
+                        <label
+                          htmlFor="subject"
+                          className="block mb-2 text-sm font-medium"
+                        >
                           Sujet *
                         </label>
                         <Input
@@ -226,7 +246,10 @@ const ContactPage = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="message" className="block mb-2 text-sm font-medium">
+                      <label
+                        htmlFor="message"
+                        className="block mb-2 text-sm font-medium"
+                      >
                         Message *
                       </label>
                       <Textarea
@@ -242,13 +265,16 @@ const ContactPage = () => {
                     </div>
 
                     <div className="p-3 text-sm rounded-lg text-muted-foreground bg-muted/30">
-                      <p>Votre position actuelle sera automatiquement jointe à votre message pour un meilleur service.</p>
+                      <p>
+                        Votre position actuelle sera automatiquement jointe à
+                        votre message pour un meilleur service.
+                      </p>
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      variant="default" 
-                      size="lg" 
+                    <Button
+                      type="submit"
+                      variant="default"
+                      size="lg"
                       className="w-full text-lg font-semibold h-14"
                       disabled={isSubmitting}
                     >
@@ -286,7 +312,8 @@ const ContactPage = () => {
                 </span>
               </h2>
               <p className="text-lg text-muted-foreground">
-                Notre équipe d'experts est à votre disposition pour vous accompagner.
+                Notre équipe d'experts est à votre disposition pour vous
+                accompagner.
               </p>
             </div>
 
@@ -302,15 +329,21 @@ const ContactPage = () => {
                   <Card className="transition-all duration-300 border-0 cursor-pointer group hover:shadow-lg">
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${contact.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                        <div
+                          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${contact.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
+                        >
                           <contact.icon className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <h3 className="mb-1 text-xl font-bold">{contact.title}</h3>
+                          <h3 className="mb-1 text-xl font-bold">
+                            {contact.title}
+                          </h3>
                           <p className="mb-1 text-lg font-semibold text-primary">
                             {contact.description}
                           </p>
-                          <p className="text-muted-foreground">{contact.details}</p>
+                          <p className="text-muted-foreground">
+                            {contact.details}
+                          </p>
                         </div>
                       </div>
                     </CardContent>
@@ -333,9 +366,10 @@ const ContactPage = () => {
                     <h3 className="text-xl font-bold">Votre Position</h3>
                   </div>
                   <p className="mb-4 text-muted-foreground">
-                    Pour un service personnalisé, votre position sera automatiquement incluse avec votre message.
+                    Pour un service personnalisé, votre position sera
+                    automatiquement incluse avec votre message.
                   </p>
-                  
+
                   {/* Mini Map Visualization */}
                   <div className="flex items-center justify-center h-48 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200">
                     <div className="text-center">
@@ -343,16 +377,20 @@ const ContactPage = () => {
                         <MapPin className="w-12 h-12 mx-auto mb-3 text-primary animate-pulse" />
                         <div className="absolute top-0 w-2 h-2 transform -translate-x-1/2 bg-red-500 rounded-full left-1/2 animate-ping"></div>
                       </div>
-                      <p className="font-medium text-muted-foreground">Position actuelle détectée</p>
+                      <p className="font-medium text-muted-foreground">
+                        Position actuelle détectée
+                      </p>
                       <p className="mt-1 text-sm text-muted-foreground">
                         (Incluse dans votre message)
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Position partagée uniquement avec votre consentement</span>
+                    <span>
+                      Position partagée uniquement avec votre consentement
+                    </span>
                   </div>
                 </CardContent>
               </Card>

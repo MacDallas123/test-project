@@ -22,7 +22,13 @@ import {
   Send,
   TrendingUp,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -187,13 +193,18 @@ const CandidaturesPage = () => {
 
   // Filtrer les candidatures
   const filteredCandidatures = candidatures.filter((candidature) => {
-    const matchesSearch = 
-      candidature.candidat.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      candidature.candidat.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      candidature.candidat.nom
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      candidature.candidat.prenom
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       candidature.offre.titre.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || candidature.statut === statusFilter;
-    
+
+    const matchesStatus =
+      statusFilter === "all" || candidature.statut === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
@@ -219,12 +230,14 @@ const CandidaturesPage = () => {
       {/* En-tête */}
       <div className="flex flex-col justify-between gap-4 mb-8 lg:flex-row lg:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestion des candidatures</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestion des candidatures
+          </h1>
           <p className="text-muted-foreground">
             Suivez et gérez les candidatures reçues
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <Button variant="outline" className="gap-2">
             <Download className="w-4 h-4" />
@@ -251,7 +264,10 @@ const CandidaturesPage = () => {
                     </p>
                     <div className="flex items-baseline gap-2 mt-2">
                       <p className="text-2xl font-bold">{stat.value}</p>
-                      <Badge variant={stat.trend === "up" ? "default" : "secondary"} className="gap-1 text-xs">
+                      <Badge
+                        variant={stat.trend === "up" ? "default" : "secondary"}
+                        className="gap-1 text-xs"
+                      >
                         {stat.trend === "up" ? "↗" : "↘"}
                         {stat.change}
                       </Badge>
@@ -282,7 +298,7 @@ const CandidaturesPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
@@ -323,14 +339,18 @@ const CandidaturesPage = () => {
             <div className="py-8 text-center">
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
-                <p className="text-sm text-muted-foreground">Chargement des candidatures...</p>
+                <p className="text-sm text-muted-foreground">
+                  Chargement des candidatures...
+                </p>
               </div>
             </div>
           ) : filteredCandidatures.length === 0 ? (
             <div className="py-8 text-center">
               <div className="flex flex-col items-center justify-center gap-2">
                 <User className="w-12 h-12 text-muted-foreground" />
-                <p className="text-muted-foreground">Aucune candidature trouvée</p>
+                <p className="text-muted-foreground">
+                  Aucune candidature trouvée
+                </p>
               </div>
             </div>
           ) : (
@@ -353,21 +373,29 @@ const CandidaturesPage = () => {
                         <Avatar className="w-8 h-8">
                           <AvatarImage src={candidature.candidat.avatar} />
                           <AvatarFallback>
-                            {candidature.candidat.prenom[0]}{candidature.candidat.nom[0]}
+                            {candidature.candidat.prenom[0]}
+                            {candidature.candidat.nom[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h4 className="font-medium">{candidature.candidat.prenom} {candidature.candidat.nom}</h4>
+                          <h4 className="font-medium">
+                            {candidature.candidat.prenom}{" "}
+                            {candidature.candidat.nom}
+                          </h4>
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <Mail className="w-3 h-3" />
-                            <span className="truncate max-w-[180px]">{candidature.candidat.email}</span>
+                            <span className="truncate max-w-[180px]">
+                              {candidature.candidat.email}
+                            </span>
                           </div>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <h4 className="font-medium">{candidature.offre.titre}</h4>
+                        <h4 className="font-medium">
+                          {candidature.offre.titre}
+                        </h4>
                         <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                           <Briefcase className="w-3 h-3" />
                           <span>{candidature.offre.entreprise}</span>
@@ -379,7 +407,9 @@ const CandidaturesPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
-                        <div className="text-sm font-medium">Candidature: {candidature.dateCandidature}</div>
+                        <div className="text-sm font-medium">
+                          Candidature: {candidature.dateCandidature}
+                        </div>
                         {candidature.dateEntretien && (
                           <div className="text-xs text-muted-foreground">
                             Entretien: {candidature.dateEntretien}
@@ -390,10 +420,17 @@ const CandidaturesPage = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusIcon(candidature.statut)}
-                        <Badge variant="outline" className={`${getStatusColor(candidature.statut)}`}>
-                          {candidature.statut === "nouvelle" ? "Nouvelle" : 
-                           candidature.statut === "entretien" ? "Entretien" : 
-                           candidature.statut === "acceptée" ? "Acceptée" : "Refusée"}
+                        <Badge
+                          variant="outline"
+                          className={`${getStatusColor(candidature.statut)}`}
+                        >
+                          {candidature.statut === "nouvelle"
+                            ? "Nouvelle"
+                            : candidature.statut === "entretien"
+                              ? "Entretien"
+                              : candidature.statut === "acceptée"
+                                ? "Acceptée"
+                                : "Refusée"}
                         </Badge>
                       </div>
                     </TableCell>
@@ -402,11 +439,18 @@ const CandidaturesPage = () => {
                         <div className="flex items-center justify-between text-sm">
                           <span>{candidature.progression}%</span>
                         </div>
-                        <Progress value={candidature.progression} className="h-2" />
+                        <Progress
+                          value={candidature.progression}
+                          className="h-2"
+                        />
                         <span className="text-xs text-muted-foreground">
-                          {candidature.statut === "nouvelle" ? "En attente de traitement" : 
-                           candidature.statut === "entretien" ? "Entretien programmé" : 
-                           candidature.statut === "acceptée" ? "Processus terminé" : "Clôturée"}
+                          {candidature.statut === "nouvelle"
+                            ? "En attente de traitement"
+                            : candidature.statut === "entretien"
+                              ? "Entretien programmé"
+                              : candidature.statut === "acceptée"
+                                ? "Processus terminé"
+                                : "Clôturée"}
                         </span>
                       </div>
                     </TableCell>
@@ -429,16 +473,18 @@ const CandidaturesPage = () => {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2"
                               onClick={() => openDetail(candidature)}
                             >
                               <Eye className="w-4 h-4" />
                               Voir les détails
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2"
-                              onClick={() => sendEmail(candidature.candidat.email)}
+                              onClick={() =>
+                                sendEmail(candidature.candidat.email)
+                              }
                             >
                               <Mail className="w-4 h-4" />
                               Envoyer un email
@@ -452,16 +498,20 @@ const CandidaturesPage = () => {
                               Voir le CV
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2 text-green-600"
-                              onClick={() => updateStatus(candidature.id, "acceptée")}
+                              onClick={() =>
+                                updateStatus(candidature.id, "acceptée")
+                              }
                             >
                               <CheckCircle className="w-4 h-4" />
                               Accepter
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2 text-red-600"
-                              onClick={() => updateStatus(candidature.id, "refusée")}
+                              onClick={() =>
+                                updateStatus(candidature.id, "refusée")
+                              }
                             >
                               <XCircle className="w-4 h-4" />
                               Refuser
@@ -480,18 +530,32 @@ const CandidaturesPage = () => {
 
       {/* Détail modal */}
       {selectedCandidature && (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 ${
-          isDetailOpen ? 'block' : 'hidden'
-        }`} onClick={() => setIsDetailOpen(false)}>
-          <div className="w-full max-w-2xl rounded-lg shadow-lg bg-background" onClick={e => e.stopPropagation()}>
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 ${
+            isDetailOpen ? "block" : "hidden"
+          }`}
+          onClick={() => setIsDetailOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-lg shadow-lg bg-background"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6">
               {/* En-tête */}
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h3 className="text-xl font-bold">Détails de la candidature</h3>
-                  <p className="text-muted-foreground">{selectedCandidature.id}</p>
+                  <h3 className="text-xl font-bold">
+                    Détails de la candidature
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {selectedCandidature.id}
+                  </p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setIsDetailOpen(false)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsDetailOpen(false)}
+                >
                   ✕
                 </Button>
               </div>
@@ -499,18 +563,24 @@ const CandidaturesPage = () => {
               {/* Informations du candidat */}
               <Card className="mb-4">
                 <CardHeader>
-                  <CardTitle className="text-lg">Informations du candidat</CardTitle>
+                  <CardTitle className="text-lg">
+                    Informations du candidat
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4 mb-4">
                     <Avatar className="w-16 h-16">
                       <AvatarImage src={selectedCandidature.candidat.avatar} />
                       <AvatarFallback>
-                        {selectedCandidature.candidat.prenom[0]}{selectedCandidature.candidat.nom[0]}
+                        {selectedCandidature.candidat.prenom[0]}
+                        {selectedCandidature.candidat.nom[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h4 className="text-lg font-bold">{selectedCandidature.candidat.prenom} {selectedCandidature.candidat.nom}</h4>
+                      <h4 className="text-lg font-bold">
+                        {selectedCandidature.candidat.prenom}{" "}
+                        {selectedCandidature.candidat.nom}
+                      </h4>
                       <div className="flex items-center gap-2 mt-1">
                         <Mail className="w-4 h-4 text-muted-foreground" />
                         <span>{selectedCandidature.candidat.email}</span>
@@ -521,7 +591,7 @@ const CandidaturesPage = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4">
                     <Button variant="outline" className="flex-1 gap-2">
                       <FileText className="w-4 h-4" />
@@ -538,30 +608,52 @@ const CandidaturesPage = () => {
               {/* Informations de l'offre */}
               <Card className="mb-4">
                 <CardHeader>
-                  <CardTitle className="text-lg">Informations de l'offre</CardTitle>
+                  <CardTitle className="text-lg">
+                    Informations de l'offre
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div>
-                      <Label className="text-sm text-muted-foreground">Poste</Label>
-                      <p className="font-medium">{selectedCandidature.offre.titre}</p>
+                      <Label className="text-sm text-muted-foreground">
+                        Poste
+                      </Label>
+                      <p className="font-medium">
+                        {selectedCandidature.offre.titre}
+                      </p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-sm text-muted-foreground">Entreprise</Label>
-                        <p className="font-medium">{selectedCandidature.offre.entreprise}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Entreprise
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCandidature.offre.entreprise}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-sm text-muted-foreground">Lieu</Label>
-                        <p className="font-medium">{selectedCandidature.offre.lieu}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Lieu
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCandidature.offre.lieu}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-sm text-muted-foreground">Type</Label>
-                        <p className="font-medium">{selectedCandidature.offre.type}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Type
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCandidature.offre.type}
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-sm text-muted-foreground">Salaire</Label>
-                        <p className="font-medium">{selectedCandidature.offre.salaire}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Salaire
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCandidature.offre.salaire}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -571,7 +663,9 @@ const CandidaturesPage = () => {
               {/* Statut et progression */}
               <Card className="mb-4">
                 <CardHeader>
-                  <CardTitle className="text-lg">Suivi de la candidature</CardTitle>
+                  <CardTitle className="text-lg">
+                    Suivi de la candidature
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -580,36 +674,55 @@ const CandidaturesPage = () => {
                         <p className="font-medium">Statut</p>
                         <div className="flex items-center gap-2 mt-1">
                           {getStatusIcon(selectedCandidature.statut)}
-                          <Badge className={`${getStatusColor(selectedCandidature.statut)}`}>
+                          <Badge
+                            className={`${getStatusColor(selectedCandidature.statut)}`}
+                          >
                             {selectedCandidature.statut}
                           </Badge>
                         </div>
                       </div>
                       <div>
                         <p className="font-medium">Progression</p>
-                        <p className="mt-1 text-2xl font-bold">{selectedCandidature.progression}%</p>
+                        <p className="mt-1 text-2xl font-bold">
+                          {selectedCandidature.progression}%
+                        </p>
                       </div>
                     </div>
-                    
-                    <Progress value={selectedCandidature.progression} className="h-2" />
-                    
+
+                    <Progress
+                      value={selectedCandidature.progression}
+                      className="h-2"
+                    />
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-sm text-muted-foreground">Date de candidature</Label>
-                        <p className="font-medium">{selectedCandidature.dateCandidature}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Date de candidature
+                        </Label>
+                        <p className="font-medium">
+                          {selectedCandidature.dateCandidature}
+                        </p>
                       </div>
                       {selectedCandidature.dateEntretien && (
                         <div>
-                          <Label className="text-sm text-muted-foreground">Date d'entretien</Label>
-                          <p className="font-medium">{selectedCandidature.dateEntretien}</p>
+                          <Label className="text-sm text-muted-foreground">
+                            Date d'entretien
+                          </Label>
+                          <p className="font-medium">
+                            {selectedCandidature.dateEntretien}
+                          </p>
                         </div>
                       )}
                     </div>
-                    
+
                     {selectedCandidature.notes && (
                       <div>
-                        <Label className="text-sm text-muted-foreground">Notes</Label>
-                        <p className="p-3 mt-1 border rounded-lg bg-accent/50">{selectedCandidature.notes}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Notes
+                        </Label>
+                        <p className="p-3 mt-1 border rounded-lg bg-accent/50">
+                          {selectedCandidature.notes}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -624,7 +737,10 @@ const CandidaturesPage = () => {
                 <CardContent>
                   <div className="space-y-2">
                     {selectedCandidature.documents.map((doc, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
                         <div className="flex items-center gap-3">
                           <FileText className="w-4 h-4 text-muted-foreground" />
                           <span>{doc}</span>
@@ -640,7 +756,11 @@ const CandidaturesPage = () => {
 
               {/* Actions */}
               <div className="flex gap-4">
-                <Button variant="outline" className="flex-1" onClick={() => setIsDetailOpen(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setIsDetailOpen(false)}
+                >
                   Fermer
                 </Button>
                 <Button variant="outline" className="flex-1 gap-2">
@@ -656,16 +776,13 @@ const CandidaturesPage = () => {
           </div>
         </div>
       )}
-
     </main>
   );
 };
 
 // Composant Label pour le modal
 const Label = ({ children, className = "" }) => (
-  <label className={`block text-sm font-medium ${className}`}>
-    {children}
-  </label>
+  <label className={`block text-sm font-medium ${className}`}>{children}</label>
 );
 
 export default CandidaturesPage;

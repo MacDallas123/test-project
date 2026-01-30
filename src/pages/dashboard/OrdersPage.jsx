@@ -32,7 +32,13 @@ import {
   AlertCircle,
   Shield,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -170,7 +176,7 @@ const OrdersPage = () => {
         entreprise: "CloudSystems",
         avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pierre",
       },
-      montant: 799.50,
+      montant: 799.5,
       devise: "EUR",
       statut: "en attente",
       type: "abonnement",
@@ -179,7 +185,7 @@ const OrdersPage = () => {
       modePaiement: "Virement bancaire",
       referencePaiement: null,
       articles: [
-        { nom: "Abonnement Pro Trimestriel", quantite: 1, prix: 799.50 },
+        { nom: "Abonnement Pro Trimestriel", quantite: 1, prix: 799.5 },
       ],
       adresseLivraison: {
         nom: "Pierre Dubois",
@@ -210,9 +216,7 @@ const OrdersPage = () => {
       dateLivraison: null,
       modePaiement: "Carte de crédit",
       referencePaiement: "PAY-001236",
-      articles: [
-        { nom: "Optimisation de profil", quantite: 1, prix: 129.99 },
-      ],
+      articles: [{ nom: "Optimisation de profil", quantite: 1, prix: 129.99 }],
       adresseLivraison: {
         nom: "Marie Leroy",
         entreprise: "DesignLab",
@@ -306,9 +310,7 @@ const OrdersPage = () => {
       dateLivraison: null,
       modePaiement: "Virement bancaire",
       referencePaiement: null,
-      articles: [
-        { nom: "Pack de 10 publications", quantite: 1, prix: 599.99 },
-      ],
+      articles: [{ nom: "Pack de 10 publications", quantite: 1, prix: 599.99 }],
       adresseLivraison: {
         nom: "Anna Kowalski",
         entreprise: "GrowthInc",
@@ -338,9 +340,7 @@ const OrdersPage = () => {
       dateLivraison: "02 Jan 2024",
       modePaiement: "Carte de crédit",
       referencePaiement: "PAY-001239",
-      articles: [
-        { nom: "Audit de recrutement", quantite: 1, prix: 899.99 },
-      ],
+      articles: [{ nom: "Audit de recrutement", quantite: 1, prix: 899.99 }],
       adresseLivraison: {
         nom: "Wei Chen",
         entreprise: "TechGlobal",
@@ -454,23 +454,24 @@ const OrdersPage = () => {
 
   // Formater le montant
   const formatMontant = (montant, devise) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
       currency: devise,
     }).format(montant);
   };
 
   // Filtrer les commandes
   const filteredOrders = commandes.filter((commande) => {
-    const matchesSearch = 
+    const matchesSearch =
       commande.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       commande.client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       commande.client.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       commande.client.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || commande.statut === statusFilter;
+
+    const matchesStatus =
+      statusFilter === "all" || commande.statut === statusFilter;
     const matchesType = typeFilter === "all" || commande.type === typeFilter;
-    
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -507,12 +508,14 @@ const OrdersPage = () => {
       {/* En-tête */}
       <div className="flex flex-col justify-between gap-4 mb-8 lg:flex-row lg:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestion des commandes</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestion des commandes
+          </h1>
           <p className="text-muted-foreground">
             Gérez et suivez les commandes de votre plateforme
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <Button variant="outline" className="gap-2">
             <Download className="w-4 h-4" />
@@ -523,15 +526,15 @@ const OrdersPage = () => {
             Imprimer
           </Button>
           <div className="flex items-center gap-2">
-            <Button 
-              variant={viewMode === "table" ? "default" : "outline"} 
+            <Button
+              variant={viewMode === "table" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("table")}
             >
               Tableau
             </Button>
-            <Button 
-              variant={viewMode === "cards" ? "default" : "outline"} 
+            <Button
+              variant={viewMode === "cards" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("cards")}
             >
@@ -555,7 +558,10 @@ const OrdersPage = () => {
                     </p>
                     <div className="flex items-baseline gap-2 mt-2">
                       <p className="text-3xl font-bold">{stat.value}</p>
-                      <Badge variant={stat.trend === "up" ? "default" : "secondary"} className="gap-1">
+                      <Badge
+                        variant={stat.trend === "up" ? "default" : "secondary"}
+                        className="gap-1"
+                      >
                         {stat.trend === "up" ? "↗" : "↘"}
                         {stat.change}
                       </Badge>
@@ -589,7 +595,7 @@ const OrdersPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-4">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
@@ -605,7 +611,7 @@ const OrdersPage = () => {
                   <SelectItem value="annulée">Annulées</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-40">
                   <Package className="w-4 h-4 mr-2" />
@@ -619,11 +625,15 @@ const OrdersPage = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="ghost" size="icon" onClick={() => {
-                setSearchTerm("");
-                setStatusFilter("all");
-                setTypeFilter("all");
-              }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                  setTypeFilter("all");
+                }}
+              >
                 <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
@@ -639,7 +649,8 @@ const OrdersPage = () => {
               <div>
                 <CardTitle>Liste des commandes</CardTitle>
                 <CardDescription>
-                  {filteredOrders.length} commandes trouvées sur {commandes.length}
+                  {filteredOrders.length} commandes trouvées sur{" "}
+                  {commandes.length}
                 </CardDescription>
               </div>
               <Badge variant="outline" className="gap-2">
@@ -667,7 +678,9 @@ const OrdersPage = () => {
                     <TableCell colSpan={7} className="py-8 text-center">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
-                        <p className="text-sm text-muted-foreground">Chargement des commandes...</p>
+                        <p className="text-sm text-muted-foreground">
+                          Chargement des commandes...
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -676,7 +689,9 @@ const OrdersPage = () => {
                     <TableCell colSpan={7} className="py-8 text-center">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Package className="w-12 h-12 text-muted-foreground" />
-                        <p className="text-muted-foreground">Aucune commande trouvée</p>
+                        <p className="text-muted-foreground">
+                          Aucune commande trouvée
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -697,11 +712,14 @@ const OrdersPage = () => {
                           <Avatar className="w-8 h-8">
                             <AvatarImage src={commande.client.avatar} />
                             <AvatarFallback>
-                              {commande.client.prenom[0]}{commande.client.nom[0]}
+                              {commande.client.prenom[0]}
+                              {commande.client.nom[0]}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <h4 className="font-medium">{commande.client.prenom} {commande.client.nom}</h4>
+                            <h4 className="font-medium">
+                              {commande.client.prenom} {commande.client.nom}
+                            </h4>
                             <p className="text-sm text-muted-foreground truncate max-w-[180px]">
                               {commande.client.email}
                             </p>
@@ -710,32 +728,51 @@ const OrdersPage = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-bold">{formatMontant(commande.montant, commande.devise)}</p>
+                          <p className="font-bold">
+                            {formatMontant(commande.montant, commande.devise)}
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {commande.articles.length} article{commande.articles.length > 1 ? 's' : ''}
+                            {commande.articles.length} article
+                            {commande.articles.length > 1 ? "s" : ""}
                           </p>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`w-fit ${getTypeColor(commande.type)}`}>
-                          {commande.type === "abonnement" ? "Abonnement" : 
-                           commande.type === "publication" ? "Publication" : "Service"}
+                        <Badge
+                          variant="outline"
+                          className={`w-fit ${getTypeColor(commande.type)}`}
+                        >
+                          {commande.type === "abonnement"
+                            ? "Abonnement"
+                            : commande.type === "publication"
+                              ? "Publication"
+                              : "Service"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(commande.statut)}
-                          <Badge variant="outline" className={`w-fit ${getStatusColor(commande.statut)}`}>
-                            {commande.statut === "livrée" ? "Livrée" : 
-                             commande.statut === "en cours" ? "En cours" : 
-                             commande.statut === "en préparation" ? "En préparation" : 
-                             commande.statut === "en attente" ? "En attente" : "Annulée"}
+                          <Badge
+                            variant="outline"
+                            className={`w-fit ${getStatusColor(commande.statut)}`}
+                          >
+                            {commande.statut === "livrée"
+                              ? "Livrée"
+                              : commande.statut === "en cours"
+                                ? "En cours"
+                                : commande.statut === "en préparation"
+                                  ? "En préparation"
+                                  : commande.statut === "en attente"
+                                    ? "En attente"
+                                    : "Annulée"}
                           </Badge>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <div className="text-sm font-medium">Commande: {commande.dateCommande}</div>
+                          <div className="text-sm font-medium">
+                            Commande: {commande.dateCommande}
+                          </div>
                           {commande.dateLivraison && (
                             <div className="text-xs text-muted-foreground">
                               Livraison: {commande.dateLivraison}
@@ -762,7 +799,7 @@ const OrdersPage = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="gap-2"
                                 onClick={() => openOrderDetail(commande)}
                               >
@@ -773,13 +810,14 @@ const OrdersPage = () => {
                                 <FileText className="w-4 h-4" />
                                 Générer facture
                               </DropdownMenuItem>
-                              {commande.statut !== "livrée" && commande.statut !== "annulée" && (
-                                <DropdownMenuItem className="gap-2">
-                                  <Truck className="w-4 h-4" />
-                                  Mettre à jour statut
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem 
+                              {commande.statut !== "livrée" &&
+                                commande.statut !== "annulée" && (
+                                  <DropdownMenuItem className="gap-2">
+                                    <Truck className="w-4 h-4" />
+                                    Mettre à jour statut
+                                  </DropdownMenuItem>
+                                )}
+                              <DropdownMenuItem
                                 className="gap-2"
                                 onClick={() => resendInvoice(commande.id)}
                               >
@@ -788,7 +826,7 @@ const OrdersPage = () => {
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               {commande.statut !== "annulée" && (
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   className="gap-2 text-red-600"
                                   onClick={() => cancelOrder(commande.id)}
                                 >
@@ -816,7 +854,9 @@ const OrdersPage = () => {
             <div className="py-8 text-center col-span-full">
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
-                <p className="text-sm text-muted-foreground">Chargement des commandes...</p>
+                <p className="text-sm text-muted-foreground">
+                  Chargement des commandes...
+                </p>
               </div>
             </div>
           ) : filteredOrders.length === 0 ? (
@@ -828,14 +868,20 @@ const OrdersPage = () => {
             </div>
           ) : (
             filteredOrders.map((commande) => (
-              <Card key={commande.id} className="overflow-hidden transition-shadow hover:shadow-lg">
+              <Card
+                key={commande.id}
+                className="overflow-hidden transition-shadow hover:shadow-lg"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-base">{commande.id}</CardTitle>
                       <CardDescription>{commande.dateCommande}</CardDescription>
                     </div>
-                    <Badge variant="outline" className={`${getStatusColor(commande.statut)}`}>
+                    <Badge
+                      variant="outline"
+                      className={`${getStatusColor(commande.statut)}`}
+                    >
                       {commande.statut}
                     </Badge>
                   </div>
@@ -847,12 +893,17 @@ const OrdersPage = () => {
                       <Avatar>
                         <AvatarImage src={commande.client.avatar} />
                         <AvatarFallback>
-                          {commande.client.prenom[0]}{commande.client.nom[0]}
+                          {commande.client.prenom[0]}
+                          {commande.client.nom[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{commande.client.prenom} {commande.client.nom}</p>
-                        <p className="text-sm truncate text-muted-foreground">{commande.client.email}</p>
+                        <p className="font-medium truncate">
+                          {commande.client.prenom} {commande.client.nom}
+                        </p>
+                        <p className="text-sm truncate text-muted-foreground">
+                          {commande.client.email}
+                        </p>
                       </div>
                     </div>
 
@@ -860,11 +911,16 @@ const OrdersPage = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <p className="text-sm text-muted-foreground">Montant</p>
-                        <p className="font-bold">{formatMontant(commande.montant, commande.devise)}</p>
+                        <p className="font-bold">
+                          {formatMontant(commande.montant, commande.devise)}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Type</p>
-                        <Badge variant="outline" className={`text-xs ${getTypeColor(commande.type)}`}>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${getTypeColor(commande.type)}`}
+                        >
                           {commande.type}
                         </Badge>
                       </div>
@@ -872,12 +928,20 @@ const OrdersPage = () => {
 
                     {/* Articles */}
                     <div>
-                      <p className="mb-2 text-sm text-muted-foreground">Articles</p>
+                      <p className="mb-2 text-sm text-muted-foreground">
+                        Articles
+                      </p>
                       <div className="space-y-1">
                         {commande.articles.slice(0, 2).map((article, idx) => (
-                          <div key={idx} className="flex items-center justify-between text-sm">
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between text-sm"
+                          >
                             <span className="truncate">{article.nom}</span>
-                            <span className="font-medium">{article.quantite} × {formatMontant(article.prix, commande.devise)}</span>
+                            <span className="font-medium">
+                              {article.quantite} ×{" "}
+                              {formatMontant(article.prix, commande.devise)}
+                            </span>
                           </div>
                         ))}
                         {commande.articles.length > 2 && (
@@ -890,8 +954,8 @@ const OrdersPage = () => {
 
                     {/* Actions */}
                     <div className="flex items-center justify-between pt-3 border-t">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => openOrderDetail(commande)}
                       >
@@ -1019,7 +1083,7 @@ const OrdersPage = () => {
       </div>
 
       {/* Modal de détail commande */}
-      <OrderDetailsDialog 
+      <OrderDetailsDialog
         isOrderDetailOpen={isOrderDetailOpen}
         setIsOrderDetailOpen={setIsOrderDetailOpen}
         selectedOrder={selectedOrder}

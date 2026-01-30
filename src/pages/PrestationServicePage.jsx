@@ -40,12 +40,13 @@ const PrestationServicePage = () => {
     location: "Atlantis, Moonbase 42",
     rating: 999.99,
     reviews: -42,
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse commodo ultricies mauris, nec imperdiet justo tempus sit amet.",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse commodo ultricies mauris, nec imperdiet justo tempus sit amet.",
     contact: {
       email: "lorem@ipsum.dolor",
       phone: "000-1234-LOREM",
-      website: "https://www.lorem-ipsum-illogic.com"
-    }
+      website: "https://www.lorem-ipsum-illogic.com",
+    },
   };
 
   // Services/prestations de l'utilisateur
@@ -63,8 +64,8 @@ const PrestationServicePage = () => {
         "Missing semicolons",
         "Unicorn support included",
         "Paradoxical results",
-        "Invisible admin panel"
-      ]
+        "Invisible admin panel",
+      ],
     },
     {
       id: 2,
@@ -79,8 +80,8 @@ const PrestationServicePage = () => {
         "Breakfast in bed",
         "Flux capacitor-ready",
         "Spontaneous appearance",
-        "Documentation in Morse code"
-      ]
+        "Documentation in Morse code",
+      ],
     },
     {
       id: 3,
@@ -95,8 +96,8 @@ const PrestationServicePage = () => {
         "Randomized color palette",
         "Night-vision SEO",
         "Mystery migration",
-        "Hexagonal maintenance"
-      ]
+        "Hexagonal maintenance",
+      ],
     },
     {
       id: 4,
@@ -111,8 +112,8 @@ const PrestationServicePage = () => {
         "Unsolicited recommendations",
         "Backwards roadmap",
         "Invisible reports",
-        "Monthly déjà vu sessions"
-      ]
+        "Monthly déjà vu sessions",
+      ],
     },
     {
       id: 5,
@@ -127,8 +128,8 @@ const PrestationServicePage = () => {
         "Infinite practice",
         "Support after support",
         "Certificate of Uncertainty",
-        "Invisible courseware"
-      ]
+        "Invisible courseware",
+      ],
     },
     {
       id: 6,
@@ -143,9 +144,9 @@ const PrestationServicePage = () => {
         "Time-travel backups",
         "Priority for Schrödinger's cat",
         "24/7/365.25 monitoring",
-        "Reports only in palindrome dates"
-      ]
-    }
+        "Reports only in palindrome dates",
+      ],
+    },
   ];
 
   const addToCart = (service) => {
@@ -175,7 +176,7 @@ const PrestationServicePage = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 mr-3">
               <div className="text-center">
                 <div className="flex items-center gap-1">
@@ -188,7 +189,7 @@ const PrestationServicePage = () => {
               </div>
             </div>
           </div>
-          
+
           <p className="max-w-2xl mx-auto mt-4 text-sm text-center text-muted-foreground">
             {user.description}
           </p>
@@ -198,7 +199,9 @@ const PrestationServicePage = () => {
       {/* Section principale des services */}
       <div className="container px-4 py-8 mx-auto">
         <div className="mb-8">
-          <h2 className="mb-2 text-2xl font-semibold">Produits et Prestations</h2>
+          <h2 className="mb-2 text-2xl font-semibold">
+            Produits et Prestations
+          </h2>
           <p className="text-muted-foreground">
             Découvrez l'ensemble des services proposés par {user.name}
           </p>
@@ -209,8 +212,8 @@ const PrestationServicePage = () => {
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <Card 
-                key={service.id} 
+              <Card
+                key={service.id}
                 className="transition-colors border rounded-lg hover:border-primary/50"
               >
                 <CardContent className="pt-6">
@@ -222,21 +225,26 @@ const PrestationServicePage = () => {
                       {service.category}
                     </Badge>
                   </div>
-                  
-                  <h3 className="mb-2 text-lg font-semibold">{service.title}</h3>
+
+                  <h3 className="mb-2 text-lg font-semibold">
+                    {service.title}
+                  </h3>
                   <p className="mb-4 text-sm text-muted-foreground">
                     {service.description}
                   </p>
-                  
+
                   <div className="mb-4 space-y-3">
                     {service.features.map((feature, index) => (
-                      <div key={index} className="flex items-start gap-2 text-sm">
+                      <div
+                        key={index}
+                        className="flex items-start gap-2 text-sm"
+                      >
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="flex items-center justify-between pt-4 text-sm border-t">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
@@ -249,10 +257,10 @@ const PrestationServicePage = () => {
                     </div>
                   </div>
                 </CardContent>
-                
+
                 <CardFooter className="pt-0">
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="link"
                     className="gap-2 text-left"
                     onClick={() => addToCart(service)}
                   >
@@ -279,7 +287,10 @@ const PrestationServicePage = () => {
             </div>
             <div className="space-y-2 overflow-y-auto max-h-60">
               {cart.map((item, index) => (
-                <div key={index} className="flex items-center justify-between pb-2 text-sm border-b">
+                <div
+                  key={index}
+                  className="flex items-center justify-between pb-2 text-sm border-b"
+                >
                   <span className="truncate max-w-[200px]">{item.title}</span>
                   <span className="font-medium">{item.price}</span>
                 </div>
@@ -291,7 +302,9 @@ const PrestationServicePage = () => {
         {/* Section contact */}
         <div className="pt-8 mt-12 border-t">
           <div className="max-w-2xl mx-auto">
-            <h3 className="mb-6 text-xl font-semibold text-center">Contacter {user.name}</h3>
+            <h3 className="mb-6 text-xl font-semibold text-center">
+              Contacter {user.name}
+            </h3>
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="border">
                 <CardContent className="pt-6">
@@ -299,7 +312,7 @@ const PrestationServicePage = () => {
                     <Mail className="w-5 h-5 text-primary" />
                     <div>
                       <h4 className="font-semibold">Email</h4>
-                      <a 
+                      <a
                         href={`mailto:${user.contact.email}`}
                         className="text-sm text-muted-foreground hover:text-primary"
                       >
@@ -309,14 +322,14 @@ const PrestationServicePage = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="border">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Phone className="w-5 h-5 text-primary" />
                     <div>
                       <h4 className="font-semibold">Téléphone</h4>
-                      <a 
+                      <a
                         href={`tel:${user.contact.phone}`}
                         className="text-sm text-muted-foreground hover:text-primary"
                       >
@@ -327,7 +340,7 @@ const PrestationServicePage = () => {
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="mt-8 text-center">
               <Button asChild className="gap-2">
                 <Link to={`/contact/${user.id}`}>

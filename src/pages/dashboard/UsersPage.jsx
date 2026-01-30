@@ -27,7 +27,13 @@ import {
   ChevronUp,
   Clock,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -302,7 +308,12 @@ const UsersPage = () => {
   const repartitionRoles = [
     { role: "Candidats", count: 4, color: "bg-blue-500", percentage: 50 },
     { role: "Recruteurs", count: 2, color: "bg-green-500", percentage: 25 },
-    { role: "Administrateurs", count: 2, color: "bg-purple-500", percentage: 25 },
+    {
+      role: "Administrateurs",
+      count: 2,
+      color: "bg-purple-500",
+      percentage: 25,
+    },
   ];
 
   // Fonction pour obtenir la couleur du statut
@@ -353,15 +364,16 @@ const UsersPage = () => {
 
   // Filtrer les utilisateurs
   const filteredUsers = utilisateurs.filter((user) => {
-    const matchesSearch = 
+    const matchesSearch =
       user.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.entreprise?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || user.statut === statusFilter;
+
+    const matchesStatus =
+      statusFilter === "all" || user.statut === statusFilter;
     const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    
+
     return matchesSearch && matchesStatus && matchesRole;
   });
 
@@ -395,12 +407,14 @@ const UsersPage = () => {
       {/* En-tête */}
       <div className="flex flex-col justify-between gap-4 mb-8 lg:flex-row lg:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestion des utilisateurs</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Gestion des utilisateurs
+          </h1>
           <p className="text-muted-foreground">
             Gérez les comptes, rôles et permissions des utilisateurs
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <Button variant="outline" className="gap-2">
             <Download className="w-4 h-4" />
@@ -417,7 +431,8 @@ const UsersPage = () => {
               <DialogHeader>
                 <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
                 <DialogDescription>
-                  Créez un nouveau compte utilisateur. Les informations de connexion seront envoyées par email.
+                  Créez un nouveau compte utilisateur. Les informations de
+                  connexion seront envoyées par email.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -433,7 +448,11 @@ const UsersPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-email">Email</Label>
-                  <Input id="new-email" type="email" placeholder="jean.dupont@example.com" />
+                  <Input
+                    id="new-email"
+                    type="email"
+                    placeholder="jean.dupont@example.com"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new-role">Rôle</Label>
@@ -471,7 +490,10 @@ const UsersPage = () => {
                     </p>
                     <div className="flex items-baseline gap-2 mt-2">
                       <p className="text-3xl font-bold">{stat.value}</p>
-                      <Badge variant={stat.trend === "up" ? "default" : "secondary"} className="gap-1">
+                      <Badge
+                        variant={stat.trend === "up" ? "default" : "secondary"}
+                        className="gap-1"
+                      >
                         {stat.trend === "up" ? "↗" : "↘"}
                         {stat.change}
                       </Badge>
@@ -505,7 +527,7 @@ const UsersPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex flex-wrap items-center gap-4">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
@@ -520,7 +542,7 @@ const UsersPage = () => {
                   <SelectItem value="en attente">En attente</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-40">
                   <User className="w-4 h-4 mr-2" />
@@ -534,11 +556,15 @@ const UsersPage = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="ghost" size="icon" onClick={() => {
-                setSearchTerm("");
-                setStatusFilter("all");
-                setRoleFilter("all");
-              }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                  setRoleFilter("all");
+                }}
+              >
                 <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
@@ -553,7 +579,8 @@ const UsersPage = () => {
             <div>
               <CardTitle>Liste des utilisateurs</CardTitle>
               <CardDescription>
-                {filteredUsers.length} utilisateurs trouvés sur {utilisateurs.length}
+                {filteredUsers.length} utilisateurs trouvés sur{" "}
+                {utilisateurs.length}
               </CardDescription>
             </div>
             <Badge variant="outline" className="gap-2">
@@ -580,7 +607,9 @@ const UsersPage = () => {
                   <TableCell colSpan={6} className="py-8 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
-                      <p className="text-sm text-muted-foreground">Chargement des utilisateurs...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Chargement des utilisateurs...
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -589,7 +618,9 @@ const UsersPage = () => {
                   <TableCell colSpan={6} className="py-8 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <User className="w-12 h-12 text-muted-foreground" />
-                      <p className="text-muted-foreground">Aucun utilisateur trouvé</p>
+                      <p className="text-muted-foreground">
+                        Aucun utilisateur trouvé
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -601,19 +632,28 @@ const UsersPage = () => {
                         <Avatar>
                           <AvatarImage src={user.avatar} />
                           <AvatarFallback>
-                            {user.prenom[0]}{user.nom[0]}
+                            {user.prenom[0]}
+                            {user.nom[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h4 className="font-semibold">{user.prenom} {user.nom}</h4>
+                          <h4 className="font-semibold">
+                            {user.prenom} {user.nom}
+                          </h4>
                           <div className="flex items-center gap-2 mt-1">
                             {user.compteVerifie ? (
-                              <Badge variant="outline" className="gap-1 text-xs">
+                              <Badge
+                                variant="outline"
+                                className="gap-1 text-xs"
+                              >
                                 <Shield className="w-2.5 h-2.5" />
                                 Vérifié
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700">
+                              <Badge
+                                variant="outline"
+                                className="text-xs bg-amber-50 text-amber-700"
+                              >
                                 Non vérifié
                               </Badge>
                             )}
@@ -641,9 +681,15 @@ const UsersPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <Badge variant="outline" className={`w-fit ${getRoleColor(user.role)}`}>
-                          {user.role === "admin" ? "Administrateur" : 
-                           user.role === "recruteur" ? "Recruteur" : "Candidat"}
+                        <Badge
+                          variant="outline"
+                          className={`w-fit ${getRoleColor(user.role)}`}
+                        >
+                          {user.role === "admin"
+                            ? "Administrateur"
+                            : user.role === "recruteur"
+                              ? "Recruteur"
+                              : "Candidat"}
                         </Badge>
                         <Badge variant="outline" className="text-xs w-fit">
                           <CreditCard className="w-2.5 h-2.5 mr-1" />
@@ -654,10 +700,17 @@ const UsersPage = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusIcon(user.statut)}
-                        <Badge variant="outline" className={`w-fit ${getStatusColor(user.statut)}`}>
-                          {user.statut === "actif" ? "Actif" : 
-                           user.statut === "inactif" ? "Inactif" : 
-                           user.statut === "suspendu" ? "Suspendu" : "En attente"}
+                        <Badge
+                          variant="outline"
+                          className={`w-fit ${getStatusColor(user.statut)}`}
+                        >
+                          {user.statut === "actif"
+                            ? "Actif"
+                            : user.statut === "inactif"
+                              ? "Inactif"
+                              : user.statut === "suspendu"
+                                ? "Suspendu"
+                                : "En attente"}
                         </Badge>
                       </div>
                     </TableCell>
@@ -672,9 +725,13 @@ const UsersPage = () => {
                         </div>
                         {user.stats.candidatures > 0 && (
                           <div className="flex items-center gap-2 mt-1 text-xs">
-                            <span className="font-medium">{user.stats.candidatures} candidatures</span>
+                            <span className="font-medium">
+                              {user.stats.candidatures} candidatures
+                            </span>
                             {user.stats.offresPostees > 0 && (
-                              <span className="text-muted-foreground">• {user.stats.offresPostees} offres</span>
+                              <span className="text-muted-foreground">
+                                • {user.stats.offresPostees} offres
+                              </span>
                             )}
                           </div>
                         )}
@@ -699,7 +756,7 @@ const UsersPage = () => {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2"
                               onClick={() => openUserDetail(user)}
                             >
@@ -711,7 +768,7 @@ const UsersPage = () => {
                               Modifier
                             </DropdownMenuItem>
                             {!user.compteVerifie && (
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="gap-2 text-green-600"
                                 onClick={() => verifyUser(user.id)}
                               >
@@ -719,9 +776,11 @@ const UsersPage = () => {
                                 Vérifier le compte
                               </DropdownMenuItem>
                             )}
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2"
-                              onClick={() => toggleUserStatus(user.id, user.statut)}
+                              onClick={() =>
+                                toggleUserStatus(user.id, user.statut)
+                              }
                             >
                               {user.statut === "actif" ? (
                                 <>
@@ -736,7 +795,7 @@ const UsersPage = () => {
                               )}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="gap-2 text-red-600"
                               onClick={() => deleteUser(user.id)}
                             >
@@ -852,14 +911,14 @@ const UsersPage = () => {
       </div>
 
       {/* Modal de détail utilisateur */}
-      <UserDetailsDialog 
+      <UserDetailsDialog
         isUserDetailOpen={isUserDetailOpen}
         setIsUserDetailOpen={setIsUserDetailOpen}
         selectedUser={selectedUser}
         getStatusColor={getStatusColor}
         getRoleColor={getRoleColor}
         toggleUserStatus={toggleUserStatus}
-    />
+      />
     </main>
   );
 };

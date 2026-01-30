@@ -7,8 +7,21 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
   Eye,
@@ -40,53 +53,121 @@ const RegisterPage = () => {
   const { t } = useLanguage();
 
   // Schéma de validation avec Zod
-  const registerSchema = z.object({
-    accountName: z
-      .string()
-      .min(2, { message: t("register.accountName.tooShort", "Le nom de compte doit contenir au moins 2 caractères") })
-      .max(50, { message: t("register.accountName.tooLong", "Le nom de compte est trop long") })
-      .regex(/^[a-zA-Z0-9_\-\. ]+$/, { 
-        message: t("register.accountName.invalid", "Caractères spéciaux non autorisés (sauf - _ . et espace)") 
-      }),
+  const registerSchema = z
+    .object({
+      accountName: z
+        .string()
+        .min(2, {
+          message: t(
+            "register.accountName.tooShort",
+            "Le nom de compte doit contenir au moins 2 caractères",
+          ),
+        })
+        .max(50, {
+          message: t(
+            "register.accountName.tooLong",
+            "Le nom de compte est trop long",
+          ),
+        })
+        .regex(/^[a-zA-Z0-9_\-\. ]+$/, {
+          message: t(
+            "register.accountName.invalid",
+            "Caractères spéciaux non autorisés (sauf - _ . et espace)",
+          ),
+        }),
 
-    phone: z
-      .string()
-      .min(10, { message: t("register.phone.tooShort", "Le numéro de téléphone est trop court") })
-      .max(20, { message: t("register.phone.tooLong", "Le numéro de téléphone est trop long") })
-      .regex(/^[\+]?[0-9\s\-\(\)]{10,}$/, {
-        message: t("register.phone.invalid", "Format international invalide (ex: +33 1 23 45 67 89)"),
-      }),
+      phone: z
+        .string()
+        .min(10, {
+          message: t(
+            "register.phone.tooShort",
+            "Le numéro de téléphone est trop court",
+          ),
+        })
+        .max(20, {
+          message: t(
+            "register.phone.tooLong",
+            "Le numéro de téléphone est trop long",
+          ),
+        })
+        .regex(/^[\+]?[0-9\s\-\(\)]{10,}$/, {
+          message: t(
+            "register.phone.invalid",
+            "Format international invalide (ex: +33 1 23 45 67 89)",
+          ),
+        }),
 
-    email: z
-      .string()
-      .min(1, { message: t("register.email.required", "L'email est requis") })
-      .email({ message: t("register.email.invalid", "Format d'email invalide") }),
+      email: z
+        .string()
+        .min(1, { message: t("register.email.required", "L'email est requis") })
+        .email({
+          message: t("register.email.invalid", "Format d'email invalide"),
+        }),
 
-    accountType: z
-      .string()
-      .min(1, { message: t("register.accountType.required", "Le type de compte est requis") }),
+      accountType: z
+        .string()
+        .min(1, {
+          message: t(
+            "register.accountType.required",
+            "Le type de compte est requis",
+          ),
+        }),
 
-    preferredLanguage: z
-      .string()
-      .min(1, { message: t("register.language.required", "La langue préférée est requise") }),
+      preferredLanguage: z
+        .string()
+        .min(1, {
+          message: t(
+            "register.language.required",
+            "La langue préférée est requise",
+          ),
+        }),
 
-    password: z
-      .string()
-      .min(8, { message: t("register.password.tooShort", "Le mot de passe doit contenir au moins 8 caractères") })
-      .max(50, { message: t("register.password.tooLong", "Le mot de passe est trop long") })
-      .regex(/[A-Z]/, { message: t("register.password.uppercase", "Au moins une majuscule") })
-      .regex(/[a-z]/, { message: t("register.password.lowercase", "Au moins une minuscule") })
-      .regex(/[0-9]/, { message: t("register.password.number", "Au moins un chiffre") })
-      .regex(/[^A-Za-z0-9]/, { message: t("register.password.special", "Au moins un caractère spécial") }),
+      password: z
+        .string()
+        .min(8, {
+          message: t(
+            "register.password.tooShort",
+            "Le mot de passe doit contenir au moins 8 caractères",
+          ),
+        })
+        .max(50, {
+          message: t(
+            "register.password.tooLong",
+            "Le mot de passe est trop long",
+          ),
+        })
+        .regex(/[A-Z]/, {
+          message: t("register.password.uppercase", "Au moins une majuscule"),
+        })
+        .regex(/[a-z]/, {
+          message: t("register.password.lowercase", "Au moins une minuscule"),
+        })
+        .regex(/[0-9]/, {
+          message: t("register.password.number", "Au moins un chiffre"),
+        })
+        .regex(/[^A-Za-z0-9]/, {
+          message: t(
+            "register.password.special",
+            "Au moins un caractère spécial",
+          ),
+        }),
 
-    confirmPassword: z
-      .string()
-      .min(1, { message: t("register.confirmPassword.required", "La confirmation du mot de passe est requise") }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: t("register.passwords.mismatch", "Les mots de passe ne correspondent pas"),
-    path: ["confirmPassword"],
-  });
+      confirmPassword: z
+        .string()
+        .min(1, {
+          message: t(
+            "register.confirmPassword.required",
+            "La confirmation du mot de passe est requise",
+          ),
+        }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t(
+        "register.passwords.mismatch",
+        "Les mots de passe ne correspondent pas",
+      ),
+      path: ["confirmPassword"],
+    });
 
   // Initialisation de React Hook Form
   const {
@@ -114,15 +195,22 @@ const RegisterPage = () => {
   // Vérification de la force du mot de passe
   const getPasswordStrength = (password) => {
     if (!password) return { score: 0, label: "Vide" };
-    
+
     let score = 0;
     if (password.length >= 8) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^A-Za-z0-9]/.test(password)) score++;
-    
-    const labels = ["Très faible", "Faible", "Moyen", "Bon", "Très bon", "Excellent"];
+
+    const labels = [
+      "Très faible",
+      "Faible",
+      "Moyen",
+      "Bon",
+      "Très bon",
+      "Excellent",
+    ];
     return { score, label: labels[Math.min(score, 5)] };
   };
 
@@ -131,21 +219,20 @@ const RegisterPage = () => {
   // Soumission du formulaire
   const onSubmit = async (data) => {
     setIsLoading(true);
-    
+
     try {
       // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       console.log("Inscription avec:", {
         ...data,
         // Ne pas logger le mot de passe en production
         password: "***",
         confirmPassword: "***",
       });
-      
+
       // Redirection vers la page de confirmation
       navigate("/register/success");
-      
     } catch (error) {
       console.error("Erreur d'inscription:", error);
     } finally {
@@ -155,10 +242,30 @@ const RegisterPage = () => {
 
   // Types de compte disponibles
   const accountTypes = [
-    { value: "particulier", label: "Particulier", icon: UserCircle, description: "Pour les utilisateurs individuels" },
-    { value: "candidat", label: "Candidat", icon: User, description: "Recherche d'emploi ou de missions (candidats, stagiaires)" },
-    { value: "partenaire", label: "Partenaire", icon: Handshake, description: "Entreprises et prestataires" },
-    { value: "professionnel", label: "Professionnel", icon: UserCircle, description: "Entreprise, Freelances,..." },
+    {
+      value: "particulier",
+      label: "Particulier",
+      icon: UserCircle,
+      description: "Pour les utilisateurs individuels",
+    },
+    {
+      value: "candidat",
+      label: "Candidat",
+      icon: User,
+      description: "Recherche d'emploi ou de missions (candidats, stagiaires)",
+    },
+    {
+      value: "partenaire",
+      label: "Partenaire",
+      icon: Handshake,
+      description: "Entreprises et prestataires",
+    },
+    {
+      value: "professionnel",
+      label: "Professionnel",
+      icon: UserCircle,
+      description: "Entreprise, Freelances,...",
+    },
   ];
 
   // Langues disponibles
@@ -234,7 +341,8 @@ const RegisterPage = () => {
                   {/* Téléphone */}
                   <div className="space-y-2">
                     <Label htmlFor="phone">
-                      Téléphone (format international) <span className="text-red-500">*</span>
+                      Téléphone (format international){" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -302,15 +410,16 @@ const RegisterPage = () => {
                   <div className="grid gap-3 md:grid-cols-4">
                     {accountTypes.map((type) => {
                       const Icon = type.icon;
-                      const isSelected = watchedFields.accountType === type.value;
-                      
+                      const isSelected =
+                        watchedFields.accountType === type.value;
+
                       return (
                         <button
                           type="button"
                           key={type.value}
                           className={`flex flex-col items-center justify-center p-4 border rounded-lg transition-all ${
-                            isSelected 
-                              ? "border-destructive border-2 bg-primary/80 text-primary-foreground hover:border-4" 
+                            isSelected
+                              ? "border-destructive border-2 bg-primary/80 text-primary-foreground hover:border-4"
                               : "border-input hover:border-primary"
                           }`}
                           onClick={() => {
@@ -321,9 +430,7 @@ const RegisterPage = () => {
                           {/* <Icon className={`w-6 h-6 mb-2 ${isSelected ? "text-primary" : "text-muted-foreground"}`} /> */}
                           <Icon className={`w-6 h-6 mb-2`} />
                           {/* <span className={`font-medium ${isSelected ? "text-primary" : ""}`}> */}
-                          <span className={`font-medium`}>
-                            {type.label}
-                          </span>
+                          <span className={`font-medium`}>{type.label}</span>
                           {/* <span className="mt-1 text-xs text-center text-muted-foreground"> */}
                           <span className="mt-1 text-xs text-center">
                             {type.description}
@@ -337,10 +444,7 @@ const RegisterPage = () => {
                       );
                     })}
                   </div>
-                  <input
-                    type="hidden"
-                    {...register("accountType")}
-                  />
+                  <input type="hidden" {...register("accountType")} />
                   {errors.accountType && (
                     <div className="flex items-center gap-2 text-sm text-red-500">
                       <AlertCircle className="w-4 h-4" />
@@ -411,7 +515,9 @@ const RegisterPage = () => {
                         className="absolute transform -translate-y-1/2 right-3 top-1/2"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={
-                          showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"
+                          showPassword
+                            ? "Cacher le mot de passe"
+                            : "Afficher le mot de passe"
                         }
                       >
                         {showPassword ? (
@@ -421,18 +527,22 @@ const RegisterPage = () => {
                         )}
                       </button>
                     </div>
-                    
+
                     {/* Indicateur de force du mot de passe */}
                     {watchedFields.password && (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">
                             Force du mot de passe:{" "}
-                            <span className={`font-medium ${
-                              passwordStrength.score <= 1 ? "text-red-500" :
-                              passwordStrength.score <= 3 ? "text-yellow-500" :
-                              "text-green-500"
-                            }`}>
+                            <span
+                              className={`font-medium ${
+                                passwordStrength.score <= 1
+                                  ? "text-red-500"
+                                  : passwordStrength.score <= 3
+                                    ? "text-yellow-500"
+                                    : "text-green-500"
+                              }`}
+                            >
                               {passwordStrength.label}
                             </span>
                           </span>
@@ -441,33 +551,63 @@ const RegisterPage = () => {
                           </span>
                         </div>
                         <div className="w-full h-1 overflow-hidden bg-gray-200 rounded-full">
-                          <div 
+                          <div
                             className={`h-full transition-all duration-300 ${
-                              passwordStrength.score <= 1 ? "bg-red-500 w-1/5" :
-                              passwordStrength.score <= 2 ? "bg-red-500 w-2/5" :
-                              passwordStrength.score <= 3 ? "bg-yellow-500 w-3/5" :
-                              passwordStrength.score <= 4 ? "bg-green-500 w-4/5" :
-                              "bg-green-600 w-full"
+                              passwordStrength.score <= 1
+                                ? "bg-red-500 w-1/5"
+                                : passwordStrength.score <= 2
+                                  ? "bg-red-500 w-2/5"
+                                  : passwordStrength.score <= 3
+                                    ? "bg-yellow-500 w-3/5"
+                                    : passwordStrength.score <= 4
+                                      ? "bg-green-500 w-4/5"
+                                      : "bg-green-600 w-full"
                             }`}
                           />
                         </div>
-                        
+
                         {/* Critères de validation */}
                         <div className="grid grid-cols-2 gap-1 mt-2">
                           {[
-                            { label: "8 caractères min", valid: watchedFields.password.length >= 8 },
-                            { label: "1 majuscule", valid: /[A-Z]/.test(watchedFields.password) },
-                            { label: "1 minuscule", valid: /[a-z]/.test(watchedFields.password) },
-                            { label: "1 chiffre", valid: /[0-9]/.test(watchedFields.password) },
-                            { label: "1 caractère spécial", valid: /[^A-Za-z0-9]/.test(watchedFields.password) },
+                            {
+                              label: "8 caractères min",
+                              valid: watchedFields.password.length >= 8,
+                            },
+                            {
+                              label: "1 majuscule",
+                              valid: /[A-Z]/.test(watchedFields.password),
+                            },
+                            {
+                              label: "1 minuscule",
+                              valid: /[a-z]/.test(watchedFields.password),
+                            },
+                            {
+                              label: "1 chiffre",
+                              valid: /[0-9]/.test(watchedFields.password),
+                            },
+                            {
+                              label: "1 caractère spécial",
+                              valid: /[^A-Za-z0-9]/.test(
+                                watchedFields.password,
+                              ),
+                            },
                           ].map((criterion, index) => (
-                            <div key={index} className="flex items-center gap-1 text-xs">
+                            <div
+                              key={index}
+                              className="flex items-center gap-1 text-xs"
+                            >
                               {criterion.valid ? (
                                 <Check className="w-3 h-3 text-green-500" />
                               ) : (
                                 <X className="w-3 h-3 text-gray-300" />
                               )}
-                              <span className={criterion.valid ? "text-green-500" : "text-gray-400"}>
+                              <span
+                                className={
+                                  criterion.valid
+                                    ? "text-green-500"
+                                    : "text-gray-400"
+                                }
+                              >
                                 {criterion.label}
                               </span>
                             </div>
@@ -475,7 +615,7 @@ const RegisterPage = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {errors.password && (
                       <div className="flex items-center gap-2 text-sm text-red-500">
                         <AlertCircle className="w-4 h-4" />
@@ -487,7 +627,8 @@ const RegisterPage = () => {
                   {/* Confirmation du mot de passe */}
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">
-                      Confirmer le mot de passe <span className="text-red-500">*</span>
+                      Confirmer le mot de passe{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -504,9 +645,13 @@ const RegisterPage = () => {
                       <button
                         type="button"
                         className="absolute transform -translate-y-1/2 right-3 top-1/2"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         aria-label={
-                          showConfirmPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"
+                          showConfirmPassword
+                            ? "Cacher le mot de passe"
+                            : "Afficher le mot de passe"
                         }
                       >
                         {showConfirmPassword ? (
@@ -516,12 +661,15 @@ const RegisterPage = () => {
                         )}
                       </button>
                     </div>
-                    {watchedFields.confirmPassword && !errors.confirmPassword && watchedFields.password === watchedFields.confirmPassword && (
-                      <div className="flex items-center gap-2 text-sm text-green-500">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Les mots de passe correspondent</span>
-                      </div>
-                    )}
+                    {watchedFields.confirmPassword &&
+                      !errors.confirmPassword &&
+                      watchedFields.password ===
+                        watchedFields.confirmPassword && (
+                        <div className="flex items-center gap-2 text-sm text-green-500">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Les mots de passe correspondent</span>
+                        </div>
+                      )}
                     {errors.confirmPassword && (
                       <div className="flex items-center gap-2 text-sm text-red-500">
                         <AlertCircle className="w-4 h-4" />

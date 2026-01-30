@@ -13,7 +13,7 @@ const ClientsPage = () => {
       email: "contact@abc.com",
       telephone: "+33 1 23 45 67 89",
       responsable: "Jean Dupont",
-      statut: "actif"
+      statut: "actif",
     },
     {
       id: 2,
@@ -21,8 +21,8 @@ const ClientsPage = () => {
       email: "info@xyz.fr",
       telephone: "+33 1 98 76 54 32",
       responsable: "Marie Martin",
-      statut: "actif"
-    }
+      statut: "actif",
+    },
   ];
 
   return (
@@ -35,7 +35,7 @@ const ClientsPage = () => {
             Gérez vos clients et leurs informations
           </p>
         </div>
-        
+
         <Button className="gap-2">
           <Plus className="w-4 h-4" />
           Nouveau client
@@ -71,8 +71,8 @@ const ClientsPage = () => {
         <CardContent>
           <div className="space-y-4">
             {clients.map((client) => (
-              <div 
-                key={client.id} 
+              <div
+                key={client.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50"
               >
                 <div>

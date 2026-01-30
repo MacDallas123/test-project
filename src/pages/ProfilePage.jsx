@@ -7,8 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -61,48 +74,106 @@ const ProfilePage = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [documents, setDocuments] = useState([
-    { id: 1, name: "CV.pdf", type: "CV", size: "2.4 MB", uploaded: "2024-01-15" },
-    { id: 2, name: "CIN_recto.jpg", type: "Identité", size: "1.2 MB", uploaded: "2024-01-15" },
-    { id: 3, name: "CIN_verso.jpg", type: "Identité", size: "1.1 MB", uploaded: "2024-01-15" },
-    { id: 4, name: "Diplome_Master.pdf", type: "Diplôme", size: "3.5 MB", uploaded: "2024-01-10" },
+    {
+      id: 1,
+      name: "CV.pdf",
+      type: "CV",
+      size: "2.4 MB",
+      uploaded: "2024-01-15",
+    },
+    {
+      id: 2,
+      name: "CIN_recto.jpg",
+      type: "Identité",
+      size: "1.2 MB",
+      uploaded: "2024-01-15",
+    },
+    {
+      id: 3,
+      name: "CIN_verso.jpg",
+      type: "Identité",
+      size: "1.1 MB",
+      uploaded: "2024-01-15",
+    },
+    {
+      id: 4,
+      name: "Diplome_Master.pdf",
+      type: "Diplôme",
+      size: "3.5 MB",
+      uploaded: "2024-01-10",
+    },
   ]);
-  const [leisureCenters, setLeisureCenters] = useState(["Football", "Lecture", "Voyage"]);
+  const [leisureCenters, setLeisureCenters] = useState([
+    "Football",
+    "Lecture",
+    "Voyage",
+  ]);
   const [contacts, setContacts] = useState([
-    { id: 1, name: "Mr AAA", relationship: "Colègue", phone: "+33 6 12 34 56 78" },
-    { id: 2, name: "Mme BBB", relationship: "Superieur", phone: "+33 6 23 45 67 89" },
+    {
+      id: 1,
+      name: "Mr AAA",
+      relationship: "Colègue",
+      phone: "+33 6 12 34 56 78",
+    },
+    {
+      id: 2,
+      name: "Mme BBB",
+      relationship: "Superieur",
+      phone: "+33 6 23 45 67 89",
+    },
   ]);
   const { t } = useLanguage();
 
   // Schéma de validation pour les informations personnelles
   const personalInfoSchema = z.object({
-    firstName: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères" }),
-    lastName: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
+    firstName: z
+      .string()
+      .min(2, { message: "Le prénom doit contenir au moins 2 caractères" }),
+    lastName: z
+      .string()
+      .min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
     email: z.string().email({ message: "Format d'email invalide" }),
-    phone: z.string().regex(/^[\+]?[0-9\s\-\(\)]{10,}$/, { message: "Format de téléphone invalide" }),
+    phone: z
+      .string()
+      .regex(/^[\+]?[0-9\s\-\(\)]{10,}$/, {
+        message: "Format de téléphone invalide",
+      }),
     accountType: z.string(),
     language: z.string(),
     company: z.string().optional(),
     position: z.string().optional(),
     salary: z.string().optional(),
-    bio: z.string().max(500, { message: "La biographie ne peut pas dépasser 500 caractères" }).optional(),
+    bio: z
+      .string()
+      .max(500, {
+        message: "La biographie ne peut pas dépasser 500 caractères",
+      })
+      .optional(),
   });
 
   // Schéma de validation pour le mot de passe
-  const passwordSchema = z.object({
-    currentPassword: z.string().min(1, { message: "Le mot de passe actuel est requis" }),
-    newPassword: z
-      .string()
-      .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" })
-      .regex(/[A-Z]/, { message: "Au moins une majuscule" })
-      .regex(/[a-z]/, { message: "Au moins une minuscule" })
-      .regex(/[0-9]/, { message: "Au moins un chiffre" })
-      .regex(/[^A-Za-z0-9]/, { message: "Au moins un caractère spécial" }),
-    confirmPassword: z.string().min(1, { message: "La confirmation est requise" }),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  });
+  const passwordSchema = z
+    .object({
+      currentPassword: z
+        .string()
+        .min(1, { message: "Le mot de passe actuel est requis" }),
+      newPassword: z
+        .string()
+        .min(8, {
+          message: "Le mot de passe doit contenir au moins 8 caractères",
+        })
+        .regex(/[A-Z]/, { message: "Au moins une majuscule" })
+        .regex(/[a-z]/, { message: "Au moins une minuscule" })
+        .regex(/[0-9]/, { message: "Au moins un chiffre" })
+        .regex(/[^A-Za-z0-9]/, { message: "Au moins un caractère spécial" }),
+      confirmPassword: z
+        .string()
+        .min(1, { message: "La confirmation est requise" }),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: "Les mots de passe ne correspondent pas",
+      path: ["confirmPassword"],
+    });
 
   // Initialisation des formulaires
   const personalForm = useForm({
@@ -172,7 +243,7 @@ const ProfilePage = () => {
   const handlePersonalSubmit = async (data) => {
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log("Informations mises à jour:", data);
       // API call would go here
     } finally {
@@ -184,7 +255,7 @@ const ProfilePage = () => {
   const handlePasswordSubmit = async (data) => {
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log("Mot de passe changé");
       passwordForm.reset();
     } finally {
@@ -195,7 +266,10 @@ const ProfilePage = () => {
   // Gestion des centres d'intérêt
   const [newLeisureCenter, setNewLeisureCenter] = useState("");
   const addLeisureCenter = () => {
-    if (newLeisureCenter.trim() && !leisureCenters.includes(newLeisureCenter.trim())) {
+    if (
+      newLeisureCenter.trim() &&
+      !leisureCenters.includes(newLeisureCenter.trim())
+    ) {
       setLeisureCenters([...leisureCenters, newLeisureCenter.trim()]);
       setNewLeisureCenter("");
     }
@@ -206,7 +280,11 @@ const ProfilePage = () => {
   };
 
   // Gestion des contacts
-  const [newContact, setNewContact] = useState({ name: "", relationship: "", phone: "" });
+  const [newContact, setNewContact] = useState({
+    name: "",
+    relationship: "",
+    phone: "",
+  });
   const addContact = () => {
     if (newContact.name.trim() && newContact.phone.trim()) {
       setContacts([...contacts, { ...newContact, id: contacts.length + 1 }]);
@@ -215,7 +293,7 @@ const ProfilePage = () => {
   };
 
   const removeContact = (id) => {
-    setContacts(contacts.filter(contact => contact.id !== id));
+    setContacts(contacts.filter((contact) => contact.id !== id));
   };
 
   // Gestion des documents
@@ -227,14 +305,14 @@ const ProfilePage = () => {
         name: file.name,
         type: "other",
         size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-        uploaded: new Date().toISOString().split('T')[0],
+        uploaded: new Date().toISOString().split("T")[0],
       };
       setDocuments([...documents, newDoc]);
     }
   };
 
   const removeDocument = (id) => {
-    setDocuments(documents.filter(doc => doc.id !== id));
+    setDocuments(documents.filter((doc) => doc.id !== id));
   };
 
   // Vérification de la force du mot de passe
@@ -246,11 +324,20 @@ const ProfilePage = () => {
     if (/[a-z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^A-Za-z0-9]/.test(password)) score++;
-    const labels = ["Très faible", "Faible", "Moyen", "Bon", "Très bon", "Excellent"];
+    const labels = [
+      "Très faible",
+      "Faible",
+      "Moyen",
+      "Bon",
+      "Très bon",
+      "Excellent",
+    ];
     return { score, label: labels[Math.min(score, 5)] };
   };
 
-  const passwordStrength = getPasswordStrength(passwordForm.watch("newPassword"));
+  const passwordStrength = getPasswordStrength(
+    passwordForm.watch("newPassword"),
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -265,7 +352,9 @@ const ProfilePage = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-right">
-              <p className="font-medium">Compte {personalForm.watch("accountType")}</p>
+              <p className="font-medium">
+                Compte {personalForm.watch("accountType")}
+              </p>
               <p className="text-muted-foreground">Membre depuis Janv. 2023</p>
             </div>
             <Avatar className="w-12 h-12 border">
@@ -328,25 +417,35 @@ const ProfilePage = () => {
           {/* Colonne principale - Contenu */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList
-                className="grid w-full h-auto grid-cols-2 gap-2 sm:grid-cols-4"
-              >
-                <TabsTrigger value="personal" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
+              <TabsList className="grid w-full h-auto grid-cols-2 gap-2 sm:grid-cols-4">
+                <TabsTrigger
+                  value="personal"
+                  className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm"
+                >
                   <User className="w-4 h-4" />
                   <span className="hidden sm:inline">Personnelles</span>
                   <span className="sm:hidden">Perso</span>
                 </TabsTrigger>
-                <TabsTrigger value="password" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
+                <TabsTrigger
+                  value="password"
+                  className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm"
+                >
                   <Lock className="w-4 h-4" />
                   <span className="hidden sm:inline">Mot de passe</span>
                   <span className="sm:hidden">Mot de passe</span>
                 </TabsTrigger>
-                <TabsTrigger value="professional" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
+                <TabsTrigger
+                  value="professional"
+                  className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm"
+                >
                   <Briefcase className="w-4 h-4" />
                   <span className="hidden sm:inline">Professionnel</span>
                   <span className="sm:hidden">Pro</span>
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm">
+                <TabsTrigger
+                  value="documents"
+                  className="flex items-center gap-2 px-2 py-2 text-xs sm:text-sm"
+                >
                   <Paperclip className="w-4 h-4" />
                   <span className="hidden sm:inline">Documents</span>
                   <span className="sm:hidden">Docs</span>
@@ -362,7 +461,9 @@ const ProfilePage = () => {
                       Gérez vos informations de base et vos préférences
                     </CardDescription>
                   </CardHeader>
-                  <form onSubmit={personalForm.handleSubmit(handlePersonalSubmit)}>
+                  <form
+                    onSubmit={personalForm.handleSubmit(handlePersonalSubmit)}
+                  >
                     <CardContent className="space-y-6">
                       <div className="flex items-center gap-6">
                         <Avatar className="w-20 h-20 border-2">
@@ -370,7 +471,12 @@ const ProfilePage = () => {
                           <AvatarFallback>JD</AvatarFallback>
                         </Avatar>
                         <div>
-                          <Button type="button" variant="outline" size="sm" className="gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                          >
                             <Camera className="w-4 h-4" />
                             Changer la photo
                           </Button>
@@ -445,17 +551,25 @@ const ProfilePage = () => {
                         <div className="space-y-2">
                           <Label htmlFor="accountType">Type de compte</Label>
                           <Select
-                            onValueChange={(value) => personalForm.setValue("accountType", value)}
+                            onValueChange={(value) =>
+                              personalForm.setValue("accountType", value)
+                            }
                             defaultValue={personalForm.getValues("accountType")}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Sélectionnez un type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="particulier">Particulier</SelectItem>
+                              <SelectItem value="particulier">
+                                Particulier
+                              </SelectItem>
                               <SelectItem value="candidat">Candidat</SelectItem>
-                              <SelectItem value="partenaire">Partenaire</SelectItem>
-                              <SelectItem value="entreprise">Entreprise</SelectItem>
+                              <SelectItem value="partenaire">
+                                Partenaire
+                              </SelectItem>
+                              <SelectItem value="entreprise">
+                                Entreprise
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -463,7 +577,9 @@ const ProfilePage = () => {
                         <div className="space-y-2">
                           <Label htmlFor="language">Langue préférée</Label>
                           <Select
-                            onValueChange={(value) => personalForm.setValue("language", value)}
+                            onValueChange={(value) =>
+                              personalForm.setValue("language", value)
+                            }
                             defaultValue={personalForm.getValues("language")}
                           >
                             <SelectTrigger>
@@ -482,10 +598,16 @@ const ProfilePage = () => {
                       <Separator />
 
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Centres d'intérêt / Loisirs</h3>
+                        <h3 className="text-lg font-semibold">
+                          Centres d'intérêt / Loisirs
+                        </h3>
                         <div className="flex flex-wrap gap-2">
                           {leisureCenters.map((center, index) => (
-                            <Badge key={index} variant="secondary" className="gap-1">
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="gap-1"
+                            >
                               <Heart className="w-3 h-3" />
                               {center}
                               <button
@@ -501,11 +623,17 @@ const ProfilePage = () => {
                         <div className="flex gap-2">
                           <Input
                             value={newLeisureCenter}
-                            onChange={(e) => setNewLeisureCenter(e.target.value)}
+                            onChange={(e) =>
+                              setNewLeisureCenter(e.target.value)
+                            }
                             placeholder="Ajouter un centre d'intérêt"
                             className="flex-1"
                           />
-                          <Button type="button" onClick={addLeisureCenter} variant="outline">
+                          <Button
+                            type="button"
+                            onClick={addLeisureCenter}
+                            variant="outline"
+                          >
                             <Plus className="w-4 h-4" />
                           </Button>
                         </div>
@@ -520,12 +648,17 @@ const ProfilePage = () => {
                           {...personalForm.register("bio")}
                         />
                         <p className="text-xs text-muted-foreground">
-                          {personalForm.watch("bio")?.length || 0}/500 caractères
+                          {personalForm.watch("bio")?.length || 0}/500
+                          caractères
                         </p>
                       </div>
                     </CardContent>
                     <CardFooter>
-                      <Button type="submit" disabled={isLoading} className="gap-2">
+                      <Button
+                        type="submit"
+                        disabled={isLoading}
+                        className="gap-2"
+                      >
                         {isLoading ? (
                           <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
                         ) : (
@@ -544,13 +677,18 @@ const ProfilePage = () => {
                   <CardHeader>
                     <CardTitle>Changement du mot de passe</CardTitle>
                     <CardDescription>
-                      Mettez à jour votre mot de passe pour sécuriser votre compte
+                      Mettez à jour votre mot de passe pour sécuriser votre
+                      compte
                     </CardDescription>
                   </CardHeader>
-                  <form onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}>
+                  <form
+                    onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
+                  >
                     <CardContent className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                        <Label htmlFor="currentPassword">
+                          Mot de passe actuel
+                        </Label>
                         <div className="relative">
                           <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
                             <Lock className="w-4 h-4 text-muted-foreground" />
@@ -564,7 +702,9 @@ const ProfilePage = () => {
                           <button
                             type="button"
                             className="absolute transform -translate-y-1/2 right-3 top-1/2"
-                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                            onClick={() =>
+                              setShowCurrentPassword(!showCurrentPassword)
+                            }
                           >
                             {showCurrentPassword ? (
                               <EyeOff className="w-4 h-4 text-muted-foreground" />
@@ -578,7 +718,9 @@ const ProfilePage = () => {
                       <Separator />
 
                       <div className="space-y-2">
-                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                        <Label htmlFor="newPassword">
+                          Nouveau mot de passe
+                        </Label>
                         <div className="relative">
                           <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
                             <Lock className="w-4 h-4 text-muted-foreground" />
@@ -601,35 +743,48 @@ const ProfilePage = () => {
                             )}
                           </button>
                         </div>
-                        
+
                         {passwordForm.watch("newPassword") && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-muted-foreground">
-                                Force: <span className={`font-medium ${
-                                  passwordStrength.score <= 1 ? "text-red-500" :
-                                  passwordStrength.score <= 3 ? "text-yellow-500" :
-                                  "text-green-500"
-                                }`}>
+                                Force:{" "}
+                                <span
+                                  className={`font-medium ${
+                                    passwordStrength.score <= 1
+                                      ? "text-red-500"
+                                      : passwordStrength.score <= 3
+                                        ? "text-yellow-500"
+                                        : "text-green-500"
+                                  }`}
+                                >
                                   {passwordStrength.label}
                                 </span>
                               </span>
                             </div>
                             <div className="w-full h-1 overflow-hidden bg-gray-200 rounded-full">
-                              <div className={`h-full transition-all duration-300 ${
-                                passwordStrength.score <= 1 ? "bg-red-500 w-1/5" :
-                                passwordStrength.score <= 2 ? "bg-red-500 w-2/5" :
-                                passwordStrength.score <= 3 ? "bg-yellow-500 w-3/5" :
-                                passwordStrength.score <= 4 ? "bg-green-500 w-4/5" :
-                                "bg-green-600 w-full"
-                              }`} />
+                              <div
+                                className={`h-full transition-all duration-300 ${
+                                  passwordStrength.score <= 1
+                                    ? "bg-red-500 w-1/5"
+                                    : passwordStrength.score <= 2
+                                      ? "bg-red-500 w-2/5"
+                                      : passwordStrength.score <= 3
+                                        ? "bg-yellow-500 w-3/5"
+                                        : passwordStrength.score <= 4
+                                          ? "bg-green-500 w-4/5"
+                                          : "bg-green-600 w-full"
+                                }`}
+                              />
                             </div>
                           </div>
                         )}
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
+                        <Label htmlFor="confirmPassword">
+                          Confirmer le nouveau mot de passe
+                        </Label>
                         <div className="relative">
                           <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
                             <Lock className="w-4 h-4 text-muted-foreground" />
@@ -643,7 +798,9 @@ const ProfilePage = () => {
                           <button
                             type="button"
                             className="absolute transform -translate-y-1/2 right-3 top-1/2"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
                           >
                             {showConfirmPassword ? (
                               <EyeOff className="w-4 h-4 text-muted-foreground" />
@@ -654,13 +811,18 @@ const ProfilePage = () => {
                         </div>
                         {passwordForm.formState.errors.confirmPassword && (
                           <p className="text-sm text-red-500">
-                            {passwordForm.formState.errors.confirmPassword.message}
+                            {
+                              passwordForm.formState.errors.confirmPassword
+                                .message
+                            }
                           </p>
                         )}
                       </div>
 
                       <div className="p-4 text-sm border rounded-lg bg-muted/30">
-                        <h4 className="mb-2 font-medium">Conseils de sécurité :</h4>
+                        <h4 className="mb-2 font-medium">
+                          Conseils de sécurité :
+                        </h4>
                         <ul className="space-y-1 text-muted-foreground">
                           <li className="flex items-center gap-2">
                             <Check className="w-3 h-3 text-green-500" />
@@ -668,7 +830,8 @@ const ProfilePage = () => {
                           </li>
                           <li className="flex items-center gap-2">
                             <Check className="w-3 h-3 text-green-500" />
-                            Mélangez majuscules, minuscules, chiffres et symboles
+                            Mélangez majuscules, minuscules, chiffres et
+                            symboles
                           </li>
                           <li className="flex items-center gap-2">
                             <Check className="w-3 h-3 text-green-500" />
@@ -678,7 +841,11 @@ const ProfilePage = () => {
                       </div>
                     </CardContent>
                     <CardFooter>
-                      <Button type="submit" disabled={isLoading} className="gap-2 mt-2">
+                      <Button
+                        type="submit"
+                        disabled={isLoading}
+                        className="gap-2 mt-2"
+                      >
                         {isLoading ? (
                           <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
                         ) : (
@@ -752,7 +919,9 @@ const ProfilePage = () => {
                     <Separator />
 
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Mobilité Géographique</h3>
+                      <h3 className="text-lg font-semibold">
+                        Mobilité Géographique
+                      </h3>
                       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         {mobilityOptions.map((option) => (
                           <button
@@ -763,14 +932,27 @@ const ProfilePage = () => {
                                 ? "border-primary bg-primary/5"
                                 : "border-input hover:border-primary/50"
                             }`}
-                            onClick={() => setAdditionalInfo({ ...additionalInfo, mobility: option.value })}
+                            onClick={() =>
+                              setAdditionalInfo({
+                                ...additionalInfo,
+                                mobility: option.value,
+                              })
+                            }
                           >
-                            <option.icon className={`w-6 h-6 mb-2 ${
-                              additionalInfo.mobility === option.value ? "text-primary" : "text-muted-foreground"
-                            }`} />
-                            <span className={`font-medium ${
-                              additionalInfo.mobility === option.value ? "text-primary" : ""
-                            }`}>
+                            <option.icon
+                              className={`w-6 h-6 mb-2 ${
+                                additionalInfo.mobility === option.value
+                                  ? "text-primary"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                            <span
+                              className={`font-medium ${
+                                additionalInfo.mobility === option.value
+                                  ? "text-primary"
+                                  : ""
+                              }`}
+                            >
                               {option.label}
                             </span>
                           </button>
@@ -780,10 +962,17 @@ const ProfilePage = () => {
 
                     <div className="grid gap-6 md:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="experienceYears">Années d'expérience</Label>
+                        <Label htmlFor="experienceYears">
+                          Années d'expérience
+                        </Label>
                         <Select
                           value={additionalInfo.experienceYears}
-                          onValueChange={(value) => setAdditionalInfo({ ...additionalInfo, experienceYears: value })}
+                          onValueChange={(value) =>
+                            setAdditionalInfo({
+                              ...additionalInfo,
+                              experienceYears: value,
+                            })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -791,7 +980,9 @@ const ProfilePage = () => {
                           <SelectContent>
                             {[...Array(31)].map((_, i) => (
                               <SelectItem key={i} value={i.toString()}>
-                                {i === 0 ? "Moins d'un an" : `${i} an${i > 1 ? 's' : ''}`}
+                                {i === 0
+                                  ? "Moins d'un an"
+                                  : `${i} an${i > 1 ? "s" : ""}`}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -799,10 +990,17 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="workType">Type de travail recherché</Label>
+                        <Label htmlFor="workType">
+                          Type de travail recherché
+                        </Label>
                         <Select
                           value={additionalInfo.workType}
-                          onValueChange={(value) => setAdditionalInfo({ ...additionalInfo, workType: value })}
+                          onValueChange={(value) =>
+                            setAdditionalInfo({
+                              ...additionalInfo,
+                              workType: value,
+                            })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -821,7 +1019,12 @@ const ProfilePage = () => {
                         <Label htmlFor="availability">Disponibilité</Label>
                         <Select
                           value={additionalInfo.availability}
-                          onValueChange={(value) => setAdditionalInfo({ ...additionalInfo, availability: value })}
+                          onValueChange={(value) =>
+                            setAdditionalInfo({
+                              ...additionalInfo,
+                              availability: value,
+                            })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -840,16 +1043,26 @@ const ProfilePage = () => {
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">Personnes à contacter</h3>
-                        <Button type="button" variant="outline" size="sm" className="gap-2">
+                        <h3 className="text-lg font-semibold">
+                          Personnes à contacter
+                        </h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                        >
                           <Plus className="w-4 h-4" />
                           Ajouter
                         </Button>
                       </div>
-                      
+
                       <div className="space-y-3">
                         {contacts.map((contact) => (
-                          <div key={contact.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div
+                            key={contact.id}
+                            className="flex items-center justify-between p-3 border rounded-lg"
+                          >
                             <div>
                               <p className="font-medium">{contact.name}</p>
                               <p className="text-sm text-muted-foreground">
@@ -874,16 +1087,28 @@ const ProfilePage = () => {
                             <Input
                               id="contactName"
                               value={newContact.name}
-                              onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
+                              onChange={(e) =>
+                                setNewContact({
+                                  ...newContact,
+                                  name: e.target.value,
+                                })
+                              }
                               placeholder="Nom complet"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="contactRelationship">Relation</Label>
+                            <Label htmlFor="contactRelationship">
+                              Relation
+                            </Label>
                             <Input
                               id="contactRelationship"
                               value={newContact.relationship}
-                              onChange={(e) => setNewContact({ ...newContact, relationship: e.target.value })}
+                              onChange={(e) =>
+                                setNewContact({
+                                  ...newContact,
+                                  relationship: e.target.value,
+                                })
+                              }
                               placeholder="Colègue, Supérieur..."
                             />
                           </div>
@@ -892,7 +1117,12 @@ const ProfilePage = () => {
                             <Input
                               id="contactPhone"
                               value={newContact.phone}
-                              onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+                              onChange={(e) =>
+                                setNewContact({
+                                  ...newContact,
+                                  phone: e.target.value,
+                                })
+                              }
                               placeholder="+33 6 12 34 56 78"
                             />
                           </div>
@@ -910,7 +1140,13 @@ const ProfilePage = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button type="button" className="gap-2" onClick={() => personalForm.handleSubmit(handlePersonalSubmit)()}>
+                    <Button
+                      type="button"
+                      className="gap-2"
+                      onClick={() =>
+                        personalForm.handleSubmit(handlePersonalSubmit)()
+                      }
+                    >
                       <Save className="w-4 h-4" />
                       Enregistrer les informations
                     </Button>
@@ -931,7 +1167,9 @@ const ProfilePage = () => {
                     {/* Zone de téléchargement */}
                     <div className="p-8 text-center border-2 border-dashed rounded-lg">
                       <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="mb-2 text-lg font-semibold">Glissez-déposez vos fichiers</h3>
+                      <h3 className="mb-2 text-lg font-semibold">
+                        Glissez-déposez vos fichiers
+                      </h3>
                       <p className="mb-4 text-muted-foreground">
                         ou cliquez pour parcourir vos fichiers
                       </p>
@@ -954,13 +1192,20 @@ const ProfilePage = () => {
 
                     {/* Liste des documents */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Documents téléchargés</h3>
-                      
+                      <h3 className="text-lg font-semibold">
+                        Documents téléchargés
+                      </h3>
+
                       <div className="space-y-3">
                         {documents.map((doc) => {
-                          const DocIcon = documentTypes.find(d => d.value === doc.type)?.icon || File;
+                          const DocIcon =
+                            documentTypes.find((d) => d.value === doc.type)
+                              ?.icon || File;
                           return (
-                            <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div
+                              key={doc.id}
+                              className="flex items-center justify-between p-4 border rounded-lg"
+                            >
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                                   <DocIcon className="w-5 h-5 text-primary" />
@@ -1001,22 +1246,37 @@ const ProfilePage = () => {
 
                     {/* Liste des documents requis */}
                     <div className="p-4 border rounded-lg bg-muted/30">
-                      <h4 className="mb-3 font-medium">Documents recommandés :</h4>
+                      <h4 className="mb-3 font-medium">
+                        Documents recommandés :
+                      </h4>
                       <div className="grid gap-3 md:grid-cols-2">
                         {documentTypes.map((docType) => {
-                          const hasDocument = documents.some(d => d.type === docType.value);
+                          const hasDocument = documents.some(
+                            (d) => d.type === docType.value,
+                          );
                           const Icon = docType.icon;
                           return (
-                            <div key={docType.value} className="flex items-center gap-3 p-2">
-                              <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
-                                hasDocument ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
-                              }`}>
+                            <div
+                              key={docType.value}
+                              className="flex items-center gap-3 p-2"
+                            >
+                              <div
+                                className={`flex items-center justify-center w-8 h-8 rounded-lg ${
+                                  hasDocument
+                                    ? "bg-green-100 text-green-600"
+                                    : "bg-gray-100 text-gray-400"
+                                }`}
+                              >
                                 <Icon className="w-4 h-4" />
                               </div>
                               <div>
-                                <p className="text-sm font-medium">{docType.label}</p>
+                                <p className="text-sm font-medium">
+                                  {docType.label}
+                                </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {hasDocument ? "Document fourni" : "Document manquant"}
+                                  {hasDocument
+                                    ? "Document fourni"
+                                    : "Document manquant"}
                                 </p>
                               </div>
                               {hasDocument ? (
@@ -1032,10 +1292,14 @@ const ProfilePage = () => {
                   </CardContent>
                   <CardFooter className="flex justify-between">
                     <div className="text-sm text-muted-foreground">
-                      {documents.length} documents • {documents.reduce((acc, doc) => {
-                        const size = parseFloat(doc.size);
-                        return isNaN(size) ? acc : acc + size;
-                      }, 0).toFixed(1)} MB utilisés
+                      {documents.length} documents •{" "}
+                      {documents
+                        .reduce((acc, doc) => {
+                          const size = parseFloat(doc.size);
+                          return isNaN(size) ? acc : acc + size;
+                        }, 0)
+                        .toFixed(1)}{" "}
+                      MB utilisés
                     </div>
                     <Button variant="outline">
                       <Download className="w-4 h-4 mr-2" />

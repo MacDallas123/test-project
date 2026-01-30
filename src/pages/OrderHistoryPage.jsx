@@ -3,87 +3,110 @@ import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, Download, Package, FileText, Shield } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Download,
+  Package,
+  FileText,
+  Shield,
+} from "lucide-react";
 import OrderHistoryCard from "@/components/custom/OrderHistoryCard";
 
 const sampleOrder = {
-    id: "CMD-2024-001",
-    orderNumber: "CMD-2024-001",
-    date: "2024-03-15",
-    status: "completed",
-    itemsCount: 3,
-    totalAmount: 2250.00,
-    subtotal: 2250.00,
-    discount: 0,
-    tax: 450.00,
-    taxRate: 20,
-    paymentMethod: "Carte bancaire",
-    paymentReference: "PAY-789012",
-    warranty: "3 mois",
-    deliveryDate: "30/03/2024",
-    
-    billing: {
-      name: "Mr AAA",
-      email: "mr.aaa@email.com",
-      phone: "+33 6 12 34 56 78",
-      address: "123 Avenue des Champs-Élysées",
-      postalCode: "75008",
-      city: "Paris",
-      country: "France"
+  id: "CMD-2024-001",
+  orderNumber: "CMD-2024-001",
+  date: "2024-03-15",
+  status: "completed",
+  itemsCount: 3,
+  totalAmount: 2250.0,
+  subtotal: 2250.0,
+  discount: 0,
+  tax: 450.0,
+  taxRate: 20,
+  paymentMethod: "Carte bancaire",
+  paymentReference: "PAY-789012",
+  warranty: "3 mois",
+  deliveryDate: "30/03/2024",
+
+  billing: {
+    name: "Mr AAA",
+    email: "mr.aaa@email.com",
+    phone: "+33 6 12 34 56 78",
+    address: "123 Avenue des Champs-Élysées",
+    postalCode: "75008",
+    city: "Paris",
+    country: "France",
+  },
+
+  items: [
+    {
+      id: 1,
+      title: "Site Vitrine Professionnel",
+      provider: "TechSolutions Inc.",
+      providerId: "1",
+      providerEmail: "contact@techsolutions.com",
+      category: "Développement Web",
+      description:
+        "Création d'un site vitrine responsive et moderne avec CMS intégré.",
+      price: 1500.0,
+      unitPrice: 1500.0,
+      quantity: 1,
+      duration: "2-3 semaines",
+      startDate: "18/03/2024",
+      endDate: "05/04/2024",
+      icon: Package,
+      features: [
+        "Design responsive",
+        "CMS personnalisé",
+        "Optimisation SEO",
+        "Formation incluse",
+      ],
     },
-    
-    items: [
-      {
-        id: 1,
-        title: "Site Vitrine Professionnel",
-        provider: "TechSolutions Inc.",
-        providerId: "1",
-        providerEmail: "contact@techsolutions.com",
-        category: "Développement Web",
-        description: "Création d'un site vitrine responsive et moderne avec CMS intégré.",
-        price: 1500.00,
-        unitPrice: 1500.00,
-        quantity: 1,
-        duration: "2-3 semaines",
-        startDate: "18/03/2024",
-        endDate: "05/04/2024",
-        icon: Package,
-        features: ["Design responsive", "CMS personnalisé", "Optimisation SEO", "Formation incluse"]
-      },
-      {
-        id: 2,
-        title: "Consulting Technique",
-        provider: "TechSolutions Inc.",
-        providerId: "1",
-        providerEmail: "contact@techsolutions.com",
-        category: "Conseil",
-        description: "Audit et conseil pour votre projet digital.",
-        price: 750.00,
-        unitPrice: 250.00,
-        quantity: 3,
-        duration: "Sur mesure",
-        startDate: "20/03/2024",
-        icon: FileText,
-        features: ["Analyse technique", "Recommandations", "Roadmap projet", "Rapport détaillé"]
-      },
-      {
-        id: 3,
-        title: "Maintenance Mensuelle",
-        provider: "DesignCreatives Studio",
-        providerId: "2",
-        providerEmail: "contact@designcreatives.com",
-        category: "Support",
-        description: "Forfait de maintenance et support technique.",
-        price: 300.00,
-        unitPrice: 300.00,
-        quantity: 1,
-        duration: "Forfait mensuel",
-        startDate: "01/04/2024",
-        icon: Shield,
-        features: ["Mises à jour sécurité", "Sauvegardes", "Support prioritaire", "Monitoring 24/7"]
-      }
-    ]
-  };
+    {
+      id: 2,
+      title: "Consulting Technique",
+      provider: "TechSolutions Inc.",
+      providerId: "1",
+      providerEmail: "contact@techsolutions.com",
+      category: "Conseil",
+      description: "Audit et conseil pour votre projet digital.",
+      price: 750.0,
+      unitPrice: 250.0,
+      quantity: 3,
+      duration: "Sur mesure",
+      startDate: "20/03/2024",
+      icon: FileText,
+      features: [
+        "Analyse technique",
+        "Recommandations",
+        "Roadmap projet",
+        "Rapport détaillé",
+      ],
+    },
+    {
+      id: 3,
+      title: "Maintenance Mensuelle",
+      provider: "DesignCreatives Studio",
+      providerId: "2",
+      providerEmail: "contact@designcreatives.com",
+      category: "Support",
+      description: "Forfait de maintenance et support technique.",
+      price: 300.0,
+      unitPrice: 300.0,
+      quantity: 1,
+      duration: "Forfait mensuel",
+      startDate: "01/04/2024",
+      icon: Shield,
+      features: [
+        "Mises à jour sécurité",
+        "Sauvegardes",
+        "Support prioritaire",
+        "Monitoring 24/7",
+      ],
+    },
+  ],
+};
 
 const OrderHistoryPage = () => {
   const [orders, setOrders] = useState([sampleOrder]);
@@ -91,10 +114,11 @@ const OrderHistoryPage = () => {
   const [search, setSearch] = useState("");
 
   // Filtrer les commandes
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = orders.filter((order) => {
     const matchesFilter = filter === "all" || order.status === filter;
-    const matchesSearch = order.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-                         order.billing.name.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch =
+      order.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
+      order.billing.name.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -102,14 +126,14 @@ const OrderHistoryPage = () => {
   const groupedOrders = filteredOrders.reduce((groups, order) => {
     const date = new Date(order.date);
     const year = date.getFullYear();
-    const month = date.toLocaleString('fr-FR', { month: 'long' });
+    const month = date.toLocaleString("fr-FR", { month: "long" });
     const key = `${year}-${month}`;
-    
+
     if (!groups[key]) {
       groups[key] = {
         year,
         month,
-        orders: []
+        orders: [],
       };
     }
     groups[key].orders.push(order);
@@ -119,7 +143,9 @@ const OrderHistoryPage = () => {
   return (
     <div className="container px-4 py-8 mx-auto">
       <div className="mb-8">
-        <h1 className="mb-2 text-2xl font-semibold">Historique des commandes</h1>
+        <h1 className="mb-2 text-2xl font-semibold">
+          Historique des commandes
+        </h1>
         <p className="text-muted-foreground">
           Retrouvez toutes vos commandes passées et leurs détails
         </p>
@@ -187,23 +213,30 @@ const OrderHistoryPage = () => {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div className="p-4 border rounded-lg">
             <div className="text-2xl font-semibold">{orders.length}</div>
-            <div className="text-sm text-muted-foreground">Commandes totales</div>
-          </div>
-          <div className="p-4 border rounded-lg">
-            <div className="text-2xl font-semibold">
-              {orders.filter(o => o.status === 'completed').length}
+            <div className="text-sm text-muted-foreground">
+              Commandes totales
             </div>
-            <div className="text-sm text-muted-foreground">Commandes terminées</div>
           </div>
           <div className="p-4 border rounded-lg">
             <div className="text-2xl font-semibold">
-              {orders.filter(o => o.status === 'in_progress').length}
+              {orders.filter((o) => o.status === "completed").length}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Commandes terminées
+            </div>
+          </div>
+          <div className="p-4 border rounded-lg">
+            <div className="text-2xl font-semibold">
+              {orders.filter((o) => o.status === "in_progress").length}
             </div>
             <div className="text-sm text-muted-foreground">En cours</div>
           </div>
           <div className="p-4 border rounded-lg">
             <div className="text-2xl font-semibold">
-              {orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)} €
+              {orders
+                .reduce((sum, order) => sum + order.totalAmount, 0)
+                .toFixed(2)}{" "}
+              €
             </div>
             <div className="text-sm text-muted-foreground">Montant total</div>
           </div>

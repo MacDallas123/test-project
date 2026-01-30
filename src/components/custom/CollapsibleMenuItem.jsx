@@ -15,12 +15,11 @@ const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
 
   const handleCloseMobileMenu = (e) => {
     closeMobileMenu();
-  }
+  };
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors rounded-lg text-primary-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-gray-800"
-      >
+      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors rounded-lg text-primary-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-gray-800">
         <div className="flex items-center gap-3">
           <span className="text-destructive">{icon}</span>
           <span>{label}</span>
@@ -53,14 +52,15 @@ const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
                     damping: 28,
                     delay: index * 0.07, // 70ms interval between each item
                   }}
-                  
                 >
-                  
-                  <Link to={child.href} className="w-full" onClick={(e) => handleCloseMobileMenu(e)}>
+                  <Link
+                    to={child.href}
+                    className="w-full"
+                    onClick={(e) => handleCloseMobileMenu(e)}
+                  >
                     <Button
                       variant="ghost"
                       className="justify-start w-full text-sm transition-colors border-t border-b rounded-none cursor-pointer text-primary-foreground hover:text-foreground hover:bg-accent/50"
-                      
                     >
                       {/* <IconComponent className="w-4 h-4 mr-3" /> */}
                       {child.label}

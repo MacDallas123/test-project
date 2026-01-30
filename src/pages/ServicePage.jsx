@@ -24,11 +24,11 @@ import {
   Flame,
   Leaf,
   Wheat,
-  Coffee
+  Coffee,
 } from "lucide-react";
 
 // Dialogues pour l'ajout au panier
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -55,7 +55,7 @@ const ServicePage = () => {
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Données des restaurants
   const restaurants = [
     {
@@ -68,7 +68,7 @@ const ServicePage = () => {
       deliveryTime: "30-40 min",
       deliveryFee: 500,
       logoColor: "bg-orange-600",
-      specialties: ["Poulet Yassa", "Thiébou Djeun", "Mafé"]
+      specialties: ["Poulet Yassa", "Thiébou Djeun", "Mafé"],
     },
     {
       id: 2,
@@ -80,7 +80,7 @@ const ServicePage = () => {
       deliveryTime: "25-35 min",
       deliveryFee: 700,
       logoColor: "bg-red-600",
-      specialties: ["Burgers", "Frites", "Milkshakes"]
+      specialties: ["Burgers", "Frites", "Milkshakes"],
     },
     {
       id: 3,
@@ -92,7 +92,7 @@ const ServicePage = () => {
       deliveryTime: "35-45 min",
       deliveryFee: 600,
       logoColor: "bg-green-600",
-      specialties: ["Pizzas", "Pâtes", "Salades"]
+      specialties: ["Pizzas", "Pâtes", "Salades"],
     },
     {
       id: 4,
@@ -104,7 +104,7 @@ const ServicePage = () => {
       deliveryTime: "20-30 min",
       deliveryFee: 400,
       logoColor: "bg-emerald-600",
-      specialties: ["Salades", "Bowls", "Smoothies"]
+      specialties: ["Salades", "Bowls", "Smoothies"],
     },
     {
       id: 5,
@@ -116,7 +116,7 @@ const ServicePage = () => {
       deliveryTime: "40-50 min",
       deliveryFee: 800,
       logoColor: "bg-blue-600",
-      specialties: ["Sushis", "Sashimis", "Tempura"]
+      specialties: ["Sushis", "Sashimis", "Tempura"],
     },
     {
       id: 6,
@@ -128,7 +128,7 @@ const ServicePage = () => {
       deliveryTime: "25-35 min",
       deliveryFee: 400,
       logoColor: "bg-yellow-600",
-      specialties: ["Sandwichs", "Viennoiseries", "Pâtisseries"]
+      specialties: ["Sandwichs", "Viennoiseries", "Pâtisseries"],
     },
     {
       id: 7,
@@ -140,7 +140,7 @@ const ServicePage = () => {
       deliveryTime: "35-45 min",
       deliveryFee: 600,
       logoColor: "bg-purple-600",
-      specialties: ["Curry", "Biryani", "Naan"]
+      specialties: ["Curry", "Biryani", "Naan"],
     },
     {
       id: 8,
@@ -152,8 +152,8 @@ const ServicePage = () => {
       deliveryTime: "20-30 min",
       deliveryFee: 300,
       logoColor: "bg-brown-600",
-      specialties: ["Café", "Petit-déjeuner", "Snacks"]
-    }
+      specialties: ["Café", "Petit-déjeuner", "Snacks"],
+    },
   ];
 
   // Données des plats
@@ -167,16 +167,17 @@ const ServicePage = () => {
       price: 4500,
       rating: 4.9,
       deliveryTime: "30-40 min",
-      description: "Poulet mariné au citron avec oignons caramélisés, accompagné de riz blanc et légumes frais.",
+      description:
+        "Poulet mariné au citron avec oignons caramélisés, accompagné de riz blanc et légumes frais.",
       image: Plat1,
       tags: ["Épicé", "Traditionnel"],
       features: [
         "100% poulet local",
         "Accompagnement riz et légumes",
         "Sauce maison",
-        "Portion généreuse"
+        "Portion généreuse",
       ],
-      popular: true
+      popular: true,
     },
     {
       id: 2,
@@ -187,16 +188,17 @@ const ServicePage = () => {
       price: 5000,
       rating: 4.7,
       deliveryTime: "25-35 min",
-      description: "Double steak haché, cheddar, bacon, oignons caramélisés et sauce spéciale maison.",
+      description:
+        "Double steak haché, cheddar, bacon, oignons caramélisés et sauce spéciale maison.",
       image: Plat2,
       tags: ["Nouveau", "Gourmet"],
       features: [
         "Double viande",
         "Frites maison",
         "Sauce signature",
-        "Pain brioché"
+        "Pain brioché",
       ],
-      popular: true
+      popular: true,
     },
     {
       id: 3,
@@ -207,15 +209,16 @@ const ServicePage = () => {
       price: 4500,
       rating: 4.8,
       deliveryTime: "35-45 min",
-      description: "Base tomate fraîche, mozzarella di bufala, basilic et huile d'olive extra vierge.",
+      description:
+        "Base tomate fraîche, mozzarella di bufala, basilic et huile d'olive extra vierge.",
       image: Plat3,
       tags: ["Végétarien", "Classique"],
       features: [
         "Mozzarella di bufala",
         "Tomates fraîches",
         "Basilic frais",
-        "Pâte fine maison"
-      ]
+        "Pâte fine maison",
+      ],
     },
     {
       id: 4,
@@ -226,15 +229,16 @@ const ServicePage = () => {
       price: 3500,
       rating: 4.6,
       deliveryTime: "20-30 min",
-      description: "Poulet grillé, parmesan, croûtons maison, laitue romaine et sauce césar légère.",
+      description:
+        "Poulet grillé, parmesan, croûtons maison, laitue romaine et sauce césar légère.",
       image: Plat4,
       tags: ["Healthy", "Léger"],
       features: [
         "Poulet grillé",
         "Sauce légère",
         "Croûtons maison",
-        "Légumes frais"
-      ]
+        "Légumes frais",
+      ],
     },
     {
       id: 5,
@@ -245,16 +249,17 @@ const ServicePage = () => {
       price: 8000,
       rating: 4.9,
       deliveryTime: "40-50 min",
-      description: "Assortiment de sushis, sashimis et makis frais du jour avec sauces accompagnement.",
+      description:
+        "Assortiment de sushis, sashimis et makis frais du jour avec sauces accompagnement.",
       image: Plat5,
       tags: ["Frais", "Premium"],
       features: [
         "Poisson frais du jour",
         "Riz vinaigré maison",
         "Wasabi et gingembre",
-        "Sauce soja"
+        "Sauce soja",
       ],
-      popular: true
+      popular: true,
     },
     {
       id: 6,
@@ -265,15 +270,16 @@ const ServicePage = () => {
       price: 3000,
       rating: 4.5,
       deliveryTime: "25-35 min",
-      description: "Pain de mie grillé, poulet rôti, bacon, laitue, tomate et sauce spéciale.",
+      description:
+        "Pain de mie grillé, poulet rôti, bacon, laitue, tomate et sauce spéciale.",
       image: Plat6,
       tags: ["Classique", "Rapide"],
       features: [
         "Pain maison",
         "Poulet rôti",
         "Légumes frais",
-        "Accompagnement frites"
-      ]
+        "Accompagnement frites",
+      ],
     },
     {
       id: 7,
@@ -284,15 +290,16 @@ const ServicePage = () => {
       price: 5000,
       rating: 4.7,
       deliveryTime: "35-45 min",
-      description: "Poulet mariné dans une sauce crémeuse au curry avec riz basmati et naan.",
+      description:
+        "Poulet mariné dans une sauce crémeuse au curry avec riz basmati et naan.",
       image: Plat7,
       tags: ["Épicé", "Crémeux"],
       features: [
         "Épices authentiques",
         "Sauce crémeuse",
         "Riz basmati",
-        "Naan maison"
-      ]
+        "Naan maison",
+      ],
     },
     {
       id: 8,
@@ -303,15 +310,16 @@ const ServicePage = () => {
       price: 3500,
       rating: 4.4,
       deliveryTime: "20-30 min",
-      description: "Œufs, bacon, saucisses, pain grillé, confiture et café frais.",
+      description:
+        "Œufs, bacon, saucisses, pain grillé, confiture et café frais.",
       image: Plat8,
       tags: ["Petit-déjeuner", "Complet"],
       features: [
         "Œufs frais",
         "Pain maison",
         "Café frais moulu",
-        "Confiture artisanale"
-      ]
+        "Confiture artisanale",
+      ],
     },
     // Ajoutez plus de plats ici...
   ];
@@ -322,22 +330,27 @@ const ServicePage = () => {
   const [specialInstructions, setSpecialInstructions] = useState("");
 
   // Catégories uniques
-  const categories = ["Tous", ...Array.from(new Set(meals.map(m => m.category)))];
-  
+  const categories = [
+    "Tous",
+    ...Array.from(new Set(meals.map((m) => m.category))),
+  ];
+
   // Filtrage des plats
-  const filteredMeals = meals.filter(meal => {
-    const matchesCategory = selectedCategory === "Tous" || meal.category === selectedCategory;
-    const matchesSearch = searchQuery === "" || 
+  const filteredMeals = meals.filter((meal) => {
+    const matchesCategory =
+      selectedCategory === "Tous" || meal.category === selectedCategory;
+    const matchesSearch =
+      searchQuery === "" ||
       meal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       meal.restaurant.toLowerCase().includes(searchQuery.toLowerCase()) ||
       meal.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     return matchesCategory && matchesSearch;
   });
 
   // Trouver les informations du restaurant
   const getRestaurantInfo = (restaurantId) => {
-    return restaurants.find(r => r.id === restaurantId) || restaurants[0];
+    return restaurants.find((r) => r.id === restaurantId) || restaurants[0];
   };
 
   const addToCart = (meal) => {
@@ -345,15 +358,16 @@ const ServicePage = () => {
     const cartItem = {
       ...meal,
       quantity: meal.id === selectedMeal?.id ? quantity : 1,
-      specialInstructions: meal.id === selectedMeal?.id ? specialInstructions : "",
+      specialInstructions:
+        meal.id === selectedMeal?.id ? specialInstructions : "",
       restaurantId: restaurant.id,
       restaurant: restaurant.name,
       restaurantLogoColor: restaurant.logoColor,
-      deliveryFee: restaurant.deliveryFee
+      deliveryFee: restaurant.deliveryFee,
     };
-    
+
     setCart([...cart, cartItem]);
-    
+
     // Réinitialiser les états
     setQuantity(1);
     setSpecialInstructions("");
@@ -380,9 +394,10 @@ const ServicePage = () => {
               Découvrez toutes nos spécialités
             </h1>
             <p className="mb-8 text-lg text-muted-foreground">
-              Plus de {meals.length} plats préparés avec soin par nos {restaurants.length} restaurants partenaires
+              Plus de {meals.length} plats préparés avec soin par nos{" "}
+              {restaurants.length} restaurants partenaires
             </p>
-            
+
             {/* Barre de recherche */}
             <div className="max-w-2xl mx-auto mb-8">
               <div className="relative">
@@ -400,9 +415,11 @@ const ServicePage = () => {
             {/* Filtres rapides */}
             <div className="flex flex-wrap justify-center gap-3">
               {categories.map((category, index) => (
-                <Badge 
-                  key={index} 
-                  variant={selectedCategory === category ? "default" : "outline"}
+                <Badge
+                  key={index}
+                  variant={
+                    selectedCategory === category ? "default" : "outline"
+                  }
                   className="px-4 py-2 text-sm transition-all cursor-pointer hover:scale-105"
                   onClick={() => setSelectedCategory(category)}
                 >
@@ -421,14 +438,16 @@ const ServicePage = () => {
           <div>
             <h2 className="text-2xl font-bold">Plats disponibles</h2>
             <p className="text-muted-foreground">
-              {filteredMeals.length} {filteredMeals.length === 1 ? "plat" : "plats"} • {restaurants.length} restaurants
+              {filteredMeals.length}{" "}
+              {filteredMeals.length === 1 ? "plat" : "plats"} •{" "}
+              {restaurants.length} restaurants
             </p>
           </div>
-          
+
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <Badge variant="secondary" className="px-3 py-1">
               <Flame className="w-3 h-3 mr-1" />
-              {meals.filter(m => m.popular).length} plats populaires
+              {meals.filter((m) => m.popular).length} plats populaires
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
               <ChefHat className="w-3 h-3 mr-1" />
@@ -441,7 +460,7 @@ const ServicePage = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredMeals.map((meal, index) => {
             const restaurant = getRestaurantInfo(meal.restaurantId);
-            
+
             return (
               <motion.div
                 key={meal.id}
@@ -454,12 +473,12 @@ const ServicePage = () => {
                 <Card className="overflow-hidden transition-all duration-300 border-gray-200 shadow-sm hover:shadow-lg">
                   <div className="relative h-48 overflow-hidden">
                     <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/40 to-transparent" />
-                    <img 
-                      src={meal.image} 
+                    <img
+                      src={meal.image}
                       alt={meal.title}
                       className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                     />
-                    
+
                     {/* Badge populaire */}
                     {meal.popular && (
                       <div className="absolute z-20 top-3 right-3">
@@ -469,11 +488,11 @@ const ServicePage = () => {
                         </Badge>
                       </div>
                     )}
-                    
+
                     {/* Tags */}
                     <div className="absolute z-20 flex gap-2 top-3 left-3">
                       {meal.tags.map((tag, i) => (
-                        <span 
+                        <span
                           key={i}
                           className="px-2 py-1 text-xs font-medium rounded-full bg-white/90 backdrop-blur-sm"
                         >
@@ -481,24 +500,28 @@ const ServicePage = () => {
                         </span>
                       ))}
                     </div>
-                    
+
                     {/* Restaurant info */}
                     <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${restaurant.logoColor}`}></div>
+                          <div
+                            className={`w-2 h-2 rounded-full ${restaurant.logoColor}`}
+                          ></div>
                           <span className="text-sm font-medium text-white truncate">
                             {restaurant.name}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                          <span className="text-xs font-medium text-white">{meal.rating}</span>
+                          <span className="text-xs font-medium text-white">
+                            {meal.rating}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-bold transition-colors line-clamp-1 group-hover:text-primary">
@@ -508,20 +531,25 @@ const ServicePage = () => {
                         {meal.price.toLocaleString()} XOF
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 mb-3 text-sm text-gray-500">
                       <MapPin className="w-4 h-4" />
-                      <span className="line-clamp-1">{restaurant.location}</span>
+                      <span className="line-clamp-1">
+                        {restaurant.location}
+                      </span>
                     </div>
-                    
+
                     <p className="mb-4 text-sm text-gray-600 line-clamp-2">
                       {meal.description}
                     </p>
-                    
+
                     {/* Caractéristiques */}
                     <div className="mb-4 space-y-1">
                       {meal.features.slice(0, 2).map((feature, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs">
+                        <div
+                          key={i}
+                          className="flex items-center gap-2 text-xs"
+                        >
                           <CheckCircle className="flex-shrink-0 w-3 h-3 text-green-500" />
                           <span className="line-clamp-1">{feature}</span>
                         </div>
@@ -532,23 +560,25 @@ const ServicePage = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center justify-between pt-4 border-t">
                       <div className="flex items-center gap-1 text-sm text-gray-500">
                         <Clock className="w-4 h-4" />
                         <span>{meal.deliveryTime}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                        <span className="text-sm font-medium">{meal.rating}</span>
+                        <span className="text-sm font-medium">
+                          {meal.rating}
+                        </span>
                       </div>
                     </div>
-                    
+
                     {/* Bouton d'ajout au panier */}
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button 
+                        <Button
                           className="w-full gap-2 mt-4"
                           variant="link"
                           onClick={() => setSelectedMeal(meal)}
@@ -557,25 +587,30 @@ const ServicePage = () => {
                           Ajouter au Panier
                         </Button>
                       </DialogTrigger>
-                      
+
                       {/* Dialogue pour personnaliser la commande */}
                       {selectedMeal && selectedMeal.id === meal.id && (
                         <DialogContent className="sm:max-w-md">
                           <DialogHeader>
                             <DialogTitle>Ajouter {meal.title}</DialogTitle>
                             <DialogDescription>
-                              Personnalisez votre commande avant de l'ajouter au panier
+                              Personnalisez votre commande avant de l'ajouter au
+                              panier
                             </DialogDescription>
                           </DialogHeader>
-                          
+
                           <div className="py-4 space-y-4">
                             {/* Infos restaurant */}
                             <div className="flex items-center gap-3 p-3 border rounded-lg">
-                              <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${restaurant.logoColor} text-white`}>
+                              <div
+                                className={`flex items-center justify-center w-10 h-10 rounded-lg ${restaurant.logoColor} text-white`}
+                              >
                                 <ChefHat className="w-5 h-5" />
                               </div>
                               <div>
-                                <h4 className="font-semibold">{restaurant.name}</h4>
+                                <h4 className="font-semibold">
+                                  {restaurant.name}
+                                </h4>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                   <MapPin className="w-3 h-3" />
                                   <span>{restaurant.location}</span>
@@ -584,7 +619,7 @@ const ServicePage = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Quantité */}
                             <div className="space-y-2">
                               <Label htmlFor="quantity">Quantité</Label>
@@ -592,7 +627,9 @@ const ServicePage = () => {
                                 <Button
                                   variant="outline"
                                   size="icon"
-                                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                  onClick={() =>
+                                    setQuantity(Math.max(1, quantity - 1))
+                                  }
                                 >
                                   -
                                 </Button>
@@ -601,7 +638,14 @@ const ServicePage = () => {
                                   type="number"
                                   min="1"
                                   value={quantity}
-                                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                  onChange={(e) =>
+                                    setQuantity(
+                                      Math.max(
+                                        1,
+                                        parseInt(e.target.value) || 1,
+                                      ),
+                                    )
+                                  }
                                   className="w-20 text-center"
                                 />
                                 <Button
@@ -613,7 +657,7 @@ const ServicePage = () => {
                                 </Button>
                               </div>
                             </div>
-                            
+
                             {/* Instructions spéciales */}
                             <div className="space-y-2">
                               <Label htmlFor="instructions">
@@ -626,17 +670,21 @@ const ServicePage = () => {
                                 id="instructions"
                                 placeholder="Ex: Sans oignons, sauce à part, bien cuit..."
                                 value={specialInstructions}
-                                onChange={(e) => setSpecialInstructions(e.target.value)}
+                                onChange={(e) =>
+                                  setSpecialInstructions(e.target.value)
+                                }
                                 className="min-h-[80px]"
                               />
                             </div>
-                            
+
                             {/* Récapitulatif */}
                             <div className="p-3 border rounded-lg bg-muted/30">
                               <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                   <span>Plat:</span>
-                                  <span className="font-medium">{meal.title}</span>
+                                  <span className="font-medium">
+                                    {meal.title}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Prix unitaire:</span>
@@ -644,20 +692,29 @@ const ServicePage = () => {
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Frais de livraison:</span>
-                                  <span>{restaurant.deliveryFee.toLocaleString()} XOF</span>
+                                  <span>
+                                    {restaurant.deliveryFee.toLocaleString()}{" "}
+                                    XOF
+                                  </span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between font-bold text-primary">
                                   <span>Total:</span>
-                                  <span>{(meal.price * quantity + restaurant.deliveryFee).toLocaleString()} XOF</span>
+                                  <span>
+                                    {(
+                                      meal.price * quantity +
+                                      restaurant.deliveryFee
+                                    ).toLocaleString()}{" "}
+                                    XOF
+                                  </span>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          
+
                           <DialogFooter>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               onClick={() => {
                                 setQuantity(1);
                                 setSpecialInstructions("");
@@ -688,10 +745,11 @@ const ServicePage = () => {
               <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="mb-2 text-xl font-semibold">Aucun plat trouvé</h3>
               <p className="mb-6 text-muted-foreground">
-                Aucun plat ne correspond à vos critères de recherche. Essayez avec d'autres termes.
+                Aucun plat ne correspond à vos critères de recherche. Essayez
+                avec d'autres termes.
               </p>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory("Tous");
@@ -720,11 +778,16 @@ const ServicePage = () => {
             </div>
             <div className="space-y-2 overflow-y-auto max-h-60">
               {cart.slice(-3).map((item, index) => (
-                <div key={index} className="flex items-center justify-between pb-2 text-sm border-b">
+                <div
+                  key={index}
+                  className="flex items-center justify-between pb-2 text-sm border-b"
+                >
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{item.title}</div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <div className={`w-2 h-2 rounded-full ${item.restaurantLogoColor}`}></div>
+                      <div
+                        className={`w-2 h-2 rounded-full ${item.restaurantLogoColor}`}
+                      ></div>
                       <span className="truncate">{item.restaurant}</span>
                     </div>
                   </div>
@@ -740,9 +803,7 @@ const ServicePage = () => {
               )}
             </div>
             <Button className="w-full mt-3" asChild>
-              <Link to="/checkout">
-                Commander maintenant
-              </Link>
+              <Link to="/checkout">Commander maintenant</Link>
             </Button>
           </div>
         )}
@@ -752,7 +813,9 @@ const ServicePage = () => {
           <div className="p-6 border rounded-lg bg-muted/30">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
-                <h3 className="mb-2 text-xl font-semibold">Nos restaurants partenaires</h3>
+                <h3 className="mb-2 text-xl font-semibold">
+                  Nos restaurants partenaires
+                </h3>
                 <p className="text-muted-foreground">
                   Découvrez tous nos restaurants et leurs spécialités
                 </p>
@@ -764,19 +827,28 @@ const ServicePage = () => {
                 </Link>
               </Button>
             </div>
-            
+
             {/* Mini galerie restaurants */}
             <div className="grid grid-cols-2 gap-4 mt-6 sm:grid-cols-4">
               {restaurants.slice(0, 4).map((restaurant, index) => (
-                <div key={index} className="p-3 text-center bg-white border rounded-lg">
-                  <div className={`flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-lg ${restaurant.logoColor} text-white`}>
+                <div
+                  key={index}
+                  className="p-3 text-center bg-white border rounded-lg"
+                >
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-lg ${restaurant.logoColor} text-white`}
+                  >
                     <ChefHat className="w-5 h-5" />
                   </div>
                   <h4 className="font-medium truncate">{restaurant.name}</h4>
-                  <p className="text-xs truncate text-muted-foreground">{restaurant.cuisine}</p>
+                  <p className="text-xs truncate text-muted-foreground">
+                    {restaurant.cuisine}
+                  </p>
                   <div className="flex items-center justify-center gap-1 mt-1">
                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                    <span className="text-xs font-medium">{restaurant.rating}</span>
+                    <span className="text-xs font-medium">
+                      {restaurant.rating}
+                    </span>
                   </div>
                 </div>
               ))}

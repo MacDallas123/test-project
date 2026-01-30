@@ -7,7 +7,14 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   Eye,
@@ -66,27 +73,58 @@ const PasswordResetPage = () => {
   const codeSchema = z.object({
     code: z
       .string()
-      .length(6, { message: t("reset.code.length", "Le code doit contenir 6 chiffres") })
-      .regex(/^\d{6}$/, { message: t("reset.code.numeric", "Le code ne doit contenir que des chiffres") }),
+      .length(6, {
+        message: t("reset.code.length", "Le code doit contenir 6 chiffres"),
+      })
+      .regex(/^\d{6}$/, {
+        message: t(
+          "reset.code.numeric",
+          "Le code ne doit contenir que des chiffres",
+        ),
+      }),
   });
 
-  const passwordSchema = z.object({
-    password: z
-      .string()
-      .min(8, { message: t("reset.password.tooShort", "Le mot de passe doit contenir au moins 8 caractères") })
-      .max(50, { message: t("reset.password.tooLong", "Le mot de passe est trop long") })
-      .regex(/[A-Z]/, { message: t("reset.password.uppercase", "Au moins une majuscule") })
-      .regex(/[a-z]/, { message: t("reset.password.lowercase", "Au moins une minuscule") })
-      .regex(/[0-9]/, { message: t("reset.password.number", "Au moins un chiffre") })
-      .regex(/[^A-Za-z0-9]/, { message: t("reset.password.special", "Au moins un caractère spécial") }),
-    confirmPassword: z
-      .string()
-      .min(1, { message: t("reset.confirmPassword.required", "La confirmation du mot de passe est requise") }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: t("reset.passwords.mismatch", "Les mots de passe ne correspondent pas"),
-    path: ["confirmPassword"],
-  });
+  const passwordSchema = z
+    .object({
+      password: z
+        .string()
+        .min(8, {
+          message: t(
+            "reset.password.tooShort",
+            "Le mot de passe doit contenir au moins 8 caractères",
+          ),
+        })
+        .max(50, {
+          message: t("reset.password.tooLong", "Le mot de passe est trop long"),
+        })
+        .regex(/[A-Z]/, {
+          message: t("reset.password.uppercase", "Au moins une majuscule"),
+        })
+        .regex(/[a-z]/, {
+          message: t("reset.password.lowercase", "Au moins une minuscule"),
+        })
+        .regex(/[0-9]/, {
+          message: t("reset.password.number", "Au moins un chiffre"),
+        })
+        .regex(/[^A-Za-z0-9]/, {
+          message: t("reset.password.special", "Au moins un caractère spécial"),
+        }),
+      confirmPassword: z
+        .string()
+        .min(1, {
+          message: t(
+            "reset.confirmPassword.required",
+            "La confirmation du mot de passe est requise",
+          ),
+        }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t(
+        "reset.passwords.mismatch",
+        "Les mots de passe ne correspondent pas",
+      ),
+      path: ["confirmPassword"],
+    });
 
   // Initialisation des formulaires pour chaque étape
   const emailForm = useForm({
@@ -115,15 +153,14 @@ const PasswordResetPage = () => {
   const handleEmailSubmit = async (data) => {
     setIsLoading(true);
     setResetEmail(data.email);
-    
+
     try {
       // Simuler l'envoi du code par email
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       console.log("Code envoyé à:", data.email);
       setCurrentStep(RESET_STEPS.CODE);
       setCountdown(60); // 60 secondes avant de pouvoir renvoyer le code
-      
     } catch (error) {
       console.error("Erreur lors de l'envoi du code:", error);
     } finally {
@@ -134,24 +171,26 @@ const PasswordResetPage = () => {
   // Étape 2: Vérification du code
   const handleCodeSubmit = async (data) => {
     setIsLoading(true);
-    
+
     try {
       // Simuler la vérification du code
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Code de démo (en production, vérifier avec l'API)
       const DEMO_CODE = "123456";
-      
+
       if (data.code === DEMO_CODE) {
         console.log("Code vérifié avec succès");
         setCurrentStep(RESET_STEPS.PASSWORD);
       } else {
         codeForm.setError("code", {
           type: "manual",
-          message: t("reset.code.incorrect", "Code incorrect. Veuillez réessayer."),
+          message: t(
+            "reset.code.incorrect",
+            "Code incorrect. Veuillez réessayer.",
+          ),
         });
       }
-      
     } catch (error) {
       console.error("Erreur de vérification:", error);
     } finally {
@@ -162,19 +201,18 @@ const PasswordResetPage = () => {
   // Étape 3: Réinitialisation du mot de passe
   const handlePasswordSubmit = async (data) => {
     setIsLoading(true);
-    
+
     try {
       // Simuler la mise à jour du mot de passe
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       console.log("Mot de passe mis à jour pour:", resetEmail);
       console.log("Nouveau mot de passe défini");
-      
+
       // Redirection vers la page de succès
-      navigate("/auth/login", { 
-        state: { email: resetEmail } 
+      navigate("/auth/login", {
+        state: { email: resetEmail },
       });
-      
     } catch (error) {
       console.error("Erreur de mise à jour:", error);
     } finally {
@@ -185,14 +223,13 @@ const PasswordResetPage = () => {
   // Renvoyer le code
   const handleResendCode = async () => {
     if (countdown > 0) return;
-    
+
     setIsLoading(true);
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log("Code renvoyé à:", resetEmail);
       setCountdown(60);
-      
     } catch (error) {
       console.error("Erreur lors du renvoi:", error);
     } finally {
@@ -212,15 +249,22 @@ const PasswordResetPage = () => {
   // Vérification de la force du mot de passe
   const getPasswordStrength = (password) => {
     if (!password) return { score: 0, label: "Vide" };
-    
+
     let score = 0;
     if (password.length >= 8) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[0-9]/.test(password)) score++;
     if (/[^A-Za-z0-9]/.test(password)) score++;
-    
-    const labels = ["Très faible", "Faible", "Moyen", "Bon", "Très bon", "Excellent"];
+
+    const labels = [
+      "Très faible",
+      "Faible",
+      "Moyen",
+      "Bon",
+      "Très bon",
+      "Excellent",
+    ];
     return { score, label: labels[Math.min(score, 5)] };
   };
 
@@ -229,8 +273,16 @@ const PasswordResetPage = () => {
   // Étapes de la réinitialisation
   const steps = [
     { number: 1, label: "Vérification", description: "Saisissez votre email" },
-    { number: 2, label: "Code de sécurité", description: "Entrez le code reçu" },
-    { number: 3, label: "Nouveau mot de passe", description: "Définissez votre mot de passe" },
+    {
+      number: 2,
+      label: "Code de sécurité",
+      description: "Entrez le code reçu",
+    },
+    {
+      number: 3,
+      label: "Nouveau mot de passe",
+      description: "Définissez votre mot de passe",
+    },
   ];
 
   return (
@@ -255,12 +307,15 @@ const PasswordResetPage = () => {
             <div className="flex items-center justify-between mb-2">
               {steps.map((step, index) => (
                 <div key={step.number} className="flex flex-col items-center">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 mb-2
-                    ${currentStep === step.number 
-                      ? "border-primary bg-secondary text-primary-foreground" 
-                      : currentStep > step.number
-                      ? "border-green-500 bg-green-500 text-white"
-                      : "border-muted-foreground/30 text-muted-foreground"}`}
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 mb-2
+                    ${
+                      currentStep === step.number
+                        ? "border-primary bg-secondary text-primary-foreground"
+                        : currentStep > step.number
+                          ? "border-green-500 bg-green-500 text-white"
+                          : "border-muted-foreground/30 text-muted-foreground"
+                    }`}
                   >
                     {currentStep > step.number ? (
                       <Check className="w-5 h-5" />
@@ -268,7 +323,9 @@ const PasswordResetPage = () => {
                       <span className="font-semibold">{step.number}</span>
                     )}
                   </div>
-                  <span className={`text-sm font-medium ${currentStep === step.number ? "text-accent" : "text-primary-foreground"}`}>
+                  <span
+                    className={`text-sm font-medium ${currentStep === step.number ? "text-accent" : "text-primary-foreground"}`}
+                  >
                     {step.label}
                   </span>
                   <span className="text-xs text-center text-primary-foreground">
@@ -278,9 +335,11 @@ const PasswordResetPage = () => {
               ))}
             </div>
             <div className="relative h-1 rounded-full bg-muted">
-              <div 
+              <div
                 className="absolute top-0 left-0 h-full transition-all duration-300 rounded-full bg-secondary"
-                style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+                style={{
+                  width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
+                }}
               />
             </div>
           </div>
@@ -309,11 +368,11 @@ const PasswordResetPage = () => {
                 )}
               </CardTitle>
               <CardDescription>
-                {currentStep === RESET_STEPS.EMAIL && 
+                {currentStep === RESET_STEPS.EMAIL &&
                   "Nous vous enverrons un code de vérification"}
-                {currentStep === RESET_STEPS.CODE && 
+                {currentStep === RESET_STEPS.CODE &&
                   `Entrez le code à 6 chiffres envoyé à ${resetEmail}`}
-                {currentStep === RESET_STEPS.PASSWORD && 
+                {currentStep === RESET_STEPS.PASSWORD &&
                   "Définissez un nouveau mot de passe sécurisé"}
               </CardDescription>
             </CardHeader>
@@ -321,7 +380,10 @@ const PasswordResetPage = () => {
             <CardContent>
               {/* Étape 1: Email */}
               {currentStep === RESET_STEPS.EMAIL && (
-                <form onSubmit={emailForm.handleSubmit(handleEmailSubmit)} className="space-y-6">
+                <form
+                  onSubmit={emailForm.handleSubmit(handleEmailSubmit)}
+                  className="space-y-6"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="email">
                       Adresse email <span className="text-red-500">*</span>
@@ -338,11 +400,12 @@ const PasswordResetPage = () => {
                         {...emailForm.register("email")}
                         aria-invalid={!!emailForm.formState.errors.email}
                       />
-                      {emailForm.watch("email") && !emailForm.formState.errors.email && (
-                        <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        </div>
-                      )}
+                      {emailForm.watch("email") &&
+                        !emailForm.formState.errors.email && (
+                          <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                          </div>
+                        )}
                     </div>
                     {emailForm.formState.errors.email && (
                       <div className="flex items-center gap-2 text-sm text-red-500">
@@ -386,10 +449,14 @@ const PasswordResetPage = () => {
 
               {/* Étape 2: Code de vérification */}
               {currentStep === RESET_STEPS.CODE && (
-                <form onSubmit={codeForm.handleSubmit(handleCodeSubmit)} className="space-y-6">
+                <form
+                  onSubmit={codeForm.handleSubmit(handleCodeSubmit)}
+                  className="space-y-6"
+                >
                   <div className="space-y-2">
                     <Label htmlFor="code">
-                      Code de vérification <span className="text-red-500">*</span>
+                      Code de vérification{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -404,21 +471,25 @@ const PasswordResetPage = () => {
                         {...codeForm.register("code", {
                           onChange: (e) => {
                             // Formatter automatiquement (ajouter un espace après 3 chiffres)
-                            const value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                            const value = e.target.value
+                              .replace(/\s/g, "")
+                              .replace(/\D/g, "");
                             /*const formatted = value.length > 3 
                               ? `${value.slice(0, 3)} ${value.slice(3, 6)}`
                               : value;
                             codeForm.setValue("code", formatted);*/
                             codeForm.setValue("code", value);
-                          }
+                          },
                         })}
                         aria-invalid={!!codeForm.formState.errors.code}
                       />
-                      {codeForm.watch("code")?.replace(/\s/g, '').length === 6 && !codeForm.formState.errors.code && (
-                        <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        </div>
-                      )}
+                      {codeForm.watch("code")?.replace(/\s/g, "").length ===
+                        6 &&
+                        !codeForm.formState.errors.code && (
+                          <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                          </div>
+                        )}
                     </div>
                     {codeForm.formState.errors.code && (
                       <div className="flex items-center gap-2 text-sm text-red-500">
@@ -426,10 +497,12 @@ const PasswordResetPage = () => {
                         <span>{codeForm.formState.errors.code.message}</span>
                       </div>
                     )}
-                    
+
                     <div className="text-xs text-muted-foreground">
                       Code à 6 chiffres envoyé à{" "}
-                      <span className="font-medium text-foreground">{resetEmail}</span>
+                      <span className="font-medium text-foreground">
+                        {resetEmail}
+                      </span>
                     </div>
                   </div>
 
@@ -440,8 +513,12 @@ const PasswordResetPage = () => {
                       disabled={countdown > 0 || isLoading}
                       className="flex items-center gap-2 text-sm text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <RefreshCw className={`w-4 h-4 ${countdown > 0 ? "animate-spin" : ""}`} />
-                      {countdown > 0 ? `Renvoyer (${countdown}s)` : "Renvoyer le code"}
+                      <RefreshCw
+                        className={`w-4 h-4 ${countdown > 0 ? "animate-spin" : ""}`}
+                      />
+                      {countdown > 0
+                        ? `Renvoyer (${countdown}s)`
+                        : "Renvoyer le code"}
                     </button>
 
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -464,7 +541,10 @@ const PasswordResetPage = () => {
                     <Button
                       type="submit"
                       className="gap-2"
-                      disabled={isLoading || codeForm.watch("code")?.replace(/\s/g, '').length !== 6}
+                      disabled={
+                        isLoading ||
+                        codeForm.watch("code")?.replace(/\s/g, "").length !== 6
+                      }
                     >
                       {isLoading ? (
                         <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
@@ -481,12 +561,16 @@ const PasswordResetPage = () => {
 
               {/* Étape 3: Nouveau mot de passe */}
               {currentStep === RESET_STEPS.PASSWORD && (
-                <form onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)} className="space-y-6">
+                <form
+                  onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
+                  className="space-y-6"
+                >
                   <div className="grid gap-6">
                     {/* Nouveau mot de passe */}
                     <div className="space-y-2">
                       <Label htmlFor="password">
-                        Nouveau mot de passe <span className="text-red-500">*</span>
+                        Nouveau mot de passe{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -498,14 +582,18 @@ const PasswordResetPage = () => {
                           placeholder="Votre nouveau mot de passe"
                           className="pl-10 pr-10"
                           {...passwordForm.register("password")}
-                          aria-invalid={!!passwordForm.formState.errors.password}
+                          aria-invalid={
+                            !!passwordForm.formState.errors.password
+                          }
                         />
                         <button
                           type="button"
                           className="absolute transform -translate-y-1/2 right-3 top-1/2"
                           onClick={() => setShowPassword(!showPassword)}
                           aria-label={
-                            showPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"
+                            showPassword
+                              ? "Cacher le mot de passe"
+                              : "Afficher le mot de passe"
                           }
                         >
                           {showPassword ? (
@@ -515,18 +603,22 @@ const PasswordResetPage = () => {
                           )}
                         </button>
                       </div>
-                      
+
                       {/* Indicateur de force du mot de passe */}
                       {passwordForm.watch("password") && (
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-muted-foreground">
                               Force du mot de passe:{" "}
-                              <span className={`font-medium ${
-                                passwordStrength.score <= 1 ? "text-red-500" :
-                                passwordStrength.score <= 3 ? "text-yellow-500" :
-                                "text-green-500"
-                              }`}>
+                              <span
+                                className={`font-medium ${
+                                  passwordStrength.score <= 1
+                                    ? "text-red-500"
+                                    : passwordStrength.score <= 3
+                                      ? "text-yellow-500"
+                                      : "text-green-500"
+                                }`}
+                              >
                                 {passwordStrength.label}
                               </span>
                             </span>
@@ -535,33 +627,70 @@ const PasswordResetPage = () => {
                             </span>
                           </div>
                           <div className="w-full h-1 overflow-hidden bg-gray-200 rounded-full">
-                            <div 
+                            <div
                               className={`h-full transition-all duration-300 ${
-                                passwordStrength.score <= 1 ? "bg-red-500 w-1/5" :
-                                passwordStrength.score <= 2 ? "bg-red-500 w-2/5" :
-                                passwordStrength.score <= 3 ? "bg-yellow-500 w-3/5" :
-                                passwordStrength.score <= 4 ? "bg-green-500 w-4/5" :
-                                "bg-green-600 w-full"
+                                passwordStrength.score <= 1
+                                  ? "bg-red-500 w-1/5"
+                                  : passwordStrength.score <= 2
+                                    ? "bg-red-500 w-2/5"
+                                    : passwordStrength.score <= 3
+                                      ? "bg-yellow-500 w-3/5"
+                                      : passwordStrength.score <= 4
+                                        ? "bg-green-500 w-4/5"
+                                        : "bg-green-600 w-full"
                               }`}
                             />
                           </div>
-                          
+
                           {/* Critères de validation */}
                           <div className="grid grid-cols-2 gap-1 mt-2">
                             {[
-                              { label: "8 caractères min", valid: passwordForm.watch("password").length >= 8 },
-                              { label: "1 majuscule", valid: /[A-Z]/.test(passwordForm.watch("password")) },
-                              { label: "1 minuscule", valid: /[a-z]/.test(passwordForm.watch("password")) },
-                              { label: "1 chiffre", valid: /[0-9]/.test(passwordForm.watch("password")) },
-                              { label: "1 caractère spécial", valid: /[^A-Za-z0-9]/.test(passwordForm.watch("password")) },
+                              {
+                                label: "8 caractères min",
+                                valid:
+                                  passwordForm.watch("password").length >= 8,
+                              },
+                              {
+                                label: "1 majuscule",
+                                valid: /[A-Z]/.test(
+                                  passwordForm.watch("password"),
+                                ),
+                              },
+                              {
+                                label: "1 minuscule",
+                                valid: /[a-z]/.test(
+                                  passwordForm.watch("password"),
+                                ),
+                              },
+                              {
+                                label: "1 chiffre",
+                                valid: /[0-9]/.test(
+                                  passwordForm.watch("password"),
+                                ),
+                              },
+                              {
+                                label: "1 caractère spécial",
+                                valid: /[^A-Za-z0-9]/.test(
+                                  passwordForm.watch("password"),
+                                ),
+                              },
                             ].map((criterion, index) => (
-                              <div key={index} className="flex items-center gap-1 text-xs">
+                              <div
+                                key={index}
+                                className="flex items-center gap-1 text-xs"
+                              >
                                 {criterion.valid ? (
                                   <Check className="w-3 h-3 text-green-500" />
                                 ) : (
                                   <X className="w-3 h-3 text-gray-300" />
                                 )}
-                                <span className={criterion.valid ? "text-green-500" : "text-gray-400"}>
+                                <span
+                                  className={
+                                    criterion.valid
+                                      ? "text-green-500"
+                                      : "text-gray-400"
+                                  }
+                                >
                                   {criterion.label}
                                 </span>
                               </div>
@@ -569,11 +698,13 @@ const PasswordResetPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {passwordForm.formState.errors.password && (
                         <div className="flex items-center gap-2 text-sm text-red-500">
                           <AlertCircle className="w-4 h-4" />
-                          <span>{passwordForm.formState.errors.password.message}</span>
+                          <span>
+                            {passwordForm.formState.errors.password.message}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -581,7 +712,8 @@ const PasswordResetPage = () => {
                     {/* Confirmation du mot de passe */}
                     <div className="space-y-2">
                       <Label htmlFor="confirmPassword">
-                        Confirmer le mot de passe <span className="text-red-500">*</span>
+                        Confirmer le mot de passe{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -593,14 +725,20 @@ const PasswordResetPage = () => {
                           placeholder="Confirmez votre nouveau mot de passe"
                           className="pl-10 pr-10"
                           {...passwordForm.register("confirmPassword")}
-                          aria-invalid={!!passwordForm.formState.errors.confirmPassword}
+                          aria-invalid={
+                            !!passwordForm.formState.errors.confirmPassword
+                          }
                         />
                         <button
                           type="button"
                           className="absolute transform -translate-y-1/2 right-3 top-1/2"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           aria-label={
-                            showConfirmPassword ? "Cacher le mot de passe" : "Afficher le mot de passe"
+                            showConfirmPassword
+                              ? "Cacher le mot de passe"
+                              : "Afficher le mot de passe"
                           }
                         >
                           {showConfirmPassword ? (
@@ -610,18 +748,24 @@ const PasswordResetPage = () => {
                           )}
                         </button>
                       </div>
-                      {passwordForm.watch("confirmPassword") && 
-                       !passwordForm.formState.errors.confirmPassword && 
-                       passwordForm.watch("password") === passwordForm.watch("confirmPassword") && (
-                        <div className="flex items-center gap-2 text-sm text-green-500">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Les mots de passe correspondent</span>
-                        </div>
-                      )}
+                      {passwordForm.watch("confirmPassword") &&
+                        !passwordForm.formState.errors.confirmPassword &&
+                        passwordForm.watch("password") ===
+                          passwordForm.watch("confirmPassword") && (
+                          <div className="flex items-center gap-2 text-sm text-green-500">
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Les mots de passe correspondent</span>
+                          </div>
+                        )}
                       {passwordForm.formState.errors.confirmPassword && (
                         <div className="flex items-center gap-2 text-sm text-red-500">
                           <AlertCircle className="w-4 h-4" />
-                          <span>{passwordForm.formState.errors.confirmPassword.message}</span>
+                          <span>
+                            {
+                              passwordForm.formState.errors.confirmPassword
+                                .message
+                            }
+                          </span>
                         </div>
                       )}
                     </div>
@@ -641,7 +785,11 @@ const PasswordResetPage = () => {
                     <Button
                       type="submit"
                       className="gap-2"
-                      disabled={isLoading || !passwordForm.watch("password") || !passwordForm.watch("confirmPassword")}
+                      disabled={
+                        isLoading ||
+                        !passwordForm.watch("password") ||
+                        !passwordForm.watch("confirmPassword")
+                      }
                     >
                       {isLoading ? (
                         <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />

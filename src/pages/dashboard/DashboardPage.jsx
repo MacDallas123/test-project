@@ -22,7 +22,14 @@ import {
   Filter,
   Target,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -199,39 +206,41 @@ const DashboardPage = () => {
   };
 
   return (
-      <div>
-        {/* Contenu principal */}
-        <main className="flex-1 p-4 lg:p-8">
-          {/* Cartes de statistiques */}
-          <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
-            {statsCards.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <Card key={index} variant="flat" className="max-w-full">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col items-center justify-center w-full">
-                        <div className={`p-2 m-auto rounded-lg bg-${stat.color}-100 mb-2`}>
-                            <Icon className={`w-5 h-5 text-${stat.color}-600`} />
-                        </div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          {stat.title}
-                        </p>
-                        <div className="flex items-baseline gap-2 mt-2">
-                          <p className="text-3xl font-bold">{stat.value}</p>
-                        </div>
+    <div>
+      {/* Contenu principal */}
+      <main className="flex-1 p-4 lg:p-8">
+        {/* Cartes de statistiques */}
+        <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+          {statsCards.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={index} variant="flat" className="max-w-full">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col items-center justify-center w-full">
+                      <div
+                        className={`p-2 m-auto rounded-lg bg-${stat.color}-100 mb-2`}
+                      >
+                        <Icon className={`w-5 h-5 text-${stat.color}-600`} />
+                      </div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <div className="flex items-baseline gap-2 mt-2">
+                        <p className="text-3xl font-bold">{stat.value}</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-          {/* Section inférieure */}
-          <div className="grid gap-6 mt-6 lg:grid-cols-3">
-            {/* Statut des candidatures */}
-            {/* <Card>
+        {/* Section inférieure */}
+        <div className="grid gap-6 mt-6 lg:grid-cols-3">
+          {/* Statut des candidatures */}
+          {/* <Card>
               <CardHeader>
                 <CardTitle>Statut des candidatures</CardTitle>
                 <CardDescription>Répartition par statut</CardDescription>
@@ -267,8 +276,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card> */}
 
-            {/* Progression du profil */}
-            {/* <Card>
+          {/* Progression du profil */}
+          {/* <Card>
               <CardHeader>
                 <CardTitle>Progression du profil</CardTitle>
                 <CardDescription>Complétez votre profil</CardDescription>
@@ -316,62 +325,63 @@ const DashboardPage = () => {
               </CardFooter>
             </Card> */}
 
-            {/* Conseils et recommandations */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recommandations</CardTitle>
-                <CardDescription>Optimisez votre profil</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-3 border border-blue-100 rounded-lg bg-blue-50">
-                    <div className="flex items-start gap-3">
-                      <Target className="w-5 h-5 text-blue-600" />
-                      <div>
-                        <h4 className="font-medium">Activez les notifications</h4>
-                        <p className="text-sm text-blue-700">
-                          Soyez alerté des nouvelles offres correspondant à votre profil
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 border border-green-100 rounded-lg bg-green-50">
-                    <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-green-600" />
-                      <div>
-                        <h4 className="font-medium">Élargissez votre réseau</h4>
-                        <p className="text-sm text-green-700">
-                          Connectez-vous avec 5 recruteurs ce mois-ci
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-3 border rounded-lg bg-amber-50 border-amber-100">
-                    <div className="flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-amber-600" />
-                      <div>
-                        <h4 className="font-medium">Mettez à jour votre CV</h4>
-                        <p className="text-sm text-amber-700">
-                          Votre CV n'a pas été mis à jour depuis 2 mois
-                        </p>
-                      </div>
+          {/* Conseils et recommandations */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recommandations</CardTitle>
+              <CardDescription>Optimisez votre profil</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-3 border border-blue-100 rounded-lg bg-blue-50">
+                  <div className="flex items-start gap-3">
+                    <Target className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <h4 className="font-medium">Activez les notifications</h4>
+                      <p className="text-sm text-blue-700">
+                        Soyez alerté des nouvelles offres correspondant à votre
+                        profil
+                      </p>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Link to="/dashboard/settings" className="w-full">
-                  <Button variant="outline" className="w-full">
-                    Voir toutes les recommandations
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          </div>
-        </main>
-      </div>
+
+                <div className="p-3 border border-green-100 rounded-lg bg-green-50">
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-green-600" />
+                    <div>
+                      <h4 className="font-medium">Élargissez votre réseau</h4>
+                      <p className="text-sm text-green-700">
+                        Connectez-vous avec 5 recruteurs ce mois-ci
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 border rounded-lg bg-amber-50 border-amber-100">
+                  <div className="flex items-start gap-3">
+                    <FileText className="w-5 h-5 text-amber-600" />
+                    <div>
+                      <h4 className="font-medium">Mettez à jour votre CV</h4>
+                      <p className="text-sm text-amber-700">
+                        Votre CV n'a pas été mis à jour depuis 2 mois
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Link to="/dashboard/settings" className="w-full">
+                <Button variant="outline" className="w-full">
+                  Voir toutes les recommandations
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      </main>
+    </div>
   );
 };
 

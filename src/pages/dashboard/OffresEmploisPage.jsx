@@ -20,7 +20,13 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -175,7 +181,7 @@ const OffresEmploisPage = () => {
       trend: "up",
       icon: Users,
       color: "blue",
-    }
+    },
   ];
 
   // Fonction pour obtenir la couleur du statut
@@ -210,285 +216,314 @@ const OffresEmploisPage = () => {
 
   // Filtrer les offres
   const filteredOffres = offresEmplois.filter((offre) => {
-    const matchesSearch = offre.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         offre.entreprise.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         offre.lieu.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || offre.statut === statusFilter;
-    
+    const matchesSearch =
+      offre.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      offre.entreprise.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      offre.lieu.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || offre.statut === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
   return (
     <main className="flex flex-col w-full p-4 overflow-auto lg:p-8">
-        {/* En-tête */}
-        <div className="flex flex-col justify-between gap-4 mb-8 lg:flex-row lg:items-center">
-            <div>
-            <h1 className="text-3xl font-bold tracking-tight">Offres d'emplois</h1>
-            <p className="text-muted-foreground">
-                Gérez et suivez vos offres d'emplois publiées
-            </p>
-            </div>
-            
-            <div className="flex items-center gap-4">
-            <Button variant="outline" className="gap-2">
-                <Download className="w-4 h-4" />
-                Exporter
-            </Button>
-            <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                Nouvelle offre
-            </Button>
-            </div>
+      {/* En-tête */}
+      <div className="flex flex-col justify-between gap-4 mb-8 lg:flex-row lg:items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Offres d'emplois
+          </h1>
+          <p className="text-muted-foreground">
+            Gérez et suivez vos offres d'emplois publiées
+          </p>
         </div>
 
-    {/* Statistiques */}
-    <div className="flex flex-col flex-wrap gap-3 mb-3 md:flex-row">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Exporter
+          </Button>
+          <Button className="gap-2">
+            <Plus className="w-4 h-4" />
+            Nouvelle offre
+          </Button>
+        </div>
+      </div>
+
+      {/* Statistiques */}
+      <div className="flex flex-col flex-wrap gap-3 mb-3 md:flex-row">
         {statsOffres.map((stat, index) => {
-        const Icon = stat.icon;
-        return (
+          const Icon = stat.icon;
+          return (
             <Card key={index} className="w-full md:w-[250px]">
-            <CardContent className="p-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                <div>
+                  <div>
                     <p className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
+                      {stat.title}
                     </p>
                     <div className="flex items-baseline gap-2 mt-2">
-                    <p className="text-3xl font-bold">{stat.value}</p>
-                    <Badge variant={stat.trend === "up" ? "default" : "secondary"} className="gap-1">
+                      <p className="text-3xl font-bold">{stat.value}</p>
+                      <Badge
+                        variant={stat.trend === "up" ? "default" : "secondary"}
+                        className="gap-1"
+                      >
                         {stat.trend === "up" ? "↗" : "↘"}
                         {stat.change}
-                    </Badge>
+                      </Badge>
                     </div>
-                </div>
-                <div className={`p-3 rounded-lg bg-${stat.color}-100`}>
+                  </div>
+                  <div className={`p-3 rounded-lg bg-${stat.color}-100`}>
                     <Icon className={`w-6 h-6 text-${stat.color}-600`} />
+                  </div>
                 </div>
-                </div>
-            </CardContent>
+              </CardContent>
             </Card>
-        );
+          );
         })}
-    </div>
-    
-    
-        
-    {/* Filtres et recherche */}
-    <Card className="mb-6">
+      </div>
+
+      {/* Filtres et recherche */}
+      <Card className="mb-6">
         <CardContent className="p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
             <div className="flex-1">
-            <div className="relative">
+              <div className="relative">
                 <Search className="absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-muted-foreground" />
                 <Input
-                placeholder="Rechercher une offre, entreprise ou lieu..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Rechercher une offre, entreprise ou lieu..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
+              </div>
             </div>
-            </div>
-            
+
             <div className="flex items-center gap-4">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Statut" />
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Statut" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="active">Actives</SelectItem>
-                <SelectItem value="en attente">En attente</SelectItem>
-                <SelectItem value="expiree">Expirées</SelectItem>
-                <SelectItem value="archivee">Archivées</SelectItem>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="active">Actives</SelectItem>
+                  <SelectItem value="en attente">En attente</SelectItem>
+                  <SelectItem value="expiree">Expirées</SelectItem>
+                  <SelectItem value="archivee">Archivées</SelectItem>
                 </SelectContent>
-            </Select>
-            
-            <Select defaultValue="all">
+              </Select>
+
+              <Select defaultValue="all">
                 <SelectTrigger className="w-40">
-                <SelectValue placeholder="Type" />
+                  <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="all">Tous les types</SelectItem>
-                <SelectItem value="cdi">CDI</SelectItem>
-                <SelectItem value="cdd">CDD</SelectItem>
-                <SelectItem value="freelance">Freelance</SelectItem>
+                  <SelectItem value="all">Tous les types</SelectItem>
+                  <SelectItem value="cdi">CDI</SelectItem>
+                  <SelectItem value="cdd">CDD</SelectItem>
+                  <SelectItem value="freelance">Freelance</SelectItem>
                 </SelectContent>
-            </Select>
+              </Select>
             </div>
-        </div>
+          </div>
         </CardContent>
-    </Card>
+      </Card>
 
-    {/* Tableau des offres */}
-    <Card className="w-full">
-            <CardHeader>
-            <div className="flex items-center justify-between">
-                <div>
-                <CardTitle>Liste des offres</CardTitle>
-                <CardDescription>
-                    {filteredOffres.length} offres trouvées
-                </CardDescription>
-                </div>
-                <Badge variant="outline" className="gap-2">
-                <Briefcase className="w-3 h-3" />
-                {offresEmplois.length} offres au total
-                </Badge>
+      {/* Tableau des offres */}
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Liste des offres</CardTitle>
+              <CardDescription>
+                {filteredOffres.length} offres trouvées
+              </CardDescription>
             </div>
-            </CardHeader>
-            <CardContent className="overflow-auto">
-            <Table>
-                <TableHeader>
+            <Badge variant="outline" className="gap-2">
+              <Briefcase className="w-3 h-3" />
+              {offresEmplois.length} offres au total
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Offre</TableHead>
+                <TableHead>Entreprise</TableHead>
+                <TableHead>Type/Salaire</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Candidatures</TableHead>
+                <TableHead>Date d'expiration</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
                 <TableRow>
-                    <TableHead>Offre</TableHead>
-                    <TableHead>Entreprise</TableHead>
-                    <TableHead>Type/Salaire</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Candidatures</TableHead>
-                    <TableHead>Date d'expiration</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableCell colSpan={7} className="py-8 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
+                      <p className="text-sm text-muted-foreground">
+                        Chargement des offres...
+                      </p>
+                    </div>
+                  </TableCell>
                 </TableRow>
-                </TableHeader>
-                <TableBody>
-                {isLoading ? (
-                    <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center">
-                        <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin"></div>
-                        <p className="text-sm text-muted-foreground">Chargement des offres...</p>
+              ) : filteredOffres.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="py-8 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Briefcase className="w-12 h-12 text-muted-foreground" />
+                      <p className="text-muted-foreground">
+                        Aucune offre trouvée
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredOffres.map((offre) => (
+                  <TableRow key={offre.id} className="hover:bg-accent/50">
+                    <TableCell>
+                      <div>
+                        <h4 className="font-semibold">{offre.titre}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <MapPin className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {offre.lieu}
+                          </span>
                         </div>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {offre.tags.slice(0, 2).map((tag, index) => (
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {offre.tags.length > 2 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{offre.tags.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </TableCell>
-                    </TableRow>
-                ) : filteredOffres.length === 0 ? (
-                    <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center">
-                        <div className="flex flex-col items-center justify-center gap-2">
-                        <Briefcase className="w-12 h-12 text-muted-foreground" />
-                        <p className="text-muted-foreground">Aucune offre trouvée</p>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+                          <Building className="w-4 h-4 text-primary" />
                         </div>
+                        <span className="font-medium">{offre.entreprise}</span>
+                      </div>
                     </TableCell>
-                    </TableRow>
-                ) : (
-                    filteredOffres.map((offre) => (
-                    <TableRow key={offre.id} className="hover:bg-accent/50">
-                        <TableCell>
-                        <div>
-                            <h4 className="font-semibold">{offre.titre}</h4>
-                            <div className="flex items-center gap-2 mt-1">
-                            <MapPin className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">{offre.lieu}</span>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-2">
-                            {offre.tags.slice(0, 2).map((tag, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                {tag}
-                                </Badge>
-                            ))}
-                            {offre.tags.length > 2 && (
-                                <Badge variant="outline" className="text-xs">
-                                +{offre.tags.length - 2}
-                                </Badge>
-                            )}
-                            </div>
+                    <TableCell>
+                      <div>
+                        <Badge variant="outline" className="mb-1">
+                          {offre.type}
+                        </Badge>
+                        <div className="flex items-center gap-1 text-sm">
+                          <DollarSign className="w-3 h-3" />
+                          {offre.salaire}
                         </div>
-                        </TableCell>
-                        <TableCell>
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
-                            <Building className="w-4 h-4 text-primary" />
-                            </div>
-                            <span className="font-medium">{offre.entreprise}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <Badge
+                          variant="outline"
+                          className={`w-fit ${getStatusColor(offre.statut)}`}
+                        >
+                          {offre.statut === "active"
+                            ? "Active"
+                            : offre.statut === "en attente"
+                              ? "En attente"
+                              : offre.statut === "expiree"
+                                ? "Expirée"
+                                : "Archivée"}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={`w-fit text-xs ${getPriorityColor(offre.priorite)}`}
+                        >
+                          {offre.priorite} priorité
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            {offre.candidatures}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {offre.vues} vues
+                          </span>
                         </div>
-                        </TableCell>
-                        <TableCell>
-                        <div>
-                            <Badge variant="outline" className="mb-1">
-                            {offre.type}
-                            </Badge>
-                            <div className="flex items-center gap-1 text-sm">
-                            <DollarSign className="w-3 h-3" />
-                            {offre.salaire}
-                            </div>
-                        </div>
-                        </TableCell>
-                        <TableCell>
-                        <div className="flex flex-col gap-1">
-                            <Badge variant="outline" className={`w-fit ${getStatusColor(offre.statut)}`}>
-                            {offre.statut === "active" ? "Active" : 
-                            offre.statut === "en attente" ? "En attente" : 
-                            offre.statut === "expiree" ? "Expirée" : "Archivée"}
-                            </Badge>
-                            <Badge variant="outline" className={`w-fit text-xs ${getPriorityColor(offre.priorite)}`}>
-                            {offre.priorite} priorité
-                            </Badge>
-                        </div>
-                        </TableCell>
-                        <TableCell>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{offre.candidatures}</span>
-                            <span className="text-xs text-muted-foreground">{offre.vues} vues</span>
-                            </div>
-                            <Progress 
-                            value={(offre.candidatures / offre.vues) * 100} 
-                            className="h-2" 
-                            />
-                            <span className="text-xs text-muted-foreground">
-                            {((offre.candidatures / offre.vues) * 100).toFixed(1)}% de conversion
-                            </span>
-                        </div>
-                        </TableCell>
-                        <TableCell>
-                        <div className="flex flex-col">
-                            <span className="text-sm">{offre.dateExpiration}</span>
-                            <span className="text-xs text-muted-foreground">
-                            Publiée le {offre.datePublication}
-                            </span>
-                        </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreVertical className="w-4 h-4" />
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="gap-2">
-                                <Eye className="w-4 h-4" />
-                                Voir l'offre
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2">
-                                <Users className="w-4 h-4" />
-                                Voir candidatures
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2">
-                                <Edit className="w-4 h-4" />
-                                Modifier
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2">
-                                <ExternalLink className="w-4 h-4" />
-                                Publier
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="gap-2 text-red-600">
-                                <Trash2 className="w-4 h-4" />
-                                Supprimer
-                            </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                    ))
-                )}
-                </TableBody>
-            </Table>
-            </CardContent>
-        </Card>
-
+                        <Progress
+                          value={(offre.candidatures / offre.vues) * 100}
+                          className="h-2"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {((offre.candidatures / offre.vues) * 100).toFixed(1)}
+                          % de conversion
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{offre.dateExpiration}</span>
+                        <span className="text-xs text-muted-foreground">
+                          Publiée le {offre.datePublication}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="gap-2">
+                            <Eye className="w-4 h-4" />
+                            Voir l'offre
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Users className="w-4 h-4" />
+                            Voir candidatures
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Edit className="w-4 h-4" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <ExternalLink className="w-4 h-4" />
+                            Publier
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="gap-2 text-red-600">
+                            <Trash2 className="w-4 h-4" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </main>
   );
 };
