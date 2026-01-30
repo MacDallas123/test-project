@@ -49,6 +49,7 @@ const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
                     delay: index * 0.07, // 70ms interval between each item
                   }}
                 >
+                  
                   <Link to={child.href} className="w-full" onclick={closeMobileMenu}>
                     <Button
                       variant="ghost"
