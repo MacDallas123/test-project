@@ -152,7 +152,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       icon: ShoppingCart,
       label: t("userMenu.shoppingCart", "Panier"),
       href: "/cart",
-      badge: 0,
+      badge: 4,
     },
     // {
     //   icon: Package,

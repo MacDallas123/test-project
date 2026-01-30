@@ -81,7 +81,7 @@ const DashboardPage = () => {
     },
     {
       title: "Revenu estimé",
-      value: "4 250 000 €",
+      value: "4 250 000",
       change: "+8.2%",
       trend: "up",
       icon: DollarSign,
