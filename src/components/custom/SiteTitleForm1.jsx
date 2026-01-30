@@ -5,7 +5,7 @@ const SiteTileForm1 = () => {
             Livrer Nourriture
             </span>
         </div>
-    )
+    );
 }
 
 export default SiteTileForm1;
