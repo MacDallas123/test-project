@@ -137,7 +137,8 @@ const LoginPage = () => {
       console.log("Connexion avec:", data);
 
       // Redirection vers le dashboard
-      navigate("/dashboard");
+      // navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       console.error("Erreur de connexion:", error);
     } finally {
