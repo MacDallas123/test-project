@@ -17,6 +17,8 @@ import Logo from "@/assets/logo_fibem3.jpg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
+import ReactCountryFlag from "react-country-flag";
+import SiteTileForm1 from "../custom/SiteTitleForm1";
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -172,11 +174,7 @@ const Footer = () => {
                   <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture
                 </span>
               </div> */}
-              <div className="flex flex-col px-6 py-1 bg-white rounded-full text-md hover:bg-white/90">
-              <span className="font-semibold text-md md:text-lg bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-destructive">
-                Livrer Nourriture
-              </span>
-            </div>
+              <SiteTileForm1 />
             </Link>
             <div>
                   <h3 className="mb-2 text-lg font-semibold text-accent">
@@ -207,7 +205,12 @@ const Footer = () => {
                 {/* France Contact */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span role="img" aria-label="drapeau français" className="text-xl">🇫🇷</span>
+                    {/* <span role="img" aria-label="drapeau français" className="text-xl font-emoji">🇫🇷</span> */}
+                    <ReactCountryFlag
+                      svg
+                      countryCode="FR"
+                      className="w-5 h-5"
+                    />
                     <span className="text-xs font-semibold text-accent md:text-base">
                       FIBEM France
                     </span>
@@ -266,7 +269,12 @@ const Footer = () => {
                 {/* Senegal Contact */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                  <span role="img" aria-label="drapeau sénégalais" className="text-xl">🇸🇳</span>
+                    {/* <span role="img" aria-label="drapeau sénégalais" className="text-xl">🇸🇳</span> */}
+                    <ReactCountryFlag
+                      svg
+                      countryCode="SN"
+                      className="w-5 h-5"
+                    />
                     <span className="text-xs font-semibold text-accent md:text-base">
                       FIBEM Sénégal
                     </span>

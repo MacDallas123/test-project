@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
+import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 
 //type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -134,7 +135,7 @@ const loginSchema = z.object({
   };
 
   return (
-    <motion.div className="min-h-screen bg-linear-to-b from-background to-muted/20">
+    <motion.div className="min-h-screen bg-linear-to-b from-primary to-muted/20">
       <div className="container px-4 py-8 mx-auto md:py-16">
         <div className="max-w-md mx-auto">
           {/* Logo et titre */}
@@ -144,9 +145,9 @@ const loginSchema = z.object({
                 {/* <Shield className="w-6 h-6 text-primary" /> */}
                 <img src={Logo} alt="Logo FIBEM" className="w-12 h-8" />
               </div>
-              <h1 className="text-2xl font-semibold">FIBEM ProMarket</h1>
+              <SiteTileForm1 />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-primary-foreground">
               Accédez à votre espace professionnel
             </p>
           </div>

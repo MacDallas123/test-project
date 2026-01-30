@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
+import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 
 // Énumération des étapes
 const RESET_STEPS = {
@@ -233,7 +234,7 @@ const PasswordResetPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-linear-to-b from-primary to-muted/20">
       <div className="container px-4 py-8 mx-auto md:py-16">
         <div className="max-w-md mx-auto">
           {/* Logo et titre */}
@@ -242,9 +243,9 @@ const PasswordResetPage = () => {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <img src={Logo} alt="Logo FIBEM" className="w-12 h-8" />
               </div>
-              <h1 className="text-2xl font-semibold">FIBEM ProMarket</h1>
+              <SiteTileForm1 />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-primary-foreground">
               Réinitialisation du mot de passe
             </p>
           </div>
@@ -256,7 +257,7 @@ const PasswordResetPage = () => {
                 <div key={step.number} className="flex flex-col items-center">
                   <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 mb-2
                     ${currentStep === step.number 
-                      ? "border-primary bg-primary text-primary-foreground" 
+                      ? "border-primary bg-secondary text-primary-foreground" 
                       : currentStep > step.number
                       ? "border-green-500 bg-green-500 text-white"
                       : "border-muted-foreground/30 text-muted-foreground"}`}
@@ -267,10 +268,10 @@ const PasswordResetPage = () => {
                       <span className="font-semibold">{step.number}</span>
                     )}
                   </div>
-                  <span className={`text-sm font-medium ${currentStep === step.number ? "text-primary" : "text-muted-foreground"}`}>
+                  <span className={`text-sm font-medium ${currentStep === step.number ? "text-accent" : "text-primary-foreground"}`}>
                     {step.label}
                   </span>
-                  <span className="text-xs text-center text-muted-foreground">
+                  <span className="text-xs text-center text-primary-foreground">
                     {step.description}
                   </span>
                 </div>
@@ -278,7 +279,7 @@ const PasswordResetPage = () => {
             </div>
             <div className="relative h-1 rounded-full bg-muted">
               <div 
-                className="absolute top-0 left-0 h-full transition-all duration-300 rounded-full bg-primary"
+                className="absolute top-0 left-0 h-full transition-all duration-300 rounded-full bg-secondary"
                 style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
               />
             </div>

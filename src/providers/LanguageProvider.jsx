@@ -4,10 +4,12 @@ import { LanguageContext } from "@/context/LanguageContext";
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("fr");
+  const [flag, setFlag] = useState("FR");
 
-  const changeLanguage = (lang) => {
+  const changeLanguage = (lang, reactFlag = null) => {
     if (translations[lang]) {
       setLanguage(lang);
+      if(reactFlag) setFlag(reactFlag);
     }
   };
 
@@ -22,6 +24,7 @@ export const LanguageProvider = ({ children }) => {
     <LanguageContext.Provider
       value={{
         language,
+        flag,
         changeLanguage,
         t,
       }}

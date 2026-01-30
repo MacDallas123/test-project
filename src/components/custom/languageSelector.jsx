@@ -10,16 +10,22 @@ import {
 } from "../ui/dropdown-menu";
 import { availableLanguages } from "@/i18n/translations";
 import { useLanguage } from "@/context/LanguageContext";
+import ReactCountryFlag from "react-country-flag";
 
 const LanguageSelector = () => {
-  const { language, changeLanguage, t } = useLanguage();
+  const { language, flag, changeLanguage, t } = useLanguage();
 
   return (
     <DropdownMenu className="z-1600">
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="flex flex-col px-2 md:flex-row text-primary-foreground">
           <div className="flex items-center gap-1">
-            <Globe className="w-4 h-4" />
+            {/* <Globe className="w-4 h-4" /> */}
+            <ReactCountryFlag
+                svg
+                countryCode={flag}
+                className="w-4 h-4"
+            />
             <span className="hidden text-sm font-medium uppercase md:block">{language}</span>
           </div>
           <ChevronDown className="w-4 h-4"/>
@@ -33,9 +39,15 @@ const LanguageSelector = () => {
             <DropdownMenuItem
                 key={index}
               className="cursor-pointer"
-              onClick={() => changeLanguage(lang.code)}
+              onClick={() => changeLanguage(lang.code, lang.reactFlag)}
             >
-              {lang.flag} {lang.name}
+              <ReactCountryFlag
+                svg
+                countryCode={lang.reactFlag}
+                className="w-5 h-5"
+              />
+              {lang.name}
+              {/* {lang.flag} {lang.name} */}
             </DropdownMenuItem>
           );
         })}

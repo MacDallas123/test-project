@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
+import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -155,9 +156,9 @@ const RegisterPage = () => {
   // Types de compte disponibles
   const accountTypes = [
     { value: "particulier", label: "Particulier", icon: UserCircle, description: "Pour les utilisateurs individuels" },
-    { value: "candidat", label: "Candidat", icon: User, description: "Recherche d'emploi ou de missions" },
+    { value: "candidat", label: "Candidat", icon: User, description: "Recherche d'emploi ou de missions (candidats, stagiaires)" },
     { value: "partenaire", label: "Partenaire", icon: Handshake, description: "Entreprises et prestataires" },
-    { value: "professionnel", label: "Professionnel", icon: UserCircle, description: "Entreprises et prestataires" },
+    { value: "professionnel", label: "Professionnel", icon: UserCircle, description: "Entreprise, Freelances,..." },
   ];
 
   // Langues disponibles
@@ -170,7 +171,7 @@ const RegisterPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-linear-to-b from-primary to-muted/20">
       <div className="container px-4 py-8 mx-auto md:py-12">
         <div className="max-w-2xl mx-auto">
           {/* Logo et titre */}
@@ -179,9 +180,9 @@ const RegisterPage = () => {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <img src={Logo} alt="Logo FIBEM" className="w-12 h-8" />
               </div>
-              <h1 className="text-2xl font-semibold"><span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture</h1>
+              <SiteTileForm1 />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-primary-foreground">
               Rejoignez notre plateforme de livraison des repas
             </p>
           </div>
@@ -298,7 +299,7 @@ const RegisterPage = () => {
                   <Label htmlFor="accountType">
                     Type de compte <span className="text-red-500">*</span>
                   </Label>
-                  <div className="grid gap-3 md:grid-cols-3">
+                  <div className="grid gap-3 md:grid-cols-4">
                     {accountTypes.map((type) => {
                       const Icon = type.icon;
                       const isSelected = watchedFields.accountType === type.value;
@@ -307,21 +308,24 @@ const RegisterPage = () => {
                         <button
                           type="button"
                           key={type.value}
-                          className={`flex flex-col items-center justify-center p-4 border rounded-lg transition-all hover:border-primary ${
+                          className={`flex flex-col items-center justify-center p-4 border rounded-lg transition-all ${
                             isSelected 
-                              ? "border-primary bg-primary/5" 
-                              : "border-input"
+                              ? "border-destructive border-2 bg-primary/80 text-primary-foreground hover:border-4" 
+                              : "border-input hover:border-primary"
                           }`}
                           onClick={() => {
                             setValue("accountType", type.value);
                             trigger("accountType");
                           }}
                         >
-                          <Icon className={`w-6 h-6 mb-2 ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
-                          <span className={`font-medium ${isSelected ? "text-primary" : ""}`}>
+                          {/* <Icon className={`w-6 h-6 mb-2 ${isSelected ? "text-primary" : "text-muted-foreground"}`} /> */}
+                          <Icon className={`w-6 h-6 mb-2`} />
+                          {/* <span className={`font-medium ${isSelected ? "text-primary" : ""}`}> */}
+                          <span className={`font-medium`}>
                             {type.label}
                           </span>
-                          <span className="mt-1 text-xs text-center text-muted-foreground">
+                          {/* <span className="mt-1 text-xs text-center text-muted-foreground"> */}
+                          <span className="mt-1 text-xs text-center">
                             {type.description}
                           </span>
                           {isSelected && (

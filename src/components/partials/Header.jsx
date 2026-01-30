@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useLocation } from "react-router-dom";
+import { href, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/assets/logo_fibem3.jpg";
@@ -40,6 +40,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import LanguageSelector from "../custom/languageSelector";
 import CollapsibleMenuItem from "../custom/CollapsibleMenuItem";
 import CurrencySelector from "../custom/CurrencySelector";
+import SiteTileForm1 from "../custom/SiteTitleForm1";
 
 const Header = ({ authPage = false, dasboardPage = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -182,6 +183,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     {
       icon: Home,
       label: t("mainMenu.home.label", "Accueil"),
+      href:"/",
       subMenus: [
         {
           label: t("mainMenu.home.about", "A propos"),
@@ -360,11 +362,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture
               </span>
             </div> */}
-            <div className="flex flex-col px-6 py-1 bg-white rounded-full text-md hover:bg-white/90">
-              <span className="font-semibold text-md md:text-lg bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-destructive">
-                Livrer Nourriture
-              </span>
-            </div>
+            <SiteTileForm1 />
           </Link>
 
           {/* Recherche */}
@@ -469,13 +467,27 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       className={getDropdownButtonClass(item)}
                       title={item.label}
                     >
-                      <div className="flex items-center gap-2 transition-colors cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />}
-                          <span>{item.label}</span>
+                      {item.href ? (
+                        <Link
+                          to={item.href}
+                          className="flex items-center w-full h-full gap-2 transition-colors cursor-pointer"
+                          style={{ textDecoration: "none" }}
+                        >
+                          <div className="flex items-center gap-3">
+                            {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />}
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? 'text-red-600' : ''}`} />
+                        </Link>
+                      ) : (
+                        <div className="flex items-center gap-2 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />}
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? 'text-red-600' : ''}`} />
                         </div>
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? 'text-red-600' : ''}`} />
-                      </div>
+                      )}
                       
                       {/* Indicateur visuel pour menu actif */}
                       {isActive && (

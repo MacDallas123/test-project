@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useCurrency } from "@/context/CurrencyContext"; // Vous devrez créer ce contexte
+import ReactCountryFlag from "react-country-flag";
 
 // Liste des devises disponibles
 export const availableCurrencies = [
@@ -16,6 +17,7 @@ export const availableCurrencies = [
     code: "EUR",
     name: "Euro",
     symbol: "€",
+    countryCode: "FR", // France (Eurozone)
     flag: "🇪🇺",
     icon: <Euro className="w-4 h-4" />,
     locale: "fr-FR"
@@ -24,6 +26,7 @@ export const availableCurrencies = [
     code: "USD",
     name: "Dollar US",
     symbol: "$",
+    countryCode: "US",
     flag: "🇺🇸",
     icon: <DollarSign className="w-4 h-4" />,
     locale: "en-US"
@@ -32,6 +35,7 @@ export const availableCurrencies = [
     code: "GBP",
     name: "Livre Sterling",
     symbol: "£",
+    countryCode: "GB",
     flag: "🇬🇧",
     icon: <PoundSterling className="w-4 h-4" />,
     locale: "en-GB"
@@ -40,6 +44,7 @@ export const availableCurrencies = [
     code: "CAD",
     name: "Dollar Canadien",
     symbol: "$",
+    countryCode: "CA",
     flag: "🇨🇦",
     icon: <DollarSign className="w-4 h-4" />,
     locale: "en-CA"
@@ -48,6 +53,7 @@ export const availableCurrencies = [
     code: "XOF",
     name: "Franc CFA",
     symbol: "CFA",
+    countryCode: "SN", // Senegal (WAEMU)
     flag: "🇨🇫",
     icon: <span className="text-xs font-bold">F</span>,
     locale: "fr-CF"
@@ -56,6 +62,7 @@ export const availableCurrencies = [
     code: "JPY",
     name: "Yen Japonais",
     symbol: "¥",
+    countryCode: "JP",
     flag: "🇯🇵",
     icon: <JapaneseYenIcon className="w-4 h-4" />,
     locale: "ja-JP"
@@ -101,7 +108,12 @@ const CurrencySelector = () => {
               onClick={() => handleCurrencyChange(currencyItem.code)}
             >
               <div className="flex items-center gap-3">
-                <div className="text-lg">{currencyItem.flag}</div>
+                {/* <div className="text-lg">{currencyItem.flag}</div> */}
+                <ReactCountryFlag
+                    svg
+                    countryCode={currencyItem.countryCode}
+                    className="w-4 h-4"
+                />
                 <div>
                   <div className="font-medium">{currencyItem.name}</div>
                   <div className="text-xs text-muted-foreground">
