@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
-const CollapsibleMenuItem = ({ label, icon, children }) => {
+const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -53,6 +53,7 @@ const CollapsibleMenuItem = ({ label, icon, children }) => {
                     <Button
                       variant="ghost"
                       className="justify-start w-full text-sm transition-colors border-t border-b rounded-none cursor-pointer text-primary-foreground hover:text-foreground hover:bg-accent/50"
+                      onclick={closeMobileMenu}
                     >
                       {/* <IconComponent className="w-4 h-4 mr-3" /> */}
                       {child.label}

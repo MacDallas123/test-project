@@ -684,10 +684,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                     if (item.subMenus) {
                       return (
                         <CollapsibleMenuItem
-													key={index}
+                          key={index}
                           label={item.label}
-                          icon=<IconComponent className="w-4 h-4" />
+                          icon={<IconComponent className="w-4 h-4" />}
                           children={item.subMenus}
+                          closeMobileMenu={closeMobileMenu}
                         />
                       );
                     }
@@ -696,12 +697,13 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       <Link
                         key={index}
                         to={item.href}
-                        onClick={closeMobileMenu}
                         className="w-full"
+                        onClick={closeMobileMenu}
                       >
                         <Button
                           variant="ghost"
                           className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          onClick={closeMobileMenu}
                         >
                           <IconComponent className="w-4 h-4 mr-3 text-destructive" />
                           {item.label}
@@ -719,12 +721,13 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       <Link
                         key={index}
                         to={item.href}
-                        onClick={closeMobileMenu}
                         className="w-full"
+                        onClick={closeMobileMenu}
                       >
                         <Button
                           variant="ghost"
                           className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          onClick={closeMobileMenu}
                         >
                           <IconComponent className="w-4 h-4 mr-3 text-destructive" />
                           {item.label}
@@ -739,7 +742,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                   <div className="flex flex-col gap-2 pt-2">
                     <Button
                       variant="destructive"
-                      onClick={handleLogout}
+                      onClick={(e) => {
+                        closeMobileMenu();
+                        handleLogout(e);
+                      }}
                       className="flex items-center gap-2 py-2"
                     >
                       <LogOut className="w-4 h-4" />
@@ -764,8 +770,8 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       <Link
                         key={item.href}
                         to={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
                         className="relative overflow-hidden rounded-md group"
+                        onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <span
                           className={`
