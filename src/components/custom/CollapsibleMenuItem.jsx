@@ -15,8 +15,8 @@ const CollapsibleMenuItem = ({ label, icon, children }) => {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-        <div className="flex items-center gap-3 text-primary-foreground/80">
+      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors rounded-lg text-primary-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-gray-800">
+        <div className="flex items-center gap-3">
           <span className="text-destructive">{icon}</span>
           <span>{label}</span>
         </div>

@@ -681,41 +681,14 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 <div className="container flex flex-col gap-3 px-3 py-2">
                   {mainMenus.map((item, index) => {
                     const IconComponent = item.icon;
-                    const isActive = isMenuActive(item);
-                    
                     if (item.subMenus) {
                       return (
-                        <div key={index} className="w-full">
-                          <div className={`flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'text-red-600 bg-red-50' : 'text-primary-foreground/80'}`}>
-                            <div className="flex items-center">
-                              <IconComponent className={`w-4 h-4 mr-3 ${isActive ? 'text-red-600' : ''}`} />
-                              {item.label}
-                            </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform ${isActive ? 'text-red-600' : ''}`} />
-                          </div>
-                          
-                          {/* Sous-menus pour mobile */}
-                          <div className="pl-6 mt-1 space-y-1">
-                            {item.subMenus.map((sub, subIndex) => {
-                              const isSubActive = isSubMenuActive(sub);
-                              return (
-                                <Link
-                                  key={subIndex}
-                                  to={sub.href}
-                                  onClick={closeMobileMenu}
-                                  className={`block w-full px-3 py-2 text-sm rounded-md ${isSubActive ? 'text-red-600 font-medium bg-red-50' : 'text-primary-foreground/60 hover:text-primary-foreground'}`}
-                                >
-                                  <div className="flex items-center">
-                                    {isSubActive && (
-                                      <div className="w-1 h-4 mr-2 bg-red-600 rounded-full"></div>
-                                    )}
-                                    {sub.label}
-                                  </div>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
+                        <CollapsibleMenuItem
+													key={index}
+                          label={item.label}
+                          icon=<IconComponent className="w-4 h-4" />
+                          children={item.subMenus}
+                        />
                       );
                     }
 
@@ -728,9 +701,9 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <Button
                           variant="ghost"
-                          className={`justify-start w-full text-sm transition-colors cursor-pointer ${isActive ? 'text-red-600 font-semibold' : 'text-primary-foreground/80'} hover:text-primary-foreground hover:bg-accent/50`}
+                          className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
                         >
-                          <IconComponent className={`w-4 h-4 mr-3 ${isActive ? 'text-red-600' : 'text-destructive'}`} />
+                          <IconComponent className="w-4 h-4 mr-3 text-destructive" />
                           {item.label}
                           {item.badge != null ? (
                             <Badge>{item.badge}</Badge>
@@ -742,9 +715,6 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
                   {userMenuItems.map((item, index) => {
                     const IconComponent = item.icon;
-                    const isActive = location.pathname === item.href || 
-                                    location.pathname.startsWith(item.href + '/');
-                    
                     return (
                       <Link
                         key={index}
@@ -754,12 +724,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <Button
                           variant="ghost"
-                          className={`justify-start w-full text-sm transition-colors cursor-pointer ${isActive ? 'text-red-600 font-semibold' : 'text-primary-foreground/80'} hover:text-primary-foreground hover:bg-accent/50`}
+                          className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
                         >
-                          <IconComponent className={`w-4 h-4 mr-3 ${isActive ? 'text-red-600' : 'text-destructive'}`} />
+                          <IconComponent className="w-4 h-4 mr-3 text-destructive" />
                           {item.label}
                           {item.badge != null ? (
-                            <Badge variant="secondary">{item.badge}</Badge>
+                            <Badge className="bg-secondary">{item.badge}</Badge>
                           ) : null}
                         </Button>
                       </Link>
