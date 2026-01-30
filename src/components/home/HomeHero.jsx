@@ -1,6 +1,6 @@
 import { useLanguage } from "@/context/LanguageContext";
 // import Prest from "@/assets/prest.jpg";
-import Prest from "@/assets/hero.avif";
+import Prest from "@/assets/hero-delivery.jpg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
