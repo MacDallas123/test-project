@@ -151,7 +151,7 @@ const Home = () => {
       <section className="px-4 py-20 bg-muted/30">
           <div className="flex flex-col items-center justify-center mb-12">
             <h2 className="mb-4 text-3xl font-bold text-center md:text-4xl drop-shadow">
-              {t("aboutSection.heading", "EatXpress, bien plus qu'un service digital")}
+              {t("aboutSection.heading", "LivrerNourriture, bien plus qu'un service digital")}
             </h2>
             <p className="max-w-2xl text-lg text-center text-muted-foreground">
               {t("aboutSection.subheading", "Bénéficiez d'une expertise locale et d'un accompagnement humain, pour transformer durablement votre activité.")}
@@ -166,14 +166,14 @@ const Home = () => {
             >
               <Badge variant="outline" className="px-4 py-2 mb-4" id="#about">
                 <Building2 className="w-4 h-4 mr-2" />
-                {t("about.title", "À Propos de EatXpress")}
+                {t("about.title", "À Propos de LivrerNourriture")}
               </Badge>
               <h2 className="mb-6 text-4xl font-bold" id="about">
                 Votre service de livraison de repas{" "}
                 <span className="text-primary">rapide et fiable</span>
               </h2>
               <p className="mb-6 text-lg text-muted-foreground">
-                Depuis plusieurs années, EatXpress simplifie vos repas du quotidien en vous livrant vos plats préférés, où que vous soyez, avec rapidité et gourmandise.
+                Depuis plusieurs années, LivrerNourriture simplifie vos repas du quotidien en vous livrant vos plats préférés, où que vous soyez, avec rapidité et gourmandise.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
@@ -207,7 +207,7 @@ const Home = () => {
             </motion.div>
 
             <div className="flex flex-col items-center justify-center py-12">
-              <span className="mb-4 text-3xl font-extrabold text-primary">🍔 EatXpress</span>
+              <span className="mb-4 text-3xl font-extrabold text-primary">LivrerNourriture</span>
               <p className="max-w-xs mb-4 text-lg text-center text-muted-foreground">
                 Commandez votre plat préféré. Livré à la maison, simplement.
               </p>

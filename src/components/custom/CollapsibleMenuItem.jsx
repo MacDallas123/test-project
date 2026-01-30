@@ -16,12 +16,12 @@ const CollapsibleMenuItem = ({ label, icon, children }) => {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
       <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
-        <div className="flex items-center gap-3">
-          <span className="text-gray-500">{icon}</span>
+        <div className="flex items-center gap-3 text-primary-foreground/80">
+          <span className="text-destructive">{icon}</span>
           <span>{label}</span>
         </div>
         <ChevronsUpDown
-          className="w-4 h-4 text-gray-500 transition-transform duration-200"
+          className="w-4 h-4 transition-transform duration-200 text-destructive"
           style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </CollapsibleTrigger>
@@ -52,7 +52,7 @@ const CollapsibleMenuItem = ({ label, icon, children }) => {
                   <Link to={child.href} className="w-full">
                     <Button
                       variant="ghost"
-                      className="justify-start w-full text-sm transition-colors border-t border-b rounded-none cursor-pointer text-foreground/80 hover:text-foreground hover:bg-accent/50"
+                      className="justify-start w-full text-sm transition-colors border-t border-b rounded-none cursor-pointer text-primary-foreground hover:text-foreground hover:bg-accent/50"
                     >
                       {/* <IconComponent className="w-4 h-4 mr-3" /> */}
                       {child.label}

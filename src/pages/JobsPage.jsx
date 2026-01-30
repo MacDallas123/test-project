@@ -652,7 +652,7 @@ const JobsPage = () => {
                   <div className="text-center md:text-left">
                     <h3 className="mb-3 text-xl font-bold">Vous êtes restaurateur ?</h3>
                     <p className="max-w-lg text-gray-600">
-                      Recrutez des talents qualifiés et développez votre équipe avec EatXpress
+                      Recrutez des talents qualifiés et développez votre équipe avec LivrerNourriture
                     </p>
                   </div>
                   <div className="flex flex-col gap-3 sm:flex-row">
@@ -681,7 +681,7 @@ const JobsPage = () => {
                     <Bike className="w-10 h-10 text-green-600" />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <h3 className="mb-3 text-xl font-bold">Devenez livreur EatXpress</h3>
+                    <h3 className="mb-3 text-xl font-bold">Devenez livreur LivrerNourriture</h3>
                     <p className="mb-4 text-gray-600">
                       Gagnez de l'argent en toute flexibilité. Choisissez vos horaires et travaillez à votre rythme.
                     </p>

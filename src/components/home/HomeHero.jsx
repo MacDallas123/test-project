@@ -21,7 +21,7 @@ const HomeHero = () => {
             type: "step1",
             title: (
                 <>
-                    Bienvenu sur <span className="text-7xl text-secondary">L</span>ivreur<span className="text-7xl text-secondary">N</span>ourriture
+                    Bienvenu sur <span className="text-7xl text-secondary">L</span>ivrer<span className="text-7xl text-secondary">N</span>ourriture
                 </>
             ),
             subtitle: "",

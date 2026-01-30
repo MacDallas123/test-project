@@ -1093,7 +1093,7 @@ const CVGeneratorPage = () => {
 
         {/* Pied de page */}
         <div className="pt-4 mt-8 text-xs text-center text-gray-500 border-t border-gray-200">
-          CV généré <span className="text-3xl text-secondary">L</span>ivreur<span className="text-3xl text-secondary">N</span>ourriture • {new Date().getFullYear()}
+          CV généré <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture • {new Date().getFullYear()}
         </div>
       </div>
     );

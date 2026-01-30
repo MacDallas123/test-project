@@ -17,7 +17,7 @@ const LanguageSelector = () => {
   return (
     <DropdownMenu className="z-1600">
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex flex-col px-2 md:flex-row">
+        <Button variant="ghost" className="flex flex-col px-2 md:flex-row text-primary-foreground">
           <div className="flex items-center gap-1">
             <Globe className="w-4 h-4" />
             <span className="hidden text-sm font-medium uppercase md:block">{language}</span>

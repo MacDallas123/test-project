@@ -550,7 +550,7 @@ const CartPage = () => {
               
               {/* Avantages */}
               <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                <h4 className="mb-4 text-lg font-bold">Avantages EatXpress</h4>
+                <h4 className="mb-4 text-lg font-bold">Avantages de LivrerNourriture</h4>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">

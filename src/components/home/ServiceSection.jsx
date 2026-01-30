@@ -354,7 +354,7 @@ const ServicesSection = () => {
                                 <span className="mb-2 text-xs font-semibold uppercase text-primary">Tendance</span>
                                 <h4 className="mb-2 text-lg font-bold">Les plats préférés de nos utilisateurs en 2024</h4>
                                 <p className="flex-1 mb-3 text-gray-600">
-                                    Un tour d’horizon des saveurs qui font vibrer la communauté EatXpress cette année.
+                                    Un tour d’horizon des saveurs qui font vibrer la communauté LivrerNourriture cette année.
                                 </p>
                                 <Link to="/blog/plats-preferes-2024" className="inline-flex items-center mt-auto font-medium text-primary hover:underline">
                                     Lire l'article

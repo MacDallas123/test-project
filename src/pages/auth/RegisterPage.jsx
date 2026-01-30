@@ -179,7 +179,7 @@ const RegisterPage = () => {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <img src={Logo} alt="Logo FIBEM" className="w-12 h-8" />
               </div>
-              <h1 className="text-2xl font-semibold"><span className="text-3xl text-secondary">L</span>ivreur<span className="text-3xl text-secondary">N</span>ourriture</h1>
+              <h1 className="text-2xl font-semibold"><span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture</h1>
             </div>
             <p className="text-muted-foreground">
               Rejoignez notre plateforme de livraison des repas

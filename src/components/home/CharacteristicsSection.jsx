@@ -42,7 +42,7 @@ const CharacteristicsSection = () => {
             <div className="container relative z-10 mx-auto">
                 <div className="flex flex-col items-center justify-center mb-12">
                     <h2 className="mb-4 text-3xl font-bold text-center md:text-4xl drop-shadow">
-                        {t("characteristics.title", "Pourquoi choisir EatXpress ?")}
+                        {t("characteristics.title", "Pourquoi choisir LivrerNourriture ?")}
                     </h2>
                     <p className="max-w-2xl text-lg text-center text-muted-foreground">
                         {t("characteristics.subtitle", "Des garanties concrètes pour votre entreprise")}

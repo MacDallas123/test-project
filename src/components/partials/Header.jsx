@@ -1,6 +1,7 @@
 import {
   BaggageClaim,
   Bell,
+  CheckCircle,
   ChevronDown,
   Globe,
   Home,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Logo from "@/assets/logo_fibem3.jpg";
@@ -51,8 +52,91 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [hoverTimeout, setHoverTimeout] = useState(null);
+  
+  const location = useLocation();
 
-  // Pre remplissement
+  // Fonction pour vérifier si un menu est actif
+  const isMenuActive = (menuItem) => {
+    if (menuItem.href) {
+      // Pour les liens directs
+      return location.pathname === menuItem.href || 
+             location.pathname.startsWith(menuItem.href + '/');
+    }
+    
+    // Pour les menus avec sous-menus
+    if (menuItem.subMenus) {
+      return menuItem.subMenus.some(subMenu => {
+        // Handle root path "/"
+        if (subMenu.href === "/" && location.pathname === "/") return true;
+
+        // Handle anchors (e.g. "/#us")
+        if (
+          typeof subMenu.href === "string" &&
+          subMenu.href.includes("#")
+        ) {
+          const [hrefPath, hrefHash] = subMenu.href.split("#");
+          // hrefPath could be '' or '/'
+          const matchPath = hrefPath === "" ? "/" : hrefPath;
+          const locHash = location.hash.replace("#", "");
+          return (
+            (location.pathname === matchPath && locHash === hrefHash) ||
+            (location.pathname + location.hash === subMenu.href)
+          );
+        }
+
+        // Normal handling for other paths
+        return (
+          location.pathname === subMenu.href ||
+          location.pathname.startsWith((subMenu.href || "") + "/")
+        );
+      });
+    }
+    
+    return false;
+  };
+
+  // Fonction pour vérifier si un sous-menu spécifique est actif
+  const isSubMenuActive = (subMenu) => {
+    if (subMenu.href) {
+      if (subMenu.href.startsWith('#')) {
+        // Pour les ancres (ex: /#about)
+        return location.pathname + location.hash === subMenu.href;
+      }
+      return location.pathname === subMenu.href || 
+             location.pathname.startsWith(subMenu.href + '/');
+    }
+    return false;
+  };
+
+  // Fonction pour obtenir la classe CSS conditionnelle pour les menus
+  const getMenuClass = (menuItem, isAuthMenu = false) => {
+    const isActive = isMenuActive(menuItem);
+    
+    if (isAuthMenu) {
+      return menuItem.className;
+    }
+    
+    const baseClass = "relative flex items-center gap-2 transition-colors cursor-pointer ";
+    
+    if (isActive) {
+      return baseClass + "text-red-600 font-semibold";
+    }
+    
+    return baseClass + "text-primary-foreground hover:text-black";
+  };
+
+  // Fonction pour obtenir la classe CSS du bouton menu déroulant
+  const getDropdownButtonClass = (menuItem) => {
+    const isActive = isMenuActive(menuItem);
+    
+    if (isActive) {
+      return "relative group text-red-600 font-semibold hover:text-red-700";
+    }
+    
+    return "relative group text-primary-foreground hover:text-black";
+  };
+
+  // Pré remplissement
   const user = {
     first_name: "First Name",
     last_name: "Last Name",
@@ -98,7 +182,6 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     {
       icon: Home,
       label: t("mainMenu.home.label", "Accueil"),
-      //href: "/",
       subMenus: [
         {
           label: t("mainMenu.home.about", "A propos"),
@@ -122,85 +205,15 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           label: t("mainMenu.service.prestation", "Rechercher un repas"),
           href: "/services",
         },
-        /*{
-          label: t("mainMenu.service.tarifs", "Tarifs"),
-          href: "/service/tarifs",
-        },
-        {
-          label: t("mainMenu.service.plaquette", "Plaquette"),
-          href: "/service/plaquette",
-        },*/
         {
           label: t("mainMenu.service.formulaireCV", "Formulaire CV"),
           href: "/cv",
         },
-        /*{
-          label: t("mainMenu.service.feuilleHeures", "Feuille d'heures"),
-          href: "/service/feuille-heures",
-        },
-        {
-          label: t("mainMenu.service.ficheCandidat", "Fiche candidat"),
-          href: "/service/fiche-candidat",
-        },
-        {
-          label: t("mainMenu.service.ficheEts", "Fiche Ets"),
-          href: "/service/fiche-ets",
-        },
-        {
-          label: t("mainMenu.service.modeleDevis", "Modèle Devis"),
-          href: "/service/modele-devis",
-        },*/
         {
           label: t("mainMenu.service.facture", "Facture"),
           href: "/service/facture",
         },
-        /*{
-          label: t("mainMenu.service.avoir", "Avoir"),
-          href: "/service/avoir",
-        },*/
       ],
-      /*subMenus: [
-        {
-          label: t("mainMenu.service.prestation", "Prestation Service"),
-          href: "/services",
-        },
-        {
-          label: t("mainMenu.service.tarifs", "Tarifs"),
-          href: "/service/tarifs",
-        },
-        {
-          label: t("mainMenu.service.plaquette", "Plaquette"),
-          href: "/service/plaquette",
-        },
-        {
-          label: t("mainMenu.service.formulaireCV", "Formulaire CV"),
-          href: "/cv",
-        },
-        {
-          label: t("mainMenu.service.feuilleHeures", "Feuille d'heures"),
-          href: "/service/feuille-heures",
-        },
-        {
-          label: t("mainMenu.service.ficheCandidat", "Fiche candidat"),
-          href: "/service/fiche-candidat",
-        },
-        {
-          label: t("mainMenu.service.ficheEts", "Fiche Ets"),
-          href: "/service/fiche-ets",
-        },
-        {
-          label: t("mainMenu.service.modeleDevis", "Modèle Devis"),
-          href: "/service/modele-devis",
-        },
-        {
-          label: t("mainMenu.service.facture", "Facture"),
-          href: "/service/facture",
-        },
-        {
-          label: t("mainMenu.service.avoir", "Avoir"),
-          href: "/service/avoir",
-        },
-      ],*/
     },
     {
       icon: LayoutDashboard,
@@ -208,12 +221,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       subMenus: [
         {
           label: t("mainMenu.emploi.espaceCandidat", "Espace candidat"),
-          //href: "/emploi/candidat",
           href: "/emploi",
         },
         {
           label: t("mainMenu.emploi.espaceRecruteur", "Espace recruteur"),
-          //href: "/emploi/recruteur",
           href: "/dashboard/offres",
         },
         {
@@ -226,7 +237,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
         },
       ],
     },
-    { icon: User, label: "Contact", href: "/contact" },
+    { 
+      icon: User, 
+      label: "Contact", 
+      href: "/contact" 
+    },
   ];
 
   const authMenus = [
@@ -327,25 +342,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={
-        [
-          "top-0 left-0 right-0 z-1500 transition-all duration-300",
-          dasboardPage
-            ? "sticky"
-            : authPage
-            ? "sticky"
-            : "fixed",
-          dasboardPage
-            ? scrolled
-              ? "bg-white/95 backdrop-blur-md shadow-lg text-black border-b"
-              : "bg-white/95 text-black border-b"
-            : (
-                scrolled
-                  ? "bg-white/95 backdrop-blur-md shadow-lg text-black"
-                  : "bg-transparent text-black"
-              ),
-        ].join(" ")
-      }
+      className="sticky top-0 left-0 right-0 transition-all duration-300 z-1500 bg-primary"
     >
       <div className="container px-4 py-3 mx-auto">
         <div className="flex items-center justify-between">
@@ -358,13 +355,15 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
             <div className="flex items-center justify-center w-10 h-10 transition-all duration-300 md:w-16 md:h-16 rounded-xl group-hover:scale-110">
               <img src={Logo} alt="LOGO FIBEM" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold md:text-xl bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-primary">
-                <span className="text-3xl text-secondary">L</span>ivreur<span className="text-3xl text-secondary">N</span>ourriture
+            {/* <div className="flex flex-col">
+              <span className="text-lg font-bold md:text-xl bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-primary-foreground">
+                <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture
               </span>
-              {/* <span className="hidden text-xs font-medium text-muted-foreground sm:block">
-                ProMarket
-              </span> */}
+            </div> */}
+            <div className="flex flex-col px-6 py-1 bg-white rounded-full text-md hover:bg-white/90">
+              <span className="font-semibold text-md md:text-lg bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-destructive">
+                Livrer Nourriture
+              </span>
             </div>
           </Link>
 
@@ -373,9 +372,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
             <Input
               type="text"
               placeholder={t("search_placeholder", "Rechercher")}
-              className="w-full px-4 py-2 pl-10 text-white transition border rounded-full focus:outline-none focus:ring-2 focus:ring-primary bg-primary placeholder:text-gray-300"
+              className="w-full px-4 py-2 pl-10 pr-10 transition border rounded-full text-primary focus:outline-none focus:ring-2 focus:ring-primary bg-primary-foreground placeholder:text-gray-500"
             />
-            <Search className="absolute w-4 h-4 text-gray-100 -translate-y-1/2 left-8 top-1/2" />
+            <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-8 top-1/2" />
+            <Button className="absolute right-0 p-1 px-2 text-xs text-white -translate-x-1/2 -translate-y-1/2 rounded-r-full bg-destructive top-1/2">
+              OK
+            </Button>
           </div>
 
           {/* Mobile search icon */}
@@ -413,11 +415,6 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           </div>
           
 
-          {/* Sélecteur de langue */}
-          {/* <LanguageSelector />
-
-          <div className="w-px h-6 mx-2 bg-border"></div> */}
-          
           {/* Desktop Navigation */}
           {isLoggedIn() ? (
             <div className="items-center hidden gap-4 lg:flex">
@@ -429,6 +426,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
               {/* Render mainMenus as navigation links/icons */}
               {mainMenus.map((item, idx) => {
                 const Icon = item.icon;
+                const isActive = isMenuActive(item);
                 
                 if (!item.subMenus) {
                   return (
@@ -440,11 +438,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       title={item.label}
                     >
                       <Link
-                        className="relative flex items-center gap-2 transition-colors cursor-pointer"
+                        className={getMenuClass(item)}
                         to={item.href}
                       >
                         <div className="flex items-center gap-3">
-                          <Icon className="w-4 h-4" />
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
                           {item.badge ? null : item.label}
                         </div>
 
@@ -468,16 +466,21 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                   >
                     <Button
                       variant="ghost"
-                      className="relative group"
+                      className={getDropdownButtonClass(item)}
                       title={item.label}
                     >
                       <div className="flex items-center gap-2 transition-colors cursor-pointer">
                         <div className="flex items-center gap-3">
-                          {Icon && <Icon className="w-4 h-4" />}
+                          {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />}
                           <span>{item.label}</span>
                         </div>
-                        <ChevronDown className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" />
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? 'text-red-600' : ''}`} />
                       </div>
+                      
+                      {/* Indicateur visuel pour menu actif */}
+                      {isActive && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full"></div>
+                      )}
                     </Button>
 
                     {/* Dropdown on hover */}
@@ -493,20 +496,25 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           onMouseLeave={handleMouseLeave}
                         >
                           <div className="p-2">
-                            {/* <div className="px-3 py-2 mb-1 text-sm font-semibold border-b">
-                              {item.label}
-                            </div> */}
                             <div className="flex flex-col">
-                              {item.subMenus.map((sub, i) => (
-                                <Link
-                                  key={sub.href || i}
-                                  to={sub.href}
-                                  className="px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent"
-                                  onClick={() => setHoveredMenu(null)}
-                                >
-                                  {sub.label}
-                                </Link>
-                              ))}
+                              {item.subMenus.map((sub, i) => {
+                                const isSubActive = isSubMenuActive(sub);
+                                return (
+                                  <Link
+                                    key={sub.href || i}
+                                    to={sub.href}
+                                    className={`px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent ${isSubActive ? 'text-red-600 font-medium bg-red-50 border-l-2 border-red-600' : ''}`}
+                                    onClick={() => setHoveredMenu(null)}
+                                  >
+                                    <div className="flex items-center">
+                                      {isSubActive && (
+                                        <div className="w-1 h-4 mr-2 bg-red-600 rounded-full"></div>
+                                      )}
+                                      {sub.label}
+                                    </div>
+                                  </Link>
+                                );
+                              })}
                             </div>
                           </div>
                         </motion.div>
@@ -523,7 +531,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
               <Button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center justify-center w-10 h-10 mr-4 font-medium transition-colors rounded-full cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
+                className="flex items-center justify-center w-10 h-10 mr-4 font-medium transition-colors rounded-full cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/90"
               >
                 {userInitials}
               </Button>
@@ -547,20 +555,24 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                     </div>
 
                     <div className="py-1">
-                      {userMenuItems.map((item) => (
-                        <Link
-                          key={item.href}
-                          to={item.href}
-                          className="flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent hover:text-accent-foreground"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.label}
-                          {item.badge != null ? (
-                            <Badge>{item.badge}</Badge>
-                          ) : null}
-                        </Link>
-                      ))}
+                      {userMenuItems.map((item) => {
+                        const isActive = location.pathname === item.href || 
+                                        location.pathname.startsWith(item.href + '/');
+                        return (
+                          <Link
+                            key={item.href}
+                            to={item.href}
+                            className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent hover:text-accent-foreground ${isActive ? 'text-red-600 font-medium bg-red-50' : ''}`}
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <item.icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
+                            {item.label}
+                            {item.badge != null ? (
+                              <Badge>{item.badge}</Badge>
+                            ) : null}
+                          </Link>
+                        );
+                      })}
                     </div>
 
                     <div className="pt-1 border-t">
@@ -638,17 +650,17 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="my-2 overflow-auto bg-white shadow-lg lg:hidden max-h-[500px]"
+                className="my-2 overflow-auto bg-primary shadow-lg lg:hidden max-h-[500px]"
               >
-                <div className="flex items-center gap-3 p-3 border border-border/50">
-                  <div className="flex items-center justify-center w-10 h-10 text-sm font-medium text-white rounded-full bg-accent">
+                <div className="flex items-center gap-3 p-3 border border-border/50 bg-accent/10">
+                  <div className="flex items-center justify-center w-10 h-10 text-sm font-medium rounded-full text-secondary-foreground bg-secondary">
                     {userInitials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                    <p className="text-sm font-medium truncate text-primary-foreground">
                       {user?.first_name} {user?.last_name}
                     </p>
-                    <p className="text-xs truncate text-muted-foreground">
+                    <p className="text-xs truncate text-accent">
                       {user?.email}
                     </p>
                   </div>
@@ -657,14 +669,41 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 <div className="container flex flex-col gap-3 px-3 py-2">
                   {mainMenus.map((item, index) => {
                     const IconComponent = item.icon;
+                    const isActive = isMenuActive(item);
+                    
                     if (item.subMenus) {
                       return (
-                        <CollapsibleMenuItem
-                          key={index}
-                          label={item.label}
-                          icon=<IconComponent className="w-4 h-4" />
-                          children={item.subMenus}
-                        />
+                        <div key={index} className="w-full">
+                          <div className={`flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'text-red-600 bg-red-50' : 'text-primary-foreground/80'}`}>
+                            <div className="flex items-center">
+                              <IconComponent className={`w-4 h-4 mr-3 ${isActive ? 'text-red-600' : ''}`} />
+                              {item.label}
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${isActive ? 'text-red-600' : ''}`} />
+                          </div>
+                          
+                          {/* Sous-menus pour mobile */}
+                          <div className="pl-6 mt-1 space-y-1">
+                            {item.subMenus.map((sub, subIndex) => {
+                              const isSubActive = isSubMenuActive(sub);
+                              return (
+                                <Link
+                                  key={subIndex}
+                                  to={sub.href}
+                                  onClick={closeMobileMenu}
+                                  className={`block w-full px-3 py-2 text-sm rounded-md ${isSubActive ? 'text-red-600 font-medium bg-red-50' : 'text-primary-foreground/60 hover:text-primary-foreground'}`}
+                                >
+                                  <div className="flex items-center">
+                                    {isSubActive && (
+                                      <div className="w-1 h-4 mr-2 bg-red-600 rounded-full"></div>
+                                    )}
+                                    {sub.label}
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
                       );
                     }
 
@@ -677,9 +716,9 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <Button
                           variant="ghost"
-                          className="justify-start w-full text-sm transition-colors cursor-pointer text-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          className={`justify-start w-full text-sm transition-colors cursor-pointer ${isActive ? 'text-red-600 font-semibold' : 'text-primary-foreground/80'} hover:text-primary-foreground hover:bg-accent/50`}
                         >
-                          <IconComponent className="w-4 h-4 mr-3" />
+                          <IconComponent className={`w-4 h-4 mr-3 ${isActive ? 'text-red-600' : 'text-destructive'}`} />
                           {item.label}
                           {item.badge != null ? (
                             <Badge>{item.badge}</Badge>
@@ -691,6 +730,9 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
                   {userMenuItems.map((item, index) => {
                     const IconComponent = item.icon;
+                    const isActive = location.pathname === item.href || 
+                                    location.pathname.startsWith(item.href + '/');
+                    
                     return (
                       <Link
                         key={index}
@@ -700,12 +742,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <Button
                           variant="ghost"
-                          className="justify-start w-full text-sm transition-colors cursor-pointer text-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          className={`justify-start w-full text-sm transition-colors cursor-pointer ${isActive ? 'text-red-600 font-semibold' : 'text-primary-foreground/80'} hover:text-primary-foreground hover:bg-accent/50`}
                         >
-                          <IconComponent className="w-4 h-4 mr-3" />
+                          <IconComponent className={`w-4 h-4 mr-3 ${isActive ? 'text-red-600' : 'text-destructive'}`} />
                           {item.label}
                           {item.badge != null ? (
-                            <Badge>{item.badge}</Badge>
+                            <Badge variant="secondary">{item.badge}</Badge>
                           ) : null}
                         </Button>
                       </Link>
@@ -734,33 +776,36 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 className="mr-2 overflow-hidden bg-white shadow-lg lg:hidden"
               >
                 <div className="container flex flex-col gap-4 py-4">
-                  {authMenus.map((item) => (
-                    <Link
-                      key={item.href}
-                      to={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="relative overflow-hidden rounded-md group"
-                    >
-                      <span
-                        className={`
-                          absolute left-0 top-0 h-full w-0 ${
-                            item.label === "Connexion"
-                              ? "bg-accent/30"
-                              : "bg-accent/20"
-                          }
-                          group-active:w-full group-hover:w-full
-                          transition-all duration-300 ease-in-out
-                          z-0
-                        `}
-                      />
-                      <span
-                        className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40`}
+                  {authMenus.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="relative overflow-hidden rounded-md group"
                       >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                      </span>
-                    </Link>
-                  ))}
+                        <span
+                          className={`
+                            absolute left-0 top-0 h-full w-0 ${
+                              item.label === "Connexion"
+                                ? "bg-accent/30"
+                                : "bg-accent/20"
+                            }
+                            group-active:w-full group-hover:w-full
+                            transition-all duration-300 ease-in-out
+                            z-0
+                          `}
+                        />
+                        <span
+                          className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40 ${isActive ? 'text-red-600' : ''}`}
+                        >
+                          <item.icon className={`w-4 h-4 ${isActive ? 'text-red-600' : ''}`} />
+                          {item.label}
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
