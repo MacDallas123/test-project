@@ -28,7 +28,7 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Téléphone",
-    description: "+33 1 23 45 67 89",
+    description: "+33 6 05 51 14 32",
     details: "Lun-Ven: 9h-18h",
     gradient: "from-purple-500 to-pink-500",
   },
@@ -261,7 +261,7 @@ const ContactPage = () => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          placeholder="+33 6 05 51 14 32"
+                          placeholder="+33 1 23 45 67 89"
                           className="h-12"
                         />
                       </div>
