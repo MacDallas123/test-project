@@ -19,15 +19,15 @@ const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors rounded-lg text-primary-foreground hover:text-foreground hover:bg-accent/50 dark:hover:bg-gray-800">
+      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-orange-300 transition-colors rounded-lg hover:text-foreground hover:bg-accent/50 dark:hover:bg-gray-800">
         <div className="flex items-center gap-3">
           {/* <span className="text-destructive">{icon}</span> */}
-          <span className="text-secondary">{icon}</span>
+          <span className="text-red-500">{icon}</span>
           <span>{label}</span>
         </div>
         <ChevronsUpDown
           // className="w-4 h-4 transition-transform duration-200 text-destructive"
-          className="w-4 h-4 transition-transform duration-200 text-secondary"
+          className="w-4 h-4 text-red-500 transition-transform duration-200"
           style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
         />
       </CollapsibleTrigger>
@@ -63,7 +63,7 @@ const CollapsibleMenuItem = ({ label, icon, children, closeMobileMenu }) => {
                     <Button
                       variant="ghost"
                       // className="justify-start w-full text-sm transition-colors border-t border-b rounded-none cursor-pointer text-primary-foreground hover:text-foreground hover:bg-accent/50"
-                      className="justify-start w-full text-sm transition-colors rounded-none cursor-pointer text-primary-foreground hover:text-secondary hover:bg-accent/50"
+                      className="justify-start w-full text-sm text-orange-300 transition-colors rounded-none cursor-pointer hover:text-secondary hover:bg-accent/50"
                     >
                       {/* <IconComponent className="w-4 h-4 mr-3" /> */}
                       {child.label}

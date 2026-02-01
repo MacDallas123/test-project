@@ -697,7 +697,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                     {userInitials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-primary-foreground">
+                    <p className="text-sm font-medium truncate text-secondary">
                       {user?.first_name} {user?.last_name}
                     </p>
                     <p className="text-xs truncate text-accent">
@@ -730,11 +730,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <Button
                           variant="ghost"
-                          className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          //className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          className="justify-start w-full text-sm text-orange-300 transition-colors cursor-pointer hover:text-foreground hover:bg-accent/50"
                           onClick={closeMobileMenu}
                         >
                           {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
-                          <IconComponent className="w-4 h-4 mr-3 text-secondary" />
+                          <IconComponent className="w-4 h-4 mr-3 text-red-500" />
                           {item.label}
                           {item.badge != null ? (
                             <Badge>{item.badge}</Badge>
@@ -755,11 +756,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <Button
                           variant="ghost"
-                          className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          className="justify-start w-full text-sm text-orange-300 transition-colors cursor-pointer hover:text-foreground hover:bg-accent/50"
                           onClick={closeMobileMenu}
                         >
                           {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
-                          <IconComponent className="w-4 h-4 mr-3 text-secondary" />
+                          <IconComponent className="w-4 h-4 mr-3 text-red-500" />
                           {item.label}
                           {item.badge != null ? (
                             <Badge className="bg-secondary">{item.badge}</Badge>
