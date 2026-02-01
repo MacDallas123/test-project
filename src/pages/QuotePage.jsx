@@ -472,7 +472,7 @@ const QuotePage = () => {
 
                 {/* Section 3: Articles du Devis */}
                 <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-wrap items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
                         <Package className="w-5 h-5 text-primary" />
@@ -491,7 +491,7 @@ const QuotePage = () => {
                       onClick={addQuoteItem}
                       variant="outline"
                       size="sm"
-                      className="gap-2"
+                      className="w-full gap-2 mt-2 md:mt-0 md:w-auto"
                     >
                       <Plus className="w-4 h-4" />
                       Ajouter
@@ -545,7 +545,7 @@ const QuotePage = () => {
                             />
                           </div>
 
-                          <div className="grid grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                               <label className="block mb-2 text-sm font-medium text-gray-700">
                                 Quantité
