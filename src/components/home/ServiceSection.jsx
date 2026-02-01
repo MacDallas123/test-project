@@ -351,12 +351,12 @@ const ServicesSection = () => {
           transition={{ duration: 0.6 }}
           className="max-w-5xl mx-auto"
         >
-          {/* <h3 className="mb-8 text-2xl font-bold text-center">
+          <h3 className="mb-8 text-2xl font-bold text-center">
             Derniers articles du blog
-          </h3> */}
+          </h3>
           <div className="grid gap-8 md:grid-cols-3">
             {/* Article 1 */}
-            {/* <div className="flex flex-col transition bg-white border shadow-sm rounded-xl hover:shadow-md">
+            <div className="flex flex-col transition bg-white border shadow-sm rounded-xl hover:shadow-md">
               <img
                 src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=facearea&w=400&q=80"
                 alt="Blog article"
@@ -381,12 +381,12 @@ const ServicesSection = () => {
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               </div>
-            </div> */}
+            </div>
             {/* Article 2 */}
-            {/* <div className="flex flex-col transition bg-white border shadow-sm rounded-xl hover:shadow-md">
+            <div className="flex flex-col transition bg-white border shadow-sm rounded-xl hover:shadow-md">
               <img
-                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=facearea&w=400&q=80"
-                alt="Blog article"
+                src="https://images.unsplash.com/photo-1447078806655-40579c2520d6?auto=format&fit=facearea&w=400&q=80"
+                alt="Assiette gourmande"
                 className="object-cover w-full h-40 rounded-t-xl"
               />
               <div className="flex flex-col flex-1 p-4">
@@ -408,12 +408,12 @@ const ServicesSection = () => {
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               </div>
-            </div> */}
+            </div>
             {/* Article 3 */}
-            {/* <div className="flex flex-col transition bg-white border shadow-sm rounded-xl hover:shadow-md">
+            <div className="flex flex-col transition bg-white border shadow-sm rounded-xl hover:shadow-md">
               <img
-                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=facearea&w=400&q=80"
-                alt="Blog article"
+                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=facearea&w=400&q=80"
+                alt="Salade saine"
                 className="object-cover w-full h-40 rounded-t-xl"
               />
               <div className="flex flex-col flex-1 p-4">
@@ -435,7 +435,7 @@ const ServicesSection = () => {
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               </div>
-            </div> */}
+            </div>
           </div>
         </motion.div>
 
