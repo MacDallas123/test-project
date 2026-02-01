@@ -268,7 +268,7 @@ const initialState = {
   clients: fakeData.clients,
   activeTab: "dashboard", // Pour la navigation dans le dashboard
   isLoading: false,
-  isLoggedIn: false
+  isLoggedIn: true
 };
 
 const appSlice = createSlice({

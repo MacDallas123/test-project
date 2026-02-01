@@ -175,12 +175,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
 
     // Temporary
-    /*{
+    {
       icon: LogIn,
       label: t("authMenu.login", "Connexion"),
       href: "/auth/login",
     },
-    {
+    /*{
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
       href: "/auth/register",
@@ -216,12 +216,16 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           href: "/services",
         },
         {
-          label: t("mainMenu.service.formulaireCV", "Formulaire CV"),
+          label: t("mainMenu.service.formulaireCV", "Formulaire CV FIBEM"),
           href: "/cv",
         },
         {
-          label: t("mainMenu.service.facture", "Facture"),
-          href: "/service/facture",
+          label: t("mainMenu.service.formulaireDevis", "Devis"),
+          href: "/devis",
+        },
+        {
+          label: t("mainMenu.service.formulaireFacture", "Facture"),
+          href: "/facture",
         },
       ],
     },
@@ -729,7 +733,8 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
                           onClick={closeMobileMenu}
                         >
-                          <IconComponent className="w-4 h-4 mr-3 text-destructive" />
+                          {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
+                          <IconComponent className="w-4 h-4 mr-3 text-secondary" />
                           {item.label}
                           {item.badge != null ? (
                             <Badge>{item.badge}</Badge>
@@ -753,7 +758,8 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
                           onClick={closeMobileMenu}
                         >
-                          <IconComponent className="w-4 h-4 mr-3 text-destructive" />
+                          {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
+                          <IconComponent className="w-4 h-4 mr-3 text-secondary" />
                           {item.label}
                           {item.badge != null ? (
                             <Badge className="bg-secondary">{item.badge}</Badge>

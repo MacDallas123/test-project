@@ -12,7 +12,7 @@ const ClientsPage = () => {
       nom: "Entreprise ABC",
       email: "contact@abc.com",
       telephone: "+33 1 23 45 67 89",
-      responsable: "Jean Dupont",
+      responsable: "AAAA",
       statut: "actif",
     },
     {

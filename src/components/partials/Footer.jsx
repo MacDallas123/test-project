@@ -96,7 +96,7 @@ const Footer = () => {
       href: "/service/plaquette",
     },*/
     {
-      label: t("mainMenu.service.formulaireCV", "Formulaire CV"),
+      label: t("mainMenu.service.formulaireCV", "Formulaire CV FIBEM"),
       href: "/service/formulaire-cv",
     },
     /*{
@@ -295,7 +295,7 @@ const Footer = () => {
                       href="tel:+221"
                       className="text-sm transition-colors hover:text-primary"
                     >
-                      Tel: +221 77 877 69 32
+                      Tel: +221 78 370 06 02
                     </a>
                   </li>
                   <li className="flex items-center gap-3">
@@ -443,7 +443,7 @@ const Footer = () => {
         </div>
 
         {/* Comptes & Réseaux sociaux */}
-        {/* <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
+        <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
           <div>
             <h4 className="mb-3 font-semibold text-white">
               {t("footer.social", "Suivez-nous")}
@@ -466,7 +466,7 @@ const Footer = () => {
               })}
             </div>
           </div>
-        </div> */}
+        </div>
 
         {/* Footer bottom */}
         <div className="pt-8 border-t border-border/40">

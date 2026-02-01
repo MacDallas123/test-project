@@ -24,6 +24,8 @@ import ServicePage from "./pages/ServicePage";
 import ApplicationFormPage from "./pages/ApplicationFormPage";
 import CVGeneratorPage from "./pages/CVGeneratorPage";
 import ScrollToTop from "./components/custom/ScrollToTop";
+import QuotePage from "./pages/QuotePage";
+import InvoicePage from "./pages/InvoicePage";
 
 function App() {
   return (
@@ -74,6 +76,8 @@ function App() {
           <Route path="/services" element={<ServicePage />} />
           <Route path="/apply/:type/:id" element={<ApplicationFormPage />} />
           <Route path="/cv" element={<CVGeneratorPage />} />
+          <Route path="/devis" element={<QuotePage />} />
+          <Route path="/facture" element={<InvoicePage />} />
         </Route>
 
         <Route path="/403" element={<IsForbidden />} />

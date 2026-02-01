@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 import {
   Download,
   Eye,
@@ -373,7 +374,7 @@ const CVGeneratorPage = () => {
                     onChange={(e) =>
                       handleInputChange("personal", "linkedin", e.target.value)
                     }
-                    placeholder="https://linkedin.com/in/jeandupont"
+                    placeholder="https://linkedin.com/in/user"
                   />
                 </div>
               </div>
@@ -388,7 +389,7 @@ const CVGeneratorPage = () => {
                     onChange={(e) =>
                       handleInputChange("personal", "github", e.target.value)
                     }
-                    placeholder="https://github.com/jeandupont"
+                    placeholder="https://github.com/user"
                   />
                 </div>
               </div>
@@ -403,7 +404,7 @@ const CVGeneratorPage = () => {
                     onChange={(e) =>
                       handleInputChange("personal", "portfolio", e.target.value)
                     }
-                    placeholder="https://jeandupont.dev"
+                    placeholder="https://user.dev"
                   />
                 </div>
               </div>
@@ -1358,19 +1359,37 @@ const CVGeneratorPage = () => {
     <div className="min-h-screen bg-background">
       <div className="container px-4 py-8 mx-auto">
         {/* En-tête */}
-        <div className="mb-8 text-center">
+        {/* <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold md:text-4xl">
             Générateur de CV
           </h1>
           <p className="text-muted-foreground">
             Créez un CV professionnel en quelques minutes
           </p>
+        </div> */}
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-white">
+        <div className="container px-4 py-12 mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary/10">
+              <FileText className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="mb-4 text-4xl font-bold">Générer un CV FIBEM</h1>
+            <p className="text-lg text-gray-600">
+              Créez un CV professionnel en quelques minutes
+            </p>
+          </motion.div>
         </div>
+      </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-8 px-4 py-12 lg:grid-cols-3">
           {/* Navigation des sections */}
           <div className="lg:col-span-1">
-            <div className="sticky space-y-4 top-8">
+            {/* <div className="sticky space-y-4 top-8"> */}
+            <div className="space-y-4 top-8">
               {/* Navigation */}
               <div className="border rounded-lg">
                 <div className="p-4 border-b">

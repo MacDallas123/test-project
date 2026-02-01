@@ -236,7 +236,20 @@ const Home = () => {
           </div>
         </div>
       </section>
-
+      
+      {/* Section Contactez nous */}
+      <div className="flex flex-col items-center justify-center py-8">
+        <p className="mb-2 text-base text-center text-muted-foreground">
+          Vous avez des questions ou souhaitez en savoir plus ? Notre équipe est à votre écoute.
+        </p>
+        <a
+          href="/contact"
+          className="px-6 py-3 text-lg font-semibold text-white transition rounded-full bg-primary hover:bg-primary/90"
+        >
+          Contactez nous
+        </a>
+      </div>
+      
       {/* Section Catalogue de Produits */}
       {/* <UserProvider /> */}
 

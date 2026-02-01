@@ -35,7 +35,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Adresse",
-    description: "Paris, France",
+    description: "Vernand, France",
     details: "75 001",
     gradient: "from-green-500 to-emerald-500",
   },
@@ -51,9 +51,11 @@ const contactInfo = [
 const ContactPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullname: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
+    address: "",
     subject: "",
     message: "",
   });
@@ -79,9 +81,11 @@ const ContactPage = () => {
 
     setIsSubmitted(true);
     setFormData({
-      fullname: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
+      address: "",
       subject: "",
       message: "",
     });
@@ -140,7 +144,7 @@ const ContactPage = () => {
                       Envoyez-nous un message
                     </h2>
                     <p className="text-muted-foreground">
-                      Nous vous répondrons rapidement
+                      Nous vous répondrons sous 48h
                     </p>
                   </div>
                 </div>
@@ -174,18 +178,35 @@ const ContactPage = () => {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
                         <label
-                          htmlFor="fullname"
+                          htmlFor="firstName"
                           className="block mb-2 text-sm font-medium"
                         >
-                          Nom complet *
+                          Nom *
                         </label>
                         <Input
-                          id="fullname"
-                          name="fullname"
-                          value={formData.fullname}
+                          id="firstName"
+                          name="firstName"
+                          value={formData.firstName}
                           onChange={handleInputChange}
                           required
-                          placeholder="Votre nom complet"
+                          placeholder="Votre nom"
+                          className="h-12"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="lastName"
+                          className="block mb-2 text-sm font-medium"
+                        >
+                          Prénom *
+                        </label>
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          required
+                          placeholder="Votre prénom"
                           className="h-12"
                         />
                       </div>
@@ -207,6 +228,24 @@ const ContactPage = () => {
                           className="h-12"
                         />
                       </div>
+                      <div>
+                        <label
+                          htmlFor="address"
+                          className="block mb-2 text-sm font-medium"
+                        >
+                          Email *
+                        </label>
+                        <Input
+                          id="address"
+                          name="address"
+                          type="address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          required
+                          placeholder="Ex: Vernand"
+                          className="h-12"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -222,7 +261,7 @@ const ContactPage = () => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          placeholder="+33 6 12 34 56 78"
+                          placeholder="+33 6 05 51 14 32"
                           className="h-12"
                         />
                       </div>

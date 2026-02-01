@@ -124,7 +124,7 @@ const OrdersPage = () => {
         { nom: "Annonces prioritaires", quantite: 5, prix: 250 },
       ],
       adresseLivraison: {
-        nom: "Jean Dupont",
+        nom: "AAAA",
         entreprise: "TechCorp",
         rue: "123 Avenue des Champs-Élysées",
         ville: "Paris",
