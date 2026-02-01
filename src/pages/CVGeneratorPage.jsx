@@ -1357,17 +1357,7 @@ const CVGeneratorPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container px-4 py-8 mx-auto">
-        {/* En-tête */}
-        {/* <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold md:text-4xl">
-            Générateur de CV
-          </h1>
-          <p className="text-muted-foreground">
-            Créez un CV professionnel en quelques minutes
-          </p>
-        </div> */}
-        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-white">
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-white">
         <div className="container px-4 py-12 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -1384,10 +1374,26 @@ const CVGeneratorPage = () => {
           </motion.div>
         </div>
       </div>
-
-        <div className="grid gap-8 px-4 py-12 lg:grid-cols-3">
+        
+      <div className="container px-4 py-12 mx-auto">
+        {/* En-tête */}
+        {/* <div className="mb-8 text-center">
+          <h1 className="mb-2 text-3xl font-bold md:text-4xl">
+            Générateur de CV
+          </h1>
+          <p className="text-muted-foreground">
+            Créez un CV professionnel en quelques minutes
+          </p>
+        </div> */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid gap-8 lg:grid-cols-3">
           {/* Navigation des sections */}
-          <div className="lg:col-span-1">
+          <div 
+            
+            className="lg:col-span-1">
             {/* <div className="sticky space-y-4 top-8"> */}
             <div className="space-y-4 top-8">
               {/* Navigation */}
@@ -1639,7 +1645,8 @@ const CVGeneratorPage = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
+      </div>
 
         {/* Conseils généraux */}
         {!previewMode && (
@@ -1662,7 +1669,7 @@ const CVGeneratorPage = () => {
             </div>
           </div>
         )}
-      </div>
+
     </div>
   );
 };
