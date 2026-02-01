@@ -236,19 +236,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
-      {/* Section Contactez nous */}
-      <div className="flex flex-col items-center justify-center py-8">
-        <p className="mb-2 text-base text-center text-muted-foreground">
-          Vous avez des questions ou souhaitez en savoir plus ? Notre équipe est à votre écoute.
-        </p>
-        <a
-          href="/contact"
-          className="px-6 py-3 text-lg font-semibold text-white transition rounded-full bg-primary hover:bg-primary/90"
-        >
-          Contactez nous
-        </a>
-      </div>
+
       
       {/* Section Catalogue de Produits */}
       {/* <UserProvider /> */}
@@ -333,6 +321,36 @@ const Home = () => {
 
       {/* Section CV FIBEM */}
       <ServicesSection />
+
+      {/* Section Contactez nous */}
+      {/* <div className="flex flex-col items-center justify-center px-4 py-12 my-10 shadow-lg rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/10">
+        <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary/10">
+          <svg
+            className="w-8 h-8 text-primary"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21.5 13.133c0 1.175-2.175 2.13-4.857 2.347a.75.75 0 0 0-.693.63l-.315 1.68A2.25 2.25 0 0 1 13.43 20h-2.86a2.25 2.25 0 0 1-2.205-2.21l-.315-1.68a.75.75 0 0 0-.693-.63C4.175 15.262 2 14.308 2 13.133c0-1.274 2.282-2.301 5.238-2.431a.75.75 0 0 0 .72-.651l.125-.827a2.25 2.25 0 0 1 2.215-1.924h2.484a2.25 2.25 0 0 1 2.215 1.924l.125.827a.75.75 0 0 0 .72.651c2.956.13 5.238 1.157 5.238 2.431Z"/>
+          </svg>
+        </div>
+        <h3 className="mb-3 text-2xl font-bold text-center text-primary">
+          Une question ? Besoin d'informations ?
+        </h3>
+        <p className="max-w-xl mb-6 text-base text-center text-muted-foreground">
+          Notre équipe se tient à votre disposition pour répondre à toutes vos interrogations ou demandes de renseignements.<br/>N’hésitez pas à nous contacter, nous vous répondrons rapidement !
+        </p>
+        <a
+          href="/contact"
+          className="flex items-center gap-3 px-8 py-3 text-lg font-semibold text-white transition rounded-full shadow-lg bg-primary hover:bg-primary/90 hover:scale-105 active:scale-100 focus:ring-2 focus:ring-primary/30 focus:outline-none"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.5v7a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 15.5v-7A2.5 2.5 0 0 1 5.5 6h13A2.5 2.5 0 0 1 21 8.5ZM21 9l-8.25 5.25a1 1 0 0 1-1.1 0L3 9" />
+          </svg>
+          Contactez-nous
+        </a>
+      </div> */}
     </div>
   );
 };
