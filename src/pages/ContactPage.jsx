@@ -298,7 +298,7 @@ const ContactPage = () => {
                         onChange={handleInputChange}
                         required
                         placeholder="Décrivez votre demande ou posez-nous vos questions..."
-                        rows={6}
+                        rows={15}
                         className="resize-none"
                       />
                     </div>

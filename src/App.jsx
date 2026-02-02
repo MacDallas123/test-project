@@ -26,6 +26,7 @@ import CVGeneratorPage from "./pages/CVGeneratorPage";
 import ScrollToTop from "./components/custom/ScrollToTop";
 import QuotePage from "./pages/QuotePage";
 import InvoicePage from "./pages/InvoicePage";
+import CreditNotePage from "./pages/CreditNotePage";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
           <Route path="/cv" element={<CVGeneratorPage />} />
           <Route path="/devis" element={<QuotePage />} />
           <Route path="/facture" element={<InvoicePage />} />
+          <Route path="/avoirs" element={<CreditNotePage />} />
         </Route>
 
         <Route path="/403" element={<IsForbidden />} />

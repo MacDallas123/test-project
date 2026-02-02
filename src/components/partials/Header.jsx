@@ -227,6 +227,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           label: t("mainMenu.service.formulaireFacture", "Facture"),
           href: "/facture",
         },
+        {
+          label: t("mainMenu.service.formulaireAvoirs", "Avoirs"),
+          href: "/avoirs",
+        },
       ],
     },
     {

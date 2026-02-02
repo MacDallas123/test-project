@@ -29,7 +29,11 @@ import {
   Sparkles,
   Shield,
   Receipt,
+  Hash,
+  DamIcon,
 } from "lucide-react";
+import { Select, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SelectContent } from "@radix-ui/react-select";
 
 const QuotePage = () => {
   const navigate = useNavigate();
@@ -37,6 +41,7 @@ const QuotePage = () => {
   // État du formulaire
   const [formData, setFormData] = useState({
     // Informations client
+    quoteNumber: "DE 0001",
     firstName: "",
     lastName: "",
     company: "",
@@ -45,6 +50,7 @@ const QuotePage = () => {
     address: "",
     city: "",
     postalCode: "",
+    quoteType: "",
 
     // Informations du projet
     projectName: "",
@@ -69,6 +75,8 @@ const QuotePage = () => {
     },
   ]);
 
+  const [quoteStatus, setQuoteStatus] = useState("draft");
+
   // Options de catégories
   const categories = [
     { value: "development", label: "Développement Web", icon: "💻" },
@@ -86,6 +94,23 @@ const QuotePage = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const getStatusBadge = () => {
+    const statusConfig = {
+      draft: { label: "Brouillon", variant: "secondary", color: "gray" },
+      sent: { label: "Envoyée", variant: "default", color: "blue" },
+      paid: { label: "Payée", variant: "default", color: "green" },
+      overdue: { label: "En retard", variant: "destructive", color: "red" },
+    };
+
+    const config = statusConfig[quoteStatus] || statusConfig.draft;
+
+    return (
+      <Badge variant={config.variant} className="text-xs">
+        {config.label}
+      </Badge>
+    );
   };
 
   // Gestion des articles
@@ -187,6 +212,15 @@ const QuotePage = () => {
               Remplissez le formulaire ci-dessous pour créer un devis
               professionnel personnalisé
             </p>
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <div className="flex items-center gap-2">
+                <Hash className="w-4 h-4 text-gray-500" />
+                <span className="font-mono text-sm text-gray-700">
+                  {formData.quoteNumber}
+                </span>
+              </div>
+              {getStatusBadge()}
+            </div>
           </motion.div>
         </div>
       </div>
@@ -304,6 +338,34 @@ const QuotePage = () => {
                           placeholder="Nom de votre entreprise"
                         />
                         <Building2 className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block mb-2 text-sm font-medium text-gray-700">
+                        Type de devis
+                      </label>
+                      <div className="relative">
+                        <select
+                          name="quoteType"
+                          value={formData.quoteType}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        >
+                          <option value="">Sélectionnez un type</option>
+                          <option value="0">Travaux Pose seule</option>
+                          <option value="1">Travaux Fourniture et Pose</option>
+                          <option value="2">Rénovation</option>
+                          <option value="3">Construction</option>
+                          <option value="4">Aménagement</option>
+                          <option value="5">Poseur & Monteur</option>
+                          <option value="6">Études et Réalisation Plans</option>
+                          <option value="7">Calcul Dimensionnement</option>
+                          <option value="8">Calcul de Vérification</option>
+                          <option value="9">Assistance Technique</option>
+                          <option value="10">Autre</option>
+                        </select>
+                        {/* <DamIcon className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" /> */}
                       </div>
                     </div>
 
@@ -709,6 +771,12 @@ const QuotePage = () => {
                           {total.toLocaleString()} XOF
                         </span>
                       </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2 text-md">
+                      Mention : <strong className="text-green-700">Bon Pour accord</strong>
                     </div>
 
                     {/* Validation */}

@@ -1,3 +1,4 @@
+// CreditNotePage.jsx - Page de génération d'avoirs
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -36,30 +37,36 @@ import {
   Eye,
   Check,
   X,
+  RotateCcw,
+  AlertTriangle,
+  FileX,
+  ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 
-const InvoicePage = () => {
+const CreditNotePage = () => {
   const navigate = useNavigate();
 
-  // Génération du numéro de facture
-  const generateInvoiceNumber = () => {
+  // Génération du numéro d'avoir
+  const generateCreditNoteNumber = () => {
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const random = Math.floor(Math.random() * 9999)
       .toString()
       .padStart(4, "0");
-    // return `INV-${year}${month}-${random}`;
-    return `FA 0001`;
+    // return `AV-${year}${month}-${random}`;
+    return `AV 0001`;
   };
 
   // État du formulaire
   const [formData, setFormData] = useState({
-    // Informations de la facture
-    invoiceNumber: generateInvoiceNumber(),
-    invoiceDate: new Date().toISOString().split("T")[0],
-    dueDate: "",
-    purchaseOrder: "",
+    // Informations de l'avoir
+    creditNoteNumber: generateCreditNoteNumber(),
+    creditNoteDate: new Date().toISOString().split("T")[0],
+    originalInvoiceNumber: "",
+    originalInvoiceDate: "",
+    creditReason: "",
     
     // Informations de l'émetteur (votre entreprise)
     companyName: "",
@@ -69,7 +76,6 @@ const InvoicePage = () => {
     companyPhone: "",
     companyEmail: "",
     companyTaxId: "",
-    companyLogo: "",
 
     // Informations du client
     clientName: "",
@@ -81,19 +87,37 @@ const InvoicePage = () => {
     clientPostalCode: "",
     clientTaxId: "",
 
-    // Conditions de paiement
-    paymentTerms: "30",
-    paymentMethod: "",
-    bankName: "",
-    bankAccount: "",
+    // Modalité de remboursement
+    refundMethod: "",
     
     // Notes
     notes: "",
-    termsAndConditions: "",
+    internalNotes: "",
   });
 
-  // État des lignes de facturation
-  const [invoiceItems, setInvoiceItems] = useState([
+  // Options de raisons d'avoir
+  const creditReasons = [
+    { value: "product_return", label: "Retour de marchandise", icon: "📦" },
+    { value: "defective_product", label: "Produit défectueux", icon: "⚠️" },
+    { value: "billing_error", label: "Erreur de facturation", icon: "❌" },
+    { value: "discount", label: "Remise commerciale", icon: "💰" },
+    { value: "price_adjustment", label: "Ajustement de prix", icon: "💵" },
+    { value: "cancelled_order", label: "Annulation de commande", icon: "🚫" },
+    { value: "goodwill", label: "Geste commercial", icon: "🤝" },
+    { value: "other", label: "Autre", icon: "📝" },
+  ];
+
+  // Options de méthodes de remboursement
+  const refundMethods = [
+    { value: "bank_transfer", label: "Virement Bancaire", icon: "🏦" },
+    { value: "original_payment", label: "Méthode de paiement d'origine", icon: "🔄" },
+    { value: "store_credit", label: "Avoir en magasin", icon: "🎫" },
+    { value: "cash", label: "Espèces", icon: "💵" },
+    { value: "check", label: "Chèque", icon: "📝" },
+  ];
+
+  // État des lignes de l'avoir
+  const [creditNoteItems, setCreditNoteItems] = useState([
     {
       id: 1,
       description: "",
@@ -102,20 +126,12 @@ const InvoicePage = () => {
       discount: 0,
       taxRate: 18,
       total: 0,
+      originalAmount: 0, // Montant d'origine pour référence
     },
   ]);
 
-  // Options de méthodes de paiement
-  const paymentMethods = [
-    { value: "bank_transfer", label: "Virement Bancaire", icon: "🏦" },
-    { value: "mobile_money", label: "Mobile Money", icon: "📱" },
-    { value: "cash", label: "Espèces", icon: "💵" },
-    { value: "check", label: "Chèque", icon: "📝" },
-    { value: "card", label: "Carte Bancaire", icon: "💳" },
-  ];
-
-  // État du statut de la facture
-  const [invoiceStatus, setInvoiceStatus] = useState("draft"); // draft, sent, paid, overdue
+  // État du statut de l'avoir
+  const [creditNoteStatus, setCreditNoteStatus] = useState("draft"); // draft, issued, processed, cancelled
 
   // Gestion du formulaire
   const handleInputChange = (e) => {
@@ -126,48 +142,11 @@ const InvoicePage = () => {
     }));
   };
 
-  // Calculer la date d'échéance automatiquement
-  const handleInvoiceDateChange = (e) => {
-    const invoiceDate = e.target.value;
-    const paymentTerms = parseInt(formData.paymentTerms) || 30;
-    
-    const date = new Date(invoiceDate);
-    date.setDate(date.getDate() + paymentTerms);
-    const dueDate = date.toISOString().split("T")[0];
-
-    setFormData((prev) => ({
-      ...prev,
-      invoiceDate,
-      dueDate,
-    }));
-  };
-
-  const handlePaymentTermsChange = (e) => {
-    const paymentTerms = e.target.value;
-    
-    if (formData.invoiceDate) {
-      const date = new Date(formData.invoiceDate);
-      date.setDate(date.getDate() + parseInt(paymentTerms));
-      const dueDate = date.toISOString().split("T")[0];
-
-      setFormData((prev) => ({
-        ...prev,
-        paymentTerms,
-        dueDate,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        paymentTerms,
-      }));
-    }
-  };
-
-  // Gestion des lignes de facturation
-  const addInvoiceItem = () => {
-    const newId = Math.max(...invoiceItems.map((item) => item.id), 0) + 1;
-    setInvoiceItems([
-      ...invoiceItems,
+  // Gestion des lignes de l'avoir
+  const addCreditNoteItem = () => {
+    const newId = Math.max(...creditNoteItems.map((item) => item.id), 0) + 1;
+    setCreditNoteItems([
+      ...creditNoteItems,
       {
         id: newId,
         description: "",
@@ -176,13 +155,14 @@ const InvoicePage = () => {
         discount: 0,
         taxRate: 18,
         total: 0,
+        originalAmount: 0,
       },
     ]);
   };
 
-  const updateInvoiceItem = (id, field, value) => {
-    setInvoiceItems(
-      invoiceItems.map((item) => {
+  const updateCreditNoteItem = (id, field, value) => {
+    setCreditNoteItems(
+      creditNoteItems.map((item) => {
         if (item.id === id) {
           const updatedItem = { ...item, [field]: value };
           
@@ -207,30 +187,65 @@ const InvoicePage = () => {
     );
   };
 
-  const removeInvoiceItem = (id) => {
-    if (invoiceItems.length > 1) {
-      setInvoiceItems(invoiceItems.filter((item) => item.id !== id));
+  const removeCreditNoteItem = (id) => {
+    if (creditNoteItems.length > 1) {
+      setCreditNoteItems(creditNoteItems.filter((item) => item.id !== id));
     }
   };
 
-  const duplicateInvoiceItem = (id) => {
-    const itemToDuplicate = invoiceItems.find((item) => item.id === id);
+  const duplicateCreditNoteItem = (id) => {
+    const itemToDuplicate = creditNoteItems.find((item) => item.id === id);
     if (itemToDuplicate) {
-      const newId = Math.max(...invoiceItems.map((item) => item.id), 0) + 1;
-      setInvoiceItems([
-        ...invoiceItems,
+      const newId = Math.max(...creditNoteItems.map((item) => item.id), 0) + 1;
+      setCreditNoteItems([
+        ...creditNoteItems,
         { ...itemToDuplicate, id: newId },
       ]);
     }
   };
 
+  // Importer les lignes depuis une facture (simulation)
+  const importFromInvoice = () => {
+    if (!formData.originalInvoiceNumber) {
+      alert("Veuillez entrer le numéro de facture d'origine");
+      return;
+    }
+    
+    // Simulation - Dans une vraie app, vous chargeriez les données depuis votre API
+    const simulatedInvoiceItems = [
+      {
+        id: Date.now() + 1,
+        description: "Service de développement web",
+        quantity: 1,
+        unitPrice: 50000,
+        discount: 0,
+        taxRate: 18,
+        total: 59000,
+        originalAmount: 59000,
+      },
+      {
+        id: Date.now() + 2,
+        description: "Hébergement annuel",
+        quantity: 1,
+        unitPrice: 15000,
+        discount: 10,
+        taxRate: 18,
+        total: 15930,
+        originalAmount: 15930,
+      },
+    ];
+    
+    setCreditNoteItems(simulatedInvoiceItems);
+    alert("Lignes importées depuis la facture");
+  };
+
   // Calculs financiers
-  const subtotal = invoiceItems.reduce((sum, item) => {
+  const subtotal = creditNoteItems.reduce((sum, item) => {
     const itemSubtotal = item.quantity * item.unitPrice;
     return sum + itemSubtotal;
   }, 0);
 
-  const totalDiscount = invoiceItems.reduce((sum, item) => {
+  const totalDiscount = creditNoteItems.reduce((sum, item) => {
     const itemSubtotal = item.quantity * item.unitPrice;
     const discountAmount = itemSubtotal * (item.discount / 100);
     return sum + discountAmount;
@@ -238,7 +253,7 @@ const InvoicePage = () => {
 
   const subtotalAfterDiscount = subtotal - totalDiscount;
 
-  const totalTax = invoiceItems.reduce((sum, item) => {
+  const totalTax = creditNoteItems.reduce((sum, item) => {
     const itemSubtotal = item.quantity * item.unitPrice;
     const discountAmount = itemSubtotal * (item.discount / 100);
     const subtotalAfterDiscount = itemSubtotal - discountAmount;
@@ -246,21 +261,22 @@ const InvoicePage = () => {
     return sum + taxAmount;
   }, 0);
 
-  const total = invoiceItems.reduce((sum, item) => sum + item.total, 0);
+  const total = creditNoteItems.reduce((sum, item) => sum + item.total, 0);
 
   // Validation du formulaire
   const isFormValid = () => {
     const requiredFields = [
-      "invoiceNumber",
-      "invoiceDate",
+      "creditNoteNumber",
+      "creditNoteDate",
       "companyName",
       "clientName",
-      "paymentMethod",
+      "creditReason",
+      "refundMethod",
     ];
     const hasRequiredFields = requiredFields.every(
       (field) => formData[field]?.toString().trim() !== "",
     );
-    const hasValidItems = invoiceItems.every(
+    const hasValidItems = creditNoteItems.every(
       (item) => item.description.trim() !== "" && item.unitPrice > 0,
     );
     return hasRequiredFields && hasValidItems;
@@ -270,54 +286,63 @@ const InvoicePage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isFormValid()) {
-      console.log("Facture générée:", {
+      console.log("Avoir généré:", {
         formData,
-        invoiceItems,
+        creditNoteItems,
         financials: { subtotal, totalDiscount, totalTax, total },
-        status: invoiceStatus,
+        status: creditNoteStatus,
       });
-      alert("Facture générée avec succès !");
+      alert("Avoir généré avec succès !");
     }
   };
 
-  // Actions sur la facture
+  // Actions sur l'avoir
   const saveAsDraft = () => {
-    setInvoiceStatus("draft");
-    alert("Facture enregistrée comme brouillon");
+    setCreditNoteStatus("draft");
+    alert("Avoir enregistré comme brouillon");
   };
 
-  const markAsSent = () => {
-    setInvoiceStatus("sent");
-    alert("Facture marquée comme envoyée");
+  const markAsIssued = () => {
+    setCreditNoteStatus("issued");
+    alert("Avoir marqué comme émis");
   };
 
-  const markAsPaid = () => {
-    setInvoiceStatus("paid");
-    alert("Facture marquée comme payée");
+  const markAsProcessed = () => {
+    setCreditNoteStatus("processed");
+    alert("Avoir marqué comme traité");
   };
 
-  const printInvoice = () => {
-    alert("Impression de la facture...");
+  const cancelCreditNote = () => {
+    if (confirm("Êtes-vous sûr de vouloir annuler cet avoir ?")) {
+      setCreditNoteStatus("cancelled");
+      alert("Avoir annulé");
+    }
+  };
+
+  const printCreditNote = () => {
+    alert("Impression de l'avoir...");
     window.print();
   };
 
-  const downloadInvoice = () => {
+  const downloadCreditNote = () => {
     alert("Fonctionnalité de téléchargement en cours de développement");
   };
 
   // Récupérer le badge de statut
   const getStatusBadge = () => {
     const statusConfig = {
-      draft: { label: "Brouillon", variant: "secondary", color: "gray" },
-      sent: { label: "Envoyée", variant: "default", color: "blue" },
-      paid: { label: "Payée", variant: "default", color: "green" },
-      overdue: { label: "En retard", variant: "destructive", color: "red" },
+      draft: { label: "Brouillon", variant: "secondary", color: "gray", icon: FileText },
+      issued: { label: "Émis", variant: "default", color: "blue", icon: Send },
+      processed: { label: "Traité", variant: "default", color: "green", icon: Check },
+      cancelled: { label: "Annulé", variant: "destructive", color: "red", icon: X },
     };
 
-    const config = statusConfig[invoiceStatus] || statusConfig.draft;
+    const config = statusConfig[creditNoteStatus] || statusConfig.draft;
+    const Icon = config.icon;
 
     return (
-      <Badge variant={config.variant} className="text-xs">
+      <Badge variant={config.variant} className="gap-1 text-xs">
+        <Icon className="w-3 h-3" />
         {config.label}
       </Badge>
     );
@@ -334,17 +359,17 @@ const InvoicePage = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary/10">
-              <Receipt className="w-8 h-8 text-primary" />
+              <RotateCcw className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="mb-4 text-4xl font-bold">Générer une Facture</h1>
+            <h1 className="mb-4 text-4xl font-bold">Générer un Avoir</h1>
             <p className="text-lg text-gray-600">
-              Créez des factures professionnelles en quelques clics
+              Créez des avoirs professionnels pour remboursements et corrections
             </p>
             <div className="flex items-center justify-center gap-4 mt-6">
               <div className="flex items-center gap-2">
                 <Hash className="w-4 h-4 text-gray-500" />
                 <span className="font-mono text-sm text-gray-700">
-                  {formData.invoiceNumber}
+                  {formData.creditNoteNumber}
                 </span>
               </div>
               {getStatusBadge()}
@@ -365,7 +390,22 @@ const InvoicePage = () => {
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
               {/* Colonne principale - Formulaire */}
               <div className="space-y-6 lg:col-span-2">
-                {/* Section 1: Informations de la facture */}
+                {/* Alerte d'information */}
+                <div className="flex items-start gap-3 p-4 border border-primary rounded-xl bg-primary/10">
+                  <AlertTriangle className="w-5 h-5 text-primary/70 shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-primary">
+                      À propos des avoirs
+                    </h3>
+                    <p className="mt-1 text-sm text-primary/70">
+                      Un avoir est un document qui annule tout ou partie d'une facture.
+                      Il permet de rembourser un client, corriger une erreur de facturation,
+                      ou accorder une remise après-vente.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section 1: Informations de l'avoir */}
                 <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
@@ -373,7 +413,7 @@ const InvoicePage = () => {
                     </div>
                     <div>
                       <h2 className="text-xl font-bold">
-                        Informations de la Facture
+                        Informations de l'Avoir
                       </h2>
                       <p className="text-sm text-gray-500">
                         Détails et références
@@ -384,13 +424,13 @@ const InvoicePage = () => {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* <div>
                       <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Numéro de Facture <span className="text-red-500">*</span>
+                        Numéro d'Avoir <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
                           type="text"
-                          name="invoiceNumber"
-                          value={formData.invoiceNumber}
+                          name="creditNoteNumber"
+                          value={formData.creditNoteNumber}
                           onChange={handleInputChange}
                           className="w-full px-4 py-2 pr-10 font-mono transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           required
@@ -401,28 +441,14 @@ const InvoicePage = () => {
 
                     <div>
                       <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Bon de Commande
-                      </label>
-                      <input
-                        type="text"
-                        name="purchaseOrder"
-                        value={formData.purchaseOrder}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        placeholder="PO-2026-001"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Date de Facture <span className="text-red-500">*</span>
+                        Date d'Avoir <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <input
                           type="date"
-                          name="invoiceDate"
-                          value={formData.invoiceDate}
-                          onChange={handleInvoiceDateChange}
+                          name="creditNoteDate"
+                          value={formData.creditNoteDate}
+                          onChange={handleInputChange}
                           className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           required
                         />
@@ -432,53 +458,79 @@ const InvoicePage = () => {
 
                     <div>
                       <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Date d'Échéance
+                        Facture d'Origine
                       </label>
-                      <div className="relative">
+                      <div className="flex gap-2">
                         <input
-                          type="date"
-                          name="dueDate"
-                          value={formData.dueDate}
+                          type="text"
+                          name="originalInvoiceNumber"
+                          value={formData.originalInvoiceNumber}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="flex-1 px-4 py-2 font-mono transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                          placeholder="INV-202602-0001"
                         />
-                        <Clock className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 pointer-events-none right-3 top-1/2" />
+                        <Button
+                          type="button"
+                          onClick={importFromInvoice}
+                          variant="outline"
+                          size="sm"
+                          className="gap-2 shrink-0"
+                          title="Importer les lignes de la facture"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
 
                     <div>
                       <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Conditions de Paiement
+                        Date Facture d'Origine
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          name="originalInvoiceDate"
+                          value={formData.originalInvoiceDate}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                        />
+                        <Calendar className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 pointer-events-none right-3 top-1/2" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-gray-700">
+                        Raison de l'Avoir <span className="text-red-500">*</span>
                       </label>
                       <select
-                        name="paymentTerms"
-                        value={formData.paymentTerms}
-                        onChange={handlePaymentTermsChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        name="creditReason"
+                        value={formData.creditReason}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                        required
                       >
-                        <option value="0">Immédiat</option>
-                        <option value="7">7 jours</option>
-                        <option value="15">15 jours</option>
-                        <option value="30">30 jours</option>
-                        <option value="45">45 jours</option>
-                        <option value="60">60 jours</option>
-                        <option value="90">90 jours</option>
+                        <option value="">Sélectionnez</option>
+                        {creditReasons.map((reason) => (
+                          <option key={reason.value} value={reason.value}>
+                            {reason.icon} {reason.label}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
                     <div>
                       <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Méthode de Paiement <span className="text-red-500">*</span>
+                        Méthode de Remboursement <span className="text-red-500">*</span>
                       </label>
                       <select
-                        name="paymentMethod"
-                        value={formData.paymentMethod}
+                        name="refundMethod"
+                        value={formData.refundMethod}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         required
                       >
                         <option value="">Sélectionnez</option>
-                        {paymentMethods.map((method) => (
+                        {refundMethods.map((method) => (
                           <option key={method.value} value={method.value}>
                             {method.icon} {method.label}
                           </option>
@@ -492,7 +544,7 @@ const InvoicePage = () => {
                 <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                      <Building2 className="w-5 h-5 text-primary" />
+                      <Building2 className="w-5 h-5 text-primary/90" />
                     </div>
                     <div>
                       <h2 className="text-xl font-bold">Votre Entreprise</h2>
@@ -512,7 +564,7 @@ const InvoicePage = () => {
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="Votre Entreprise SARL"
                         required
                       />
@@ -527,7 +579,7 @@ const InvoicePage = () => {
                         name="companyAddress"
                         value={formData.companyAddress}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="123 Avenue de la République"
                       />
                     </div>
@@ -541,7 +593,7 @@ const InvoicePage = () => {
                         name="companyCity"
                         value={formData.companyCity}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="Douala"
                       />
                     </div>
@@ -555,7 +607,7 @@ const InvoicePage = () => {
                         name="companyPostalCode"
                         value={formData.companyPostalCode}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="00237"
                       />
                     </div>
@@ -570,7 +622,7 @@ const InvoicePage = () => {
                           name="companyPhone"
                           value={formData.companyPhone}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                           placeholder="+237 6XX XX XX XX"
                         />
                         <Phone className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
@@ -587,14 +639,14 @@ const InvoicePage = () => {
                           name="companyEmail"
                           value={formData.companyEmail}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                           placeholder="contact@votreentreprise.com"
                         />
                         <Mail className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
                       </div>
                     </div>
 
-                    {/* <div className="md:col-span-2">
+                    <div className="md:col-span-2">
                       <label className="block mb-2 text-sm font-medium text-gray-700">
                         Numéro d'Identification Fiscale
                       </label>
@@ -603,10 +655,10 @@ const InvoicePage = () => {
                         name="companyTaxId"
                         value={formData.companyTaxId}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="FR12345678901"
                       />
-                    </div> */}
+                    </div>
                   </div>
                 </div>
 
@@ -614,12 +666,12 @@ const InvoicePage = () => {
                 <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                      <User className="w-5 h-5 text-primary" />
+                      <User className="w-5 h-5 text-primary/90" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold">Facturer À</h2>
+                      <h2 className="text-xl font-bold">Client</h2>
                       <p className="text-sm text-gray-500">
-                        Informations du client
+                        Bénéficiaire de l'avoir
                       </p>
                     </div>
                   </div>
@@ -634,8 +686,8 @@ const InvoicePage = () => {
                         name="clientName"
                         value={formData.clientName}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        placeholder="AAAA"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                        placeholder="Jean Dupont"
                         required
                       />
                     </div>
@@ -649,7 +701,7 @@ const InvoicePage = () => {
                         name="clientCompany"
                         value={formData.clientCompany}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="Client Entreprise SA"
                       />
                     </div>
@@ -664,7 +716,7 @@ const InvoicePage = () => {
                           name="clientEmail"
                           value={formData.clientEmail}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                           placeholder="client@email.com"
                         />
                         <Mail className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
@@ -681,7 +733,7 @@ const InvoicePage = () => {
                           name="clientPhone"
                           value={formData.clientPhone}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                           placeholder="+237 6XX XX XX XX"
                         />
                         <Phone className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
@@ -697,7 +749,7 @@ const InvoicePage = () => {
                         name="clientAddress"
                         value={formData.clientAddress}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="456 Boulevard Principal"
                       />
                     </div>
@@ -711,7 +763,7 @@ const InvoicePage = () => {
                         name="clientCity"
                         value={formData.clientCity}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="Yaoundé"
                       />
                     </div>
@@ -725,7 +777,7 @@ const InvoicePage = () => {
                         name="clientPostalCode"
                         value={formData.clientPostalCode}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="00237"
                       />
                     </div>
@@ -739,32 +791,32 @@ const InvoicePage = () => {
                         name="clientTaxId"
                         value={formData.clientTaxId}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                         placeholder="FR98765432101"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Section 4: Lignes de facturation */}
+                {/* Section 4: Lignes de l'avoir */}
                 <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                        <Package className="w-5 h-5 text-primary" />
+                        <Package className="w-5 h-5 text-primary/90" />
                       </div>
                       <div>
                         <h2 className="text-xl font-bold">
-                          Lignes de Facturation
+                          Lignes de l'Avoir
                         </h2>
                         <p className="text-sm text-gray-500">
-                          Produits et services facturés
+                          Montants à rembourser ou annuler
                         </p>
                       </div>
                     </div>
                     <Button
                       type="button"
-                      onClick={addInvoiceItem}
+                      onClick={addCreditNoteItem}
                       variant="outline"
                       size="sm"
                       className="gap-2"
@@ -775,33 +827,33 @@ const InvoicePage = () => {
                   </div>
 
                   <div className="space-y-4">
-                    {invoiceItems.map((item, index) => (
+                    {creditNoteItems.map((item, index) => (
                       <motion.div
                         key={item.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="p-4 transition-colors border border-gray-200 rounded-lg hover:border-primary/30"
+                        className="p-4 transition-colors border-2 rounded-lg border-primary/10 hover:border-primary/30 bg-orange-50/30"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs bg-white">
                             Ligne {index + 1}
                           </Badge>
                           <div className="flex gap-1">
                             <Button
                               type="button"
-                              onClick={() => duplicateInvoiceItem(item.id)}
+                              onClick={() => duplicateCreditNoteItem(item.id)}
                               variant="ghost"
                               size="sm"
-                              className="w-8 h-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                              className="w-8 h-8 p-0 text-primary/80 hover:text-primary/90 hover:bg-primary/10"
                               title="Dupliquer"
                             >
                               <Plus className="w-4 h-4" />
                             </Button>
-                            {invoiceItems.length > 1 && (
+                            {creditNoteItems.length > 1 && (
                               <Button
                                 type="button"
-                                onClick={() => removeInvoiceItem(item.id)}
+                                onClick={() => removeCreditNoteItem(item.id)}
                                 variant="ghost"
                                 size="sm"
                                 className="w-8 h-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
@@ -822,14 +874,14 @@ const InvoicePage = () => {
                               type="text"
                               value={item.description}
                               onChange={(e) =>
-                                updateInvoiceItem(
+                                updateCreditNoteItem(
                                   item.id,
                                   "description",
                                   e.target.value,
                                 )
                               }
-                              className="w-full px-3 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                              placeholder="Ex: Développement application web"
+                              className="w-full px-3 py-2 text-sm transition-colors bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                              placeholder="Ex: Remboursement produit défectueux"
                               required
                             />
                           </div>
@@ -843,13 +895,13 @@ const InvoicePage = () => {
                                 type="number"
                                 value={item.quantity}
                                 onChange={(e) =>
-                                  updateInvoiceItem(
+                                  updateCreditNoteItem(
                                     item.id,
                                     "quantity",
                                     Math.max(1, parseFloat(e.target.value) || 1),
                                   )
                                 }
-                                className="w-full px-3 py-2 text-sm text-center transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                className="w-full px-3 py-2 text-sm text-center transition-colors bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                                 min="1"
                                 step="0.01"
                               />
@@ -863,13 +915,13 @@ const InvoicePage = () => {
                                 type="number"
                                 value={item.unitPrice}
                                 onChange={(e) =>
-                                  updateInvoiceItem(
+                                  updateCreditNoteItem(
                                     item.id,
                                     "unitPrice",
                                     Math.max(0, parseFloat(e.target.value) || 0),
                                   )
                                 }
-                                className="w-full px-3 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                className="w-full px-3 py-2 text-sm transition-colors bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                                 placeholder="0"
                                 min="0"
                                 step="0.01"
@@ -885,13 +937,13 @@ const InvoicePage = () => {
                                   type="number"
                                   value={item.discount}
                                   onChange={(e) =>
-                                    updateInvoiceItem(
+                                    updateCreditNoteItem(
                                       item.id,
                                       "discount",
                                       Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)),
                                     )
                                   }
-                                  className="w-full px-3 py-2 pr-6 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                  className="w-full px-3 py-2 pr-6 text-sm transition-colors bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                                   placeholder="0"
                                   min="0"
                                   max="100"
@@ -909,13 +961,13 @@ const InvoicePage = () => {
                                 type="number"
                                 value={item.taxRate}
                                 onChange={(e) =>
-                                  updateInvoiceItem(
+                                  updateCreditNoteItem(
                                     item.id,
                                     "taxRate",
                                     Math.max(0, parseFloat(e.target.value) || 0),
                                   )
                                 }
-                                className="w-full px-3 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                className="w-full px-3 py-2 text-sm transition-colors bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
                                 placeholder="18"
                                 min="0"
                                 step="0.01"
@@ -926,7 +978,7 @@ const InvoicePage = () => {
                               <label className="block mb-2 text-sm font-medium text-gray-700">
                                 Total
                               </label>
-                              <div className="flex items-center h-10 px-3 py-2 text-sm font-semibold rounded-lg bg-gray-50 text-primary">
+                              <div className="flex items-center h-10 px-3 py-2 text-sm font-semibold bg-white border rounded-lg text-primary/90 border-primary/20">
                                 {item.total.toLocaleString()} XOF
                               </div>
                             </div>
@@ -937,65 +989,18 @@ const InvoicePage = () => {
                   </div>
                 </div>
 
-                {/* Section 5: Informations bancaires et notes */}
+                {/* Section 5: Notes */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  {/* Informations bancaires */}
-                  {/* <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                        <CreditCard className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold">
-                          Coordonnées Bancaires
-                        </h2>
-                        <p className="text-sm text-gray-500">
-                          Pour le paiement
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">
-                          Nom de la Banque
-                        </label>
-                        <input
-                          type="text"
-                          name="bankName"
-                          value={formData.bankName}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="Banque Atlantique"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">
-                          Numéro de Compte / IBAN
-                        </label>
-                        <input
-                          type="text"
-                          name="bankAccount"
-                          value={formData.bankAccount}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-2 font-mono text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="CM12 3456 7890 1234 5678 9012"
-                        />
-                      </div>
-                    </div>
-                  </div> */}
-
-                  {/* Notes */}
+                  {/* Notes client */}
                   <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                        <FileCheck className="w-5 h-5 text-primary" />
+                        <FileCheck className="w-5 h-5 text-primary/90" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold">Notes</h2>
+                        <h2 className="text-xl font-bold">Notes Client</h2>
                         <p className="text-sm text-gray-500">
-                          Informations additionnelles
+                          Visibles sur l'avoir
                         </p>
                       </div>
                     </div>
@@ -1004,37 +1009,35 @@ const InvoicePage = () => {
                       name="notes"
                       value={formData.notes}
                       onChange={handleInputChange}
-                      rows={3}
-                      className="w-full px-4 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="Merci pour votre confiance..."
+                      rows={4}
+                      className="w-full px-4 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                      placeholder="Notes visibles par le client..."
                     />
                   </div>
-                </div>
 
-                {/* Section 6: Conditions générales */}
-                <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                      <Shield className="w-5 h-5 text-primary" />
+                  {/* Notes internes */}
+                  <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+                        <Eye className="w-5 h-5 text-primary/90" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold">Notes Internes</h2>
+                        <p className="text-sm text-gray-500">
+                          Usage interne uniquement
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-xl font-bold">
-                        Conditions Générales
-                      </h2>
-                      <p className="text-sm text-gray-500">
-                        Termes et conditions
-                      </p>
-                    </div>
+
+                    <textarea
+                      name="internalNotes"
+                      value={formData.internalNotes}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className="w-full px-4 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
+                      placeholder="Notes internes (non visibles sur l'avoir)..."
+                    />
                   </div>
-
-                  <textarea
-                    name="termsAndConditions"
-                    value={formData.termsAndConditions}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className="w-full px-4 py-2 text-sm transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Paiement à réception de facture. Toute facture impayée après la date d'échéance entraînera des pénalités de retard..."
-                  />
                 </div>
               </div>
 
@@ -1047,18 +1050,18 @@ const InvoicePage = () => {
                   <div className="space-y-3">
                     <Button
                       type="submit"
-                      className="w-full gap-2"
+                      className="w-full gap-2 bg-primary/90 hover:bg-primary"
                       size="lg"
                       disabled={!isFormValid()}
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Générer la Facture
+                      Générer l'Avoir
                     </Button>
 
                     <div className="grid grid-cols-2 gap-2">
                       <Button
                         type="button"
-                        onClick={printInvoice}
+                        onClick={printCreditNote}
                         variant="outline"
                         size="sm"
                         className="gap-2"
@@ -1070,7 +1073,7 @@ const InvoicePage = () => {
 
                       <Button
                         type="button"
-                        onClick={downloadInvoice}
+                        onClick={downloadCreditNote}
                         variant="outline"
                         size="sm"
                         className="gap-2"
@@ -1085,13 +1088,13 @@ const InvoicePage = () => {
 
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-500">
-                        Statut de la facture
+                        Statut de l'avoir
                       </p>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <Button
                           type="button"
                           onClick={saveAsDraft}
-                          variant={invoiceStatus === "draft" ? "default" : "outline"}
+                          variant={creditNoteStatus === "draft" ? "default" : "outline"}
                           size="sm"
                           className="text-xs"
                         >
@@ -1099,21 +1102,32 @@ const InvoicePage = () => {
                         </Button>
                         <Button
                           type="button"
-                          onClick={markAsSent}
-                          variant={invoiceStatus === "sent" ? "default" : "outline"}
+                          onClick={markAsIssued}
+                          variant={creditNoteStatus === "issued" ? "default" : "outline"}
                           size="sm"
                           className="text-xs"
                         >
-                          Envoyée
+                          Émis
                         </Button>
                         <Button
                           type="button"
-                          onClick={markAsPaid}
-                          variant={invoiceStatus === "paid" ? "default" : "outline"}
+                          onClick={markAsProcessed}
+                          variant={creditNoteStatus === "processed" ? "default" : "outline"}
                           size="sm"
                           className="text-xs"
                         >
-                          <Check className="w-3 h-3" />
+                          <Check className="w-3 h-3 mr-1" />
+                          Traité
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={cancelCreditNote}
+                          variant={creditNoteStatus === "cancelled" ? "destructive" : "outline"}
+                          size="sm"
+                          className="text-xs"
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          Annuler
                         </Button>
                       </div>
                     </div>
@@ -1121,20 +1135,20 @@ const InvoicePage = () => {
                 </div>
 
                 {/* Récapitulatif Financier */}
-                <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+                <div className="p-6 bg-white border-2 shadow-sm border-primary/20 rounded-xl bg-gradient-to-br from-orange-50/50 to-white">
                   <h3 className="flex items-center gap-2 mb-4 text-lg font-bold">
-                    <Receipt className="w-5 h-5 text-primary" />
-                    Récapitulatif
+                    <RotateCcw className="w-5 h-5 text-primary/90" />
+                    Montant à Rembourser
                   </h3>
 
                   <div className="space-y-4">
                     {/* Liste condensée des lignes */}
-                    <div className="p-3 space-y-2 rounded-lg bg-gray-50">
+                    <div className="p-3 space-y-2 bg-white border rounded-lg border-primary/10">
                       <p className="text-xs font-medium text-gray-500">
-                        {invoiceItems.length} ligne
-                        {invoiceItems.length > 1 ? "s" : ""}
+                        {creditNoteItems.length} ligne
+                        {creditNoteItems.length > 1 ? "s" : ""}
                       </p>
-                      {invoiceItems.slice(0, 3).map((item) => (
+                      {creditNoteItems.slice(0, 3).map((item) => (
                         <div
                           key={item.id}
                           className="flex justify-between text-xs"
@@ -1142,15 +1156,15 @@ const InvoicePage = () => {
                           <span className="text-gray-600 truncate">
                             {item.description || "Sans nom"} (×{item.quantity})
                           </span>
-                          <span className="ml-2 font-medium shrink-0">
+                          <span className="ml-2 font-medium text-primary/90 shrink-0">
                             {item.total.toLocaleString()}
                           </span>
                         </div>
                       ))}
-                      {invoiceItems.length > 3 && (
+                      {creditNoteItems.length > 3 && (
                         <p className="text-xs text-center text-gray-400">
-                          +{invoiceItems.length - 3} autre
-                          {invoiceItems.length - 3 > 1 ? "s" : ""}
+                          +{creditNoteItems.length - 3} autre
+                          {creditNoteItems.length - 3 > 1 ? "s" : ""}
                         </p>
                       )}
                     </div>
@@ -1193,11 +1207,16 @@ const InvoicePage = () => {
 
                       <Separator />
 
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total TTC</span>
-                        <span className="text-primary">
-                          {total.toLocaleString()} XOF
-                        </span>
+                      <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-red-100">
+                        <div className="flex justify-between text-lg font-bold">
+                          <span>Total TTC</span>
+                          <span className="text-primary/90">
+                            {total.toLocaleString()} XOF
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-center text-primary">
+                          Montant à rembourser au client
+                        </p>
                       </div>
                     </div>
 
@@ -1207,8 +1226,7 @@ const InvoicePage = () => {
                         <div className="flex items-start gap-2">
                           <AlertCircle className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
                           <p className="text-xs text-yellow-700">
-                            Complétez tous les champs requis pour générer la
-                            facture
+                            Complétez tous les champs requis pour générer l'avoir
                           </p>
                         </div>
                       </div>
@@ -1219,7 +1237,7 @@ const InvoicePage = () => {
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                           <p className="text-xs text-green-700">
-                            Facture prête à être générée
+                            Avoir prêt à être généré
                           </p>
                         </div>
                       </div>
@@ -1227,22 +1245,22 @@ const InvoicePage = () => {
                   </div>
                 </div>
 
-                {/* Avantages */}
+                {/* Informations importantes */}
                 <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
                   <h4 className="mb-4 text-lg font-bold">
-                    Gestion Professionnelle
+                    À Savoir
                   </h4>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full shrink-0">
-                        <Sparkles className="w-4 h-4 text-blue-600" />
+                        <FileCheck className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
                         <h5 className="text-sm font-semibold">
-                          Factures professionnelles
+                          Document officiel
                         </h5>
                         <p className="text-xs text-gray-600">
-                          Format conforme et personnalisable
+                          L'avoir est un document comptable officiel
                         </p>
                       </div>
                     </div>
@@ -1253,24 +1271,24 @@ const InvoicePage = () => {
                       </div>
                       <div>
                         <h5 className="text-sm font-semibold">
-                          Sécurité garantie
+                          Traçabilité
                         </h5>
                         <p className="text-xs text-gray-600">
-                          Données protégées et sauvegardées
+                          Référence à la facture d'origine obligatoire
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full shrink-0">
-                        <DollarSign className="w-4 h-4 text-purple-600" />
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+                        <DollarSign className="w-4 h-4 text-primary/90" />
                       </div>
                       <div>
                         <h5 className="text-sm font-semibold">
-                          Suivi des paiements
+                          Impact comptable
                         </h5>
                         <p className="text-xs text-gray-600">
-                          Gestion simplifiée de vos finances
+                          Annule ou réduit la facture d'origine
                         </p>
                       </div>
                     </div>
@@ -1278,14 +1296,12 @@ const InvoicePage = () => {
                 </div>
 
                 {/* Informations légales */}
-                <div className="p-4 text-xs text-gray-500 border border-gray-200 rounded-lg bg-gray-50">
-                  <p className="mb-2 font-medium">ℹ️ Mentions légales :</p>
+                <div className="p-4 text-xs text-gray-500 border rounded-lg border-primary/20 bg-orange-50">
+                  <p className="mb-2 font-medium">⚠️ Mentions légales :</p>
                   <ul className="space-y-1 list-disc list-inside">
-                    <li>Pénalités de retard : 3 fois le taux d'intérêt légal</li>
-                    <li>Indemnité forfaitaire de recouvrement : 40 €</li>
-                    <li>
-                      Escompte pour paiement anticipé : selon conditions
-                    </li>
+                    <li>L'avoir doit faire référence à la facture d'origine</li>
+                    <li>Le montant ne peut excéder celui de la facture</li>
+                    <li>Conservation obligatoire pendant 10 ans</li>
                   </ul>
                 </div>
               </div>
@@ -1297,4 +1313,4 @@ const InvoicePage = () => {
   );
 };
 
-export default InvoicePage;
+export default CreditNotePage;
