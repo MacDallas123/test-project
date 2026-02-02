@@ -83,6 +83,12 @@ const Sidebar = () => {
       label: "Commandes",
       badge: "5",
     },
+    {
+      path: "/dashboard/articles",
+      icon: Package,
+      label: "Produits/Prestations",
+      badge: null,
+    },
     { path: "/dashboard/clients", icon: User2, label: "Clients", badge: "3" },
     { path: "/dashboard/mails", icon: Mail, label: "Mails", badge: null },
     {
@@ -93,12 +99,6 @@ const Sidebar = () => {
     },
     { path: "/dashboard/devis", icon: FileText, label: "Devis", badge: null },
     { path: "/dashboard/avoirs", icon: Receipt, label: "Avoirs", badge: null },
-    {
-      path: "/dashboard/articles",
-      icon: Package,
-      label: "Produits/Prestations",
-      badge: null,
-    },
   ];
 
   const secondaryItems = [

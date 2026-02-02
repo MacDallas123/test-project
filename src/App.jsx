@@ -53,9 +53,9 @@ function App() {
           <Route path="/dashboard/clients" element={<ClientsPage />} />
           <Route path="/dashboard/mails" element={<ClientsPage />} />
           <Route path="/dashboard/factures" element={<ClientsPage />} />
-          <Route path="/dashboard/devis" element={<ClientsPage />} />
+          {/* <Route path="/dashboard/devis" element={<ClientsPage />} />
           <Route path="/dashboard/avoirs" element={<ClientsPage />} />
-          <Route path="/dashboard/articles" element={<ClientsPage />} />
+          <Route path="/dashboard/articles" element={<ClientsPage />} /> */}
 
           <Route
             path="/dashboard"
