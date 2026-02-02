@@ -263,7 +263,7 @@ const QuotePage = () => {
                           value={formData.firstName}
                           onChange={handleInputChange}
                           className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="Jean"
+                          placeholder="AAA"
                           required
                         />
                         <User className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
@@ -281,7 +281,7 @@ const QuotePage = () => {
                           value={formData.lastName}
                           onChange={handleInputChange}
                           className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="Dupont"
+                          placeholder="BBBB"
                           required
                         />
                         <User className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
@@ -299,7 +299,7 @@ const QuotePage = () => {
                           value={formData.email}
                           onChange={handleInputChange}
                           className="w-full px-4 py-2 pr-10 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="jean.dupont@email.com"
+                          placeholder="contact@email.com"
                           required
                         />
                         <Mail className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />

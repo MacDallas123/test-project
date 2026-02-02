@@ -1,6 +1,6 @@
 // ApplicationFormPage.jsx
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRef, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +43,9 @@ const ApplicationFormPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const cvFileRef = useRef(null);
+  const motivationRef = useRef(null);
+  
   // Données de l'offre simulée
   const jobOffer = {
     id: parseInt(id) || 1,
@@ -963,7 +965,9 @@ const ApplicationFormPage = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="p-6 text-center border-2 border-dashed rounded-lg">
+                      <div className="p-6 text-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5" onClick={() => {
+                        cvFileRef.current.click();
+                      }}>
                         <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                         <p className="mb-2 text-sm text-muted-foreground">
                           Déposez votre CV ou cliquez pour sélectionner
@@ -977,6 +981,7 @@ const ApplicationFormPage = () => {
                           }
                           className="hidden"
                           id="cv-upload"
+                          ref={cvFileRef}
                         />
                         <Label htmlFor="cv-upload">
                           <Button type="button" variant="outline" as="span">
@@ -1045,7 +1050,9 @@ const ApplicationFormPage = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="p-6 text-center border-2 border-dashed rounded-lg">
+                      <div className="p-6 text-center border-2 border-dashed rounded-lg cursor-pointer hover:bg-primary/5" onClick={() => {
+                        motivationRef.current.click();
+                      }}>
                         <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                         <p className="mb-2 text-sm text-muted-foreground">
                           Déposez votre lettre de motivation
@@ -1059,6 +1066,7 @@ const ApplicationFormPage = () => {
                           }
                           className="hidden"
                           id="coverletter-upload"
+                          ref={motivationRef}
                         />
                         <Label htmlFor="coverletter-upload">
                           <Button type="button" variant="outline" as="span">
@@ -1394,13 +1402,13 @@ const ApplicationFormPage = () => {
 
             <div className="space-y-3">
               <Button asChild className="w-full">
-                <Link to="/jobs">
+                <Link to="/emploi">
                   <Briefcase className="w-4 h-4 mr-2" />
                   Voir d'autres offres
                 </Link>
               </Button>
               <Button variant="outline" asChild className="w-full">
-                <Link to="/profile">
+                <Link to="/dashboard/candidatures">
                   <User className="w-4 h-4 mr-2" />
                   Gérer mes candidatures
                 </Link>

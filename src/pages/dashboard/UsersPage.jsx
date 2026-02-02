@@ -97,9 +97,9 @@ const UsersPage = () => {
   const utilisateurs = [
     {
       id: 1,
-      nom: "Dupont",
-      prenom: "Jean",
-      email: "jean.dupont@example.com",
+      nom: "BBBB",
+      prenom: "AAA",
+      email: "contact@example.com",
       telephone: "+33 1 23 45 67 89",
       role: "admin",
       statut: "actif",
@@ -439,11 +439,11 @@ const UsersPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="new-nom">Nom</Label>
-                    <Input id="new-nom" placeholder="Dupont" />
+                    <Input id="new-nom" placeholder="BBBB" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-prenom">Prénom</Label>
-                    <Input id="new-prenom" placeholder="Jean" />
+                    <Input id="new-prenom" placeholder="AAA" />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -451,7 +451,7 @@ const UsersPage = () => {
                   <Input
                     id="new-email"
                     type="email"
-                    placeholder="jean.dupont@example.com"
+                    placeholder="contact@example.com"
                   />
                 </div>
                 <div className="space-y-2">

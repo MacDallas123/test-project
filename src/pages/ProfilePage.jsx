@@ -179,9 +179,9 @@ const ProfilePage = () => {
   const personalForm = useForm({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      firstName: "Jean",
-      lastName: "Dupont",
-      email: "jean.dupont@example.com",
+      firstName: "AAA",
+      lastName: "BBBB",
+      email: "contact@example.com",
       phone: "+33 6 12 34 56 78",
       accountType: "candidat",
       language: "fr",
@@ -343,7 +343,7 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-background">
       <div className="container px-4 py-8 mx-auto">
         {/* En-tête */}
-        <div className="flex flex-col gap-6 mb-8 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-6 px-4 mb-8 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Gestion du Profil</h1>
             <p className="text-muted-foreground">
@@ -365,7 +365,8 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        {/* <div className="grid gap-8 lg:grid-cols-3"> */}
+        <div className="flex justify-center">
           {/* Colonne latérale - Navigation */}
           {/* <div className="lg:col-span-1">
             <Card>
@@ -415,7 +416,8 @@ const ProfilePage = () => {
           </div> */}
 
           {/* Colonne principale - Contenu */}
-          <div className="lg:col-span-2">
+          {/* <div className="lg:col-span-2"> */}
+          <div className="min-w-full md:min-w-2xl">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full h-auto grid-cols-2 gap-2 sm:grid-cols-4">
                 <TabsTrigger
@@ -1046,7 +1048,7 @@ const ProfilePage = () => {
                         <h3 className="text-lg font-semibold">
                           Personnes à contacter
                         </h3>
-                        <Button
+                        {/* <Button
                           type="button"
                           variant="outline"
                           size="sm"
@@ -1054,7 +1056,7 @@ const ProfilePage = () => {
                         >
                           <Plus className="w-4 h-4" />
                           Ajouter
-                        </Button>
+                        </Button> */}
                       </div>
 
                       <div className="space-y-3">

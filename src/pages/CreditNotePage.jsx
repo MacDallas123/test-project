@@ -687,7 +687,7 @@ const CreditNotePage = () => {
                         value={formData.clientName}
                         onChange={handleInputChange}
                         className="w-full px-4 py-2 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent"
-                        placeholder="Jean Dupont"
+                        placeholder="AAA"
                         required
                       />
                     </div>

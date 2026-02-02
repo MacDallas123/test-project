@@ -104,9 +104,9 @@ const OrdersPage = () => {
     {
       id: "CMD-2024-001",
       client: {
-        nom: "Dupont",
-        prenom: "Jean",
-        email: "jean.dupont@example.com",
+        nom: "BBBB",
+        prenom: "AAA",
+        email: "contact@example.com",
         telephone: "+33 1 23 45 67 89",
         entreprise: "TechCorp",
         avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jean",

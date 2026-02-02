@@ -246,6 +246,7 @@ const CVGeneratorPage = () => {
   });
 
   const handleDownloadPDF = () => {
+    alert("Telechargement CV indisponible pour le moment");
     handlePrint();
   };
 
@@ -278,7 +279,7 @@ const CVGeneratorPage = () => {
                   onChange={(e) =>
                     handleInputChange("personal", "firstName", e.target.value)
                   }
-                  placeholder="Jean"
+                  placeholder="AAA"
                 />
               </div>
 
@@ -290,7 +291,7 @@ const CVGeneratorPage = () => {
                   onChange={(e) =>
                     handleInputChange("personal", "lastName", e.target.value)
                   }
-                  placeholder="Dupont"
+                  placeholder="BBBB"
                 />
               </div>
 
@@ -317,7 +318,7 @@ const CVGeneratorPage = () => {
                     onChange={(e) =>
                       handleInputChange("personal", "email", e.target.value)
                     }
-                    placeholder="jean.dupont@email.com"
+                    placeholder="contact@email.com"
                   />
                 </div>
               </div>

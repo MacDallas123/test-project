@@ -40,7 +40,7 @@ const Footer = () => {
   const mainMenus = [
     { label: t("mainMenu.home", "Accueil"), href: "/" },
     { label: t("mainMenu.foods", "Rechercher repas"), href: "/services" },
-    { label: t("mainMenu.job", "Rechercher emploi"), href: "/jobs" },
+    { label: t("mainMenu.job", "Rechercher emploi"), href: "/emploi" },
     { label: t("mainMenu.cv", "CV"), href: "/cv" },
     { label: t("mainMenu.contact", "Contact"), href: "/contact" },
     { label: t("mainMenu.facture", "Facture"), href: "/facture" },
