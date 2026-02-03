@@ -27,6 +27,7 @@ import ScrollToTop from "./components/custom/ScrollToTop";
 import QuotePage from "./pages/QuotePage";
 import InvoicePage from "./pages/InvoicePage";
 import CreditNotePage from "./pages/CreditNotePage";
+import SubscriptionPage from "./pages/SubscriptionPage";
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
           <Route path="/devis" element={<QuotePage />} />
           <Route path="/facture" element={<InvoicePage />} />
           <Route path="/avoirs" element={<CreditNotePage />} />
+          <Route path="/abonnements" element={<SubscriptionPage />} />
         </Route>
 
         <Route path="/403" element={<IsForbidden />} />

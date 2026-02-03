@@ -11,6 +11,7 @@ import {
   Menu,
   MoreVertical,
   Package,
+  Repeat,
   Search,
   Send,
   ServerIcon,
@@ -171,6 +172,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       icon: LayoutDashboard,
       label: t("userMenu.dashboard", "Tableau de bord"),
       href: "/dashboard",
+    },
+    {
+      icon: Repeat,
+      label: t("userMenu.subscriptions", "Abonnements"),
+      href: "/abonnements",
     },
     { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
 

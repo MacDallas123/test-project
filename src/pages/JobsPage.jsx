@@ -333,7 +333,8 @@ const JobsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary/5 via-white to-primary/5">
+      {/* <section className="bg-gradient-to-r from-primary/5 via-white to-primary/5"> */}
+      <section className="bg-primary/10">
         <div className="container px-4 py-12 mx-auto">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 text-sm font-medium rounded-full bg-primary/10 text-primary">
@@ -523,7 +524,7 @@ const JobsPage = () => {
               </div>
 
               {/* Devenir livreur */}
-              <div className="p-6 border border-gray-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50">
+              {/* <div className="p-6 border border-gray-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50">
                 <h3 className="mb-3 font-bold">🚴 Devenir livreur</h3>
                 <p className="mb-4 text-sm text-gray-600">
                   Rejoignez notre équipe de livreurs et gagnez en toute
@@ -535,7 +536,7 @@ const JobsPage = () => {
                     Postuler comme livreur
                   </Link>
                 </Button>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -697,7 +698,7 @@ const JobsPage = () => {
 
                       {/* Boutons d'action */}
                       <div className="flex gap-3">
-                        <Button
+                        {/* <Button
                           variant="outline"
                           className="flex-1 gap-2"
                           asChild
@@ -706,7 +707,7 @@ const JobsPage = () => {
                             <Utensils className="w-4 h-4" />
                             Voir le restaurant
                           </Link>
-                        </Button>
+                        </Button> */}
 
                         <Button
                           variant="default"
@@ -783,7 +784,7 @@ const JobsPage = () => {
             </div>
 
             {/* Section livreur */}
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <div className="p-8 border border-gray-200 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50">
                 <div className="flex flex-col items-center gap-8 md:flex-row">
                   <div className="flex items-center justify-center w-20 h-20 bg-green-100 rounded-full">
@@ -820,7 +821,7 @@ const JobsPage = () => {
                   </Button>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

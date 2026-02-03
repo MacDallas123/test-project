@@ -158,7 +158,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="mt-20 text-white border-t bg-linear-to-b bg-primary">
+    <footer className="mt-20 text-black border-t bg-linear-to-b bg-primary">
       <div className="container px-4 py-12 mx-auto">
         {/* Section principale */}
         {/* <div className="grid gap-8 mb-12 md:grid-cols-2 lg:grid-cols-4"> */}
@@ -177,7 +177,7 @@ const Footer = () => {
               <SiteTileForm1 />
             </Link>
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-accent">
+              <h3 className="mb-2 text-lg font-semibold text-secondary">
                 {t("footer.navigation", "Navigation")}
               </h3>
               <ul className="ml-4 space-y-1">
@@ -185,7 +185,7 @@ const Footer = () => {
                   <li key={item.href}>
                     <Link
                       to={item.href}
-                      className="text-sm text-white transition-colors hover:text-accent hover:underline"
+                      className="text-sm text-black transition-colors hover:text-accent hover:underline"
                     >
                       {item.label}
                     </Link>
@@ -207,7 +207,7 @@ const Footer = () => {
                 <div className="flex items-center gap-2 mb-2">
                   {/* <span role="img" aria-label="drapeau français" className="text-xl font-emoji">🇫🇷</span> */}
                   <ReactCountryFlag svg countryCode="FR" className="w-5 h-5" />
-                  <span className="text-xs font-semibold text-accent md:text-base">
+                  <span className="text-xs font-semibold text-secondary md:text-base">
                     FIBEM France
                   </span>
                 </div>
@@ -222,7 +222,7 @@ const Footer = () => {
                     <Phone className="w-4 h-4 " />
                     <a
                       href="tel:+33"
-                      className="text-sm transition-colors hover:text-primary"
+                      className="text-sm transition-colors hover:text-slate-700"
                     >
                       Tel: +33 6 05 51 14 32
                     </a>
@@ -234,7 +234,7 @@ const Footer = () => {
                     <Mail className="w-4 h-4 " />
                     <a
                       href="mailto:france@fibem.fr"
-                      className="text-sm transition-colors hover:text-primary"
+                      className="text-sm transition-colors hover:text-slate-700"
                     >
                       senfibem.paris@outlook.com
                     </a>
@@ -255,7 +255,7 @@ const Footer = () => {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white transition-colors bg-green-500 rounded hover:bg-green-600"
+                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-black transition-colors bg-green-500 rounded hover:bg-green-600"
                       onClick={() =>
                         window.open("https://wa.me/33605511432", "_blank")
                       }
@@ -278,7 +278,7 @@ const Footer = () => {
                 <div className="flex items-center gap-2 mb-2">
                   {/* <span role="img" aria-label="drapeau sénégalais" className="text-xl">🇸🇳</span> */}
                   <ReactCountryFlag svg countryCode="SN" className="w-5 h-5" />
-                  <span className="text-xs font-semibold text-accent md:text-base">
+                  <span className="text-xs font-semibold text-secondary md:text-base">
                     FIBEM Sénégal
                   </span>
                 </div>
@@ -293,7 +293,7 @@ const Footer = () => {
                     <Phone className="w-4 h-4 " />
                     <a
                       href="tel:+221"
-                      className="text-sm transition-colors hover:text-primary"
+                      className="text-sm transition-colors hover:text-slate-700"
                     >
                       Tel: +221 78 370 06 02
                     </a>
@@ -305,7 +305,7 @@ const Footer = () => {
                     <Mail className="w-4 h-4 " />
                     <a
                       href="mailto:senegal@fibem.fr"
-                      className="text-sm transition-colors hover:text-primary"
+                      className="text-sm transition-colors hover:text-slate-700"
                     >
                       senfibem.dakar@outlook.com
                     </a>
@@ -326,7 +326,7 @@ const Footer = () => {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white transition-colors bg-green-500 rounded hover:bg-green-600"
+                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-black transition-colors bg-green-500 rounded hover:bg-green-600"
                       onClick={() =>
                         window.open("https://wa.me/33605511432", "_blank")
                       }
@@ -349,7 +349,7 @@ const Footer = () => {
           {/* Newsletter */}
           {/* <div className="pt-4 mt-4 border-t border-border/40"> */}
           <div className="pt-4 mt-4 space-y-4 border-t border-border/40 lg:col-span-1">
-            <h4 className="mb-3 text-sm font-semibold text-accent">
+            <h4 className="mb-3 text-sm font-semibold text-secondary">
               {t("footer.newsletter", "Newsletter")}
             </h4>
             <form onSubmit={handleSubscribe} className="space-y-2">
@@ -445,7 +445,7 @@ const Footer = () => {
         {/* Comptes & Réseaux sociaux */}
         <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
           <div>
-            <h4 className="mb-3 font-semibold text-white">
+            <h4 className="mb-3 font-semibold text-black">
               {t("footer.social", "Suivez-nous")}
             </h4>
             <div className="flex gap-3">
@@ -457,7 +457,7 @@ const Footer = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-10 h-10 text-red-500 transition-all rounded-full bg-muted hover:bg-primary hover:text-white hover:scale-110"
+                    className="flex items-center justify-center w-10 h-10 text-red-500 transition-all rounded-full bg-muted hover:bg-primary hover:text-black hover:scale-110"
                     aria-label={social.label}
                   >
                     <Icon className="w-5 h-5" />
@@ -471,38 +471,38 @@ const Footer = () => {
         {/* Footer bottom */}
         <div className="pt-8 border-t border-border/40">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <p className="text-sm font-light text-center text-white/70">
+            <p className="text-sm font-light text-center text-black/70">
               &copy; {new Date().getFullYear()}{" "}
               <span className="text-2xl text-secondary">L</span>ivrer
               <span className="text-2xl text-secondary">N</span>ourriture.{" "}
               {t("footer.rights", "Tous droits réservés.")}
             </p>
 
-            <div className="flex flex-wrap justify-center gap-4 mr-2 text-sm font-light text-white/70">
+            <div className="flex flex-wrap justify-center gap-4 mr-2 text-sm font-light text-black/70">
               <Link
                 to="/privacy"
-                className="hover:text-primary hover:underline"
+                className="hover:text-slate-700 hover:underline"
               >
                 {t("footer.privacy", "Politique de confidentialité")}
               </Link>
-              <Link to="/terms" className="hover:text-primary hover:underline">
+              <Link to="/terms" className="hover:text-slate-700 hover:underline">
                 {t("footer.terms", "Conditions d'utilisation")}
               </Link>
               <Link
                 to="/cookies"
-                className="hover:text-primary hover:underline"
+                className="hover:text-slate-700 hover:underline"
               >
                 {t("footer.cookies", "Cookies")}
               </Link>
               <Link
                 to="/sitemap"
-                className="hover:text-primary hover:underline"
+                className="hover:text-slate-700 hover:underline"
               >
                 {t("footer.sitemap", "Plan du site")}
               </Link>
               <Link
                 to="/contact"
-                className="hover:text-primary hover:underline"
+                className="hover:text-slate-700 hover:underline"
               >
                 {t("footer.contact", "Contact")}
               </Link>

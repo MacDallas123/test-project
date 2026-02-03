@@ -229,9 +229,10 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary/5 via-white to-primary/5">
+      {/* <section className="bg-linear-to-r from-primary/10 via-white to-primary/10"> */}
+      <section className="bg-primary/10">
         <div className="container px-4 py-12 mx-auto">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="mb-4 text-4xl font-bold md:text-5xl">

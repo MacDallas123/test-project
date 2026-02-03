@@ -299,7 +299,7 @@ const ContactPage = () => {
                         required
                         placeholder="Décrivez votre demande ou posez-nous vos questions..."
                         rows={15}
-                        className="resize-none"
+                        //className="resize-none"
                       />
                     </div>
 
