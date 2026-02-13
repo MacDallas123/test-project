@@ -299,6 +299,7 @@ const ContactPage = () => {
                         required
                         placeholder="Décrivez votre demande ou posez-nous vos questions..."
                         rows={15}
+                        className="h-52"
                         //className="resize-none"
                       />
                     </div>

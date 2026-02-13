@@ -173,11 +173,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       label: t("userMenu.dashboard", "Tableau de bord"),
       href: "/dashboard",
     },
-    {
-      icon: Repeat,
-      label: t("userMenu.subscriptions", "Abonnements"),
-      href: "/abonnements",
-    },
+    // {
+    //   icon: Repeat,
+    //   label: t("userMenu.subscriptions", "Abonnements"),
+    //   href: "/abonnements",
+    // },
     { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
 
     // Temporary
@@ -251,13 +251,13 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           label: t("mainMenu.emploi.espaceRecruteur", "Espace recruteur"),
           href: "/dashboard/offres",
         },
-        {
+        /* {
           label: t("mainMenu.emploi.espaceStagiaire", "Espace stagiaire"),
           href: "/emploi/stagiaire",
-        },
+        }, */
         {
           label: t("mainMenu.emploi.espaceAbonnement", "Espace abonnement"),
-          href: "/emploi/abonnement",
+          href: "/abonnements",
         },
       ],
     },

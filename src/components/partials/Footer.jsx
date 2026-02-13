@@ -158,7 +158,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="mt-20 text-black border-t bg-linear-to-b bg-primary">
+    <footer className="mt-20 text-white border-t bg-linear-to-b bg-primary">
       <div className="container px-4 py-12 mx-auto">
         {/* Section principale */}
         {/* <div className="grid gap-8 mb-12 md:grid-cols-2 lg:grid-cols-4"> */}
@@ -185,7 +185,7 @@ const Footer = () => {
                   <li key={item.href}>
                     <Link
                       to={item.href}
-                      className="text-sm text-black transition-colors hover:text-accent hover:underline"
+                      className="text-sm text-white transition-colors hover:text-accent hover:underline"
                     >
                       {item.label}
                     </Link>
@@ -255,7 +255,7 @@ const Footer = () => {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-black transition-colors bg-green-500 rounded hover:bg-green-600"
+                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white transition-colors bg-green-500 rounded hover:bg-green-600"
                       onClick={() =>
                         window.open("https://wa.me/33605511432", "_blank")
                       }
@@ -326,7 +326,7 @@ const Footer = () => {
                     </button>
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-black transition-colors bg-green-500 rounded hover:bg-green-600"
+                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-white transition-colors bg-green-500 rounded hover:bg-green-600"
                       onClick={() =>
                         window.open("https://wa.me/33605511432", "_blank")
                       }
@@ -445,7 +445,7 @@ const Footer = () => {
         {/* Comptes & Réseaux sociaux */}
         <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
           <div>
-            <h4 className="mb-3 font-semibold text-black">
+            <h4 className="mb-3 font-semibold text-white">
               {t("footer.social", "Suivez-nous")}
             </h4>
             <div className="flex gap-3">
@@ -457,7 +457,7 @@ const Footer = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-10 h-10 text-red-500 transition-all rounded-full bg-muted hover:bg-primary hover:text-black hover:scale-110"
+                    className="flex items-center justify-center w-10 h-10 text-red-500 transition-all rounded-full bg-muted hover:bg-primary hover:text-white hover:scale-110"
                     aria-label={social.label}
                   >
                     <Icon className="w-5 h-5" />
@@ -471,14 +471,14 @@ const Footer = () => {
         {/* Footer bottom */}
         <div className="pt-8 border-t border-border/40">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <p className="text-sm font-light text-center text-black/70">
+            <p className="text-sm font-light text-center text-white/70">
               &copy; {new Date().getFullYear()}{" "}
               <span className="text-2xl text-secondary">L</span>ivrer
               <span className="text-2xl text-secondary">N</span>ourriture.{" "}
               {t("footer.rights", "Tous droits réservés.")}
             </p>
 
-            <div className="flex flex-wrap justify-center gap-4 mr-2 text-sm font-light text-black/70">
+            <div className="flex flex-wrap justify-center gap-4 mr-2 text-sm font-light text-white/70">
               <Link
                 to="/privacy"
                 className="hover:text-slate-700 hover:underline"
