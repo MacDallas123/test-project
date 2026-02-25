@@ -66,6 +66,10 @@ import {
 } from "lucide-react";
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
+import { useDispatch } from "react-redux";
+import { useAuth } from "@/hooks/useAuth";
+import { changeCurrentUserPassword, updateCurrentUserInformations, updateCurrentUserProfile } from "@/redux/slices/userSlice";
+import { thunkSucceed } from "@/lib/tools";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("personal");
@@ -103,6 +107,8 @@ const ProfilePage = () => {
       uploaded: "2024-01-10",
     },
   ]);
+  const [docUploadData, setDocUploadData] = useState([]);
+  
   const [leisureCenters, setLeisureCenters] = useState([
     "Football",
     "Lecture",
@@ -122,8 +128,12 @@ const ProfilePage = () => {
       phone: "+33 6 23 45 67 89",
     },
   ]);
+
   const { t } = useLanguage();
 
+  const dispatch = useDispatch();
+  const { isLoggedIn, user } = useAuth();
+  
   // Schéma de validation pour les informations personnelles
   const personalInfoSchema = z.object({
     firstName: z
@@ -179,16 +189,16 @@ const ProfilePage = () => {
   const personalForm = useForm({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      firstName: "AAA",
-      lastName: "BBBB",
-      email: "contact@example.com",
-      phone: "+33 6 12 34 56 78",
-      accountType: "candidat",
-      language: "fr",
-      company: "FIBEM Corp",
-      position: "Développeur Full Stack",
-      salary: "45000",
-      bio: "Développeur passionné avec 5 ans d'expérience dans le développement web. Spécialisé en React et Node.js.",
+      firstName: user?.firstName || "---",
+      lastName: user?.lastName || "---",
+      email: user?.email || "---",
+      phone: user?.phone || "---",
+      accountType: user?.role || "---",
+      language: user?.language || "---",
+      company: user?.informations?.company || "---",
+      position: user?.informations?.position || "---",
+      salary: user?.informations?.salary || "---",
+      bio: user?.informations?.biography || "---",
     },
   });
 
@@ -202,11 +212,11 @@ const ProfilePage = () => {
   });
 
   const [additionalInfo, setAdditionalInfo] = useState({
-    mobility: "local",
-    experienceYears: "5",
+    mobility: user?.informations?.mobility || "---",
+    experienceYears: user?.informations?.experience || "0",
     noticePeriod: "1",
     availability: "immediate",
-    workType: "full-time",
+    workType: user?.informations?.workType || "FULL_TIME",
     salaryVisible: false,
     profileVisible: true,
   });
@@ -224,28 +234,53 @@ const ProfilePage = () => {
 
   // Mobilité géographique
   const mobilityOptions = [
-    { value: "local", label: "Local (20km)", icon: MapPin },
-    { value: "region", label: "Régional", icon: MapPin },
-    { value: "national", label: "National", icon: MapPin },
-    { value: "international", label: "International", icon: Globe },
+    { value: "LOCAL", label: "Local (20km)", icon: MapPin },
+    { value: "REGIONAL", label: "Régional", icon: MapPin },
+    { value: "NATIONAL", label: "National", icon: MapPin },
+    { value: "INTERNATIONAL", label: "International", icon: Globe },
   ];
 
   // Types de travail
   const workTypes = [
-    { value: "full-time", label: "Temps plein" },
-    { value: "part-time", label: "Temps partiel" },
-    { value: "freelance", label: "Freelance" },
-    { value: "contract", label: "Contrat" },
-    { value: "internship", label: "Stage" },
+    { value: "FULL_TIME", label: "Temps plein" },
+    { value: "PART_TIME", label: "Temps partiel" },
+    { value: "FREELANCE", label: "Freelance" },
+    { value: "INTERNSHIP", label: "Stage" },
   ];
 
+  useEffect(() => {
+    setContacts(user?.informations?.contacts || []);
+  }, []);
+  
   // Soumission des informations personnelles
   const handlePersonalSubmit = async (data) => {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Informations mises à jour:", data);
-      // API call would go here
+      const ongoing = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        role: data.accountType,
+        language: data.language,
+      };
+      const response = await dispatch(updateCurrentUserProfile(ongoing));
+
+      const ongoing2 = {
+        mobility: data.mobility,
+        experience: data.experience,
+        biography: data.bio,
+        availability: "immediate",
+        workType: data.workType,
+        contacts: contacts,
+        cv: documents
+      };
+      const response2 = await dispatch(updateCurrentUserInformations(ongoing2));
+      //console.log("Informations mises à jour:", data);
+      
+      // if(thunkSucceed(response)) {
+      //   
+      // }
     } finally {
       setIsLoading(false);
     }
@@ -255,7 +290,7 @@ const ProfilePage = () => {
   const handlePasswordSubmit = async (data) => {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await dispatch(changeCurrentUserPassword(data));
       console.log("Mot de passe changé");
       passwordForm.reset();
     } finally {
@@ -308,6 +343,10 @@ const ProfilePage = () => {
         uploaded: new Date().toISOString().split("T")[0],
       };
       setDocuments([...documents, newDoc]);
+      setDocUploadData([...docUploadData, {
+        type: "cv",
+        file
+      }]);
     }
   };
 
@@ -562,15 +601,18 @@ const ProfilePage = () => {
                               <SelectValue placeholder="Sélectionnez un type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="particulier">
+                              <SelectItem value="INDIVIDUAL">
                                 Particulier
                               </SelectItem>
-                              <SelectItem value="candidat">Candidat</SelectItem>
-                              <SelectItem value="partenaire">
+                              <SelectItem value="CANDIDATE">Candidat</SelectItem>
+                              <SelectItem value="PARTNER">
                                 Partenaire
                               </SelectItem>
-                              <SelectItem value="entreprise">
-                                Entreprise
+                              <SelectItem value="PROFESSIONAL">
+                                Professionnel
+                              </SelectItem>
+                              <SelectItem value="ADMIN">
+                                Administrateur
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -588,10 +630,11 @@ const ProfilePage = () => {
                               <SelectValue placeholder="Sélectionnez une langue" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="fr">Français</SelectItem>
-                              <SelectItem value="en">English</SelectItem>
-                              <SelectItem value="es">Español</SelectItem>
-                              <SelectItem value="zh">中文</SelectItem>
+                              <SelectItem value="FRENCH">Français</SelectItem>
+                              <SelectItem value="ENGLISH">English</SelectItem>
+                              <SelectItem value="SPANISH">Español</SelectItem>
+                              <SelectItem value="CHINESE">中文</SelectItem>
+                              <SelectItem value="DEUTSCH">Allemand</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -600,7 +643,7 @@ const ProfilePage = () => {
                       <Separator />
 
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">
+                        {/* <h3 className="text-lg font-semibold">
                           Centres d'intérêt / Loisirs
                         </h3>
                         <div className="flex flex-wrap gap-2">
@@ -637,8 +680,8 @@ const ProfilePage = () => {
                             variant="outline"
                           >
                             <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
+                          </Button> 
+                        </div>*/}
                       </div>
 
                       <div className="space-y-2">

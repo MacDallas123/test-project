@@ -1,6 +1,6 @@
 // RegisterPage.jsx
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -44,41 +44,74 @@ import {
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
 import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
+import { availableLanguages } from "@/i18n/translations";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "@/redux/slices/AppSlice";
+import { registerUser, selectAuthError, selectAuthLoading } from "@/redux/slices/authSlice";
+import { thunkSucceed } from "@/lib/tools";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
   const { t } = useLanguage();
+
+  const location = useLocation();
+
+  const dispatch = useDispatch();
+  const selectUserFS = useSelector(selectUser);
+  const selectErrorFS = useSelector(selectAuthError);
+  const isLoading = useSelector(selectAuthLoading);
 
   // Schéma de validation avec Zod
   const registerSchema = z
     .object({
-      accountName: z
+      firstName: z
         .string()
         .min(2, {
           message: t(
-            "register.accountName.tooShort",
+            "register.firstName.tooShort",
             "Le nom de compte doit contenir au moins 2 caractères",
           ),
         })
         .max(50, {
           message: t(
-            "register.accountName.tooLong",
+            "register.firstName.tooLong",
             "Le nom de compte est trop long",
           ),
-        })
-        .regex(/^[a-zA-Z0-9_\-\. ]+$/, {
+        }),
+        /*.regex(/^[a-zA-Z ]+$/, {
           message: t(
-            "register.accountName.invalid",
-            "Caractères spéciaux non autorisés (sauf - _ . et espace)",
+            "register.firstName.invalid",
+            "Caractères spéciaux non autorisés (sauf espace)",
+          ),
+        }),*/
+
+      lastName: z
+        .string()
+        .min(2, {
+          message: t(
+            "register.lastName.tooShort",
+            "Le prenom de compte doit contenir au moins 2 caractères",
+          ),
+        })
+        .max(50, {
+          message: t(
+            "register.lastName.tooLong",
+            "Le prenom de compte est trop long",
           ),
         }),
+        /*.regex(/^[a-zA-Z ]+$/, {
+          message: t(
+            "register.lastName.invalid",
+            "Caractères spéciaux non autorisés (sauf espace)",
+          ),
+        }),*/
 
       phone: z
         .string()
-        .min(10, {
+        .min(7, {
           message: t(
             "register.phone.tooShort",
             "Le numéro de téléphone est trop court",
@@ -90,10 +123,10 @@ const RegisterPage = () => {
             "Le numéro de téléphone est trop long",
           ),
         })
-        .regex(/^[\+]?[0-9\s\-\(\)]{10,}$/, {
+        .regex(/^\+?[0-9\s\-()]{7,20}$/, {
           message: t(
             "register.phone.invalid",
-            "Format international invalide (ex: +33 1 23 45 67 89)",
+            "Format invalide (ex: +012 34 56 78)",
           ),
         }),
 
@@ -113,7 +146,7 @@ const RegisterPage = () => {
           ),
         }),
 
-      preferredLanguage: z
+      language: z
         .string()
         .min(1, {
           message: t(
@@ -144,13 +177,13 @@ const RegisterPage = () => {
         })
         .regex(/[0-9]/, {
           message: t("register.password.number", "Au moins un chiffre"),
-        })
-        .regex(/[^A-Za-z0-9]/, {
+        }),
+        /*.regex(/[^A-Za-z0-9]/, {
           message: t(
             "register.password.special",
             "Au moins un caractère spécial",
           ),
-        }),
+        }),*/
 
       confirmPassword: z
         .string()
@@ -180,11 +213,12 @@ const RegisterPage = () => {
   } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      accountName: "",
+      lastName: "",
+      firstName: "",
       phone: "",
       email: "",
       accountType: "",
-      preferredLanguage: "fr",
+      language: "FRENCH",
       password: "",
       confirmPassword: "",
     },
@@ -216,65 +250,73 @@ const RegisterPage = () => {
 
   const passwordStrength = getPasswordStrength(watchedFields.password);
 
+  const isRedirected = location.search.includes("redirect");
+
+  useEffect(() => {
+    try {
+      const data = JSON.parse(localStorage.getItem("contactData"));
+      setValue("firstName", data?.firstName);
+      setValue("lastName", data?.lastName);
+      setValue("email", data?.email);
+      setValue("phone", data?.phone);
+    } catch (err) {
+      console.log("CANNOT LOAD CONTACT DATAS : ", err);
+    }
+    
+  }, []);
+  
+
   // Soumission du formulaire
   const onSubmit = async (data) => {
-    setIsLoading(true);
+    // setIsLoading(true);
 
     try {
-      // Simuler un appel API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // console.log("Inscription avec:", {
+      //   ...data,
+      //   // Ne pas logger le mot de passe en production
+      //   password: "***",
+      //   confirmPassword: "***",
+      // });
 
-      console.log("Inscription avec:", {
-        ...data,
-        // Ne pas logger le mot de passe en production
-        password: "***",
-        confirmPassword: "***",
-      });
+      const response = await dispatch(registerUser(data));
 
-      // Redirection vers la page de confirmation
-      navigate("/register/success");
+      if(thunkSucceed(response)) {
+        navigate("/auth/login");
+      }
+
     } catch (error) {
       console.error("Erreur d'inscription:", error);
-    } finally {
+    } /*finally {
       setIsLoading(false);
-    }
+    }*/
   };
 
   // Types de compte disponibles
   const accountTypes = [
     {
-      value: "particulier",
+      value: "INDIVIDUAL",
       label: "Particulier",
       icon: UserCircle,
       description: "Pour les utilisateurs individuels",
     },
     {
-      value: "candidat",
+      value: "CANDIDATE",
       label: "Candidat",
       icon: User,
       description: "Recherche d'emploi ou de missions (candidats, stagiaires)",
     },
     {
-      value: "partenaire",
+      value: "PARTNER",
       label: "Partenaire",
       icon: Handshake,
       description: "Entreprises et prestataires",
     },
     {
-      value: "professionnel",
+      value: "PROFESSIONAL",
       label: "Professionnel",
       icon: UserCircle,
       description: "Entreprise, Freelances,...",
     },
-  ];
-
-  // Langues disponibles
-  const languages = [
-    { value: "fr", label: "Français", flag: "🇫🇷" },
-    { value: "en", label: "English", flag: "🇬🇧" },
-    { value: "es", label: "Español", flag: "🇪🇸" },
-    { value: "zh", label: "Chinese", flag: "🇨🇳" },
-    // { value: "zh", label: "中文", flag: "🇨🇳" },
   ];
 
   return (
@@ -298,46 +340,87 @@ const RegisterPage = () => {
           <Card className="border">
             <CardHeader className="text-center">
               <CardTitle className="text-xl">Créer un compte</CardTitle>
-              <CardDescription>
-                Remplissez les informations pour créer votre compte
-              </CardDescription>
+                {isRedirected ? (
+                  <CardDescription className="text-lg">
+                    Merci de nous contacter,
+                    Veuillez terminer la creation de votre compte pour pouvoir nous envoyer un message
+                  </CardDescription>
+                ) : (
+                  <CardDescription>
+                    Remplissez les informations pour créer votre compte
+                  </CardDescription>
+                )}
             </CardHeader>
 
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Informations de base */}
                 <div className="grid gap-6 md:grid-cols-2">
-                  {/* Nom de compte */}
+                  {/* Nom */}
                   <div className="space-y-2">
-                    <Label htmlFor="accountName">
-                      Nom de compte <span className="text-red-500">*</span>
+                    <Label htmlFor="lastName">
+                      Nom <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
                         <User className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <Input
-                        id="accountName"
+                        id="lastName"
                         type="text"
-                        placeholder="Votre nom d'utilisateur"
+                        placeholder="Votre nom"
                         className="pl-10"
-                        {...register("accountName")}
-                        aria-invalid={!!errors.accountName}
+                        {...register("lastName")}
+                        aria-invalid={!!errors.lastName}
                       />
-                      {watchedFields.accountName && !errors.accountName && (
+                      {watchedFields.lastName && !errors.lastName && (
                         <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
                           <CheckCircle className="w-4 h-4 text-green-500" />
                         </div>
                       )}
                     </div>
-                    {errors.accountName && (
+                    {errors.lastName && (
                       <div className="flex items-center gap-2 text-sm text-red-500">
                         <AlertCircle className="w-4 h-4" />
-                        <span>{errors.accountName.message}</span>
+                        <span>{errors.lastName.message}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Prénom */}
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">
+                      Prénom <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
+                        <User className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="Votre prénom"
+                        className="pl-10"
+                        {...register("firstName")}
+                        aria-invalid={!!errors.firstName}
+                      />
+                      {watchedFields.firstName && !errors.firstName && (
+                        <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        </div>
+                      )}
+                    </div>
+                    {errors.firstName && (
+                      <div className="flex items-center gap-2 text-sm text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{errors.firstName.message}</span>
                       </div>
                     )}
                   </div>
 
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
                   {/* Téléphone */}
                   <div className="space-y-2">
                     <Label htmlFor="phone">
@@ -369,38 +452,39 @@ const RegisterPage = () => {
                       </div>
                     )}
                   </div>
-                </div>
-
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email">
-                    Adresse email <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
-                      <Mail className="w-4 h-4 text-muted-foreground" />
+                  
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">
+                      Adresse email <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
+                        <Mail className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="votre@email.com"
+                        className="pl-10"
+                        {...register("email")}
+                        aria-invalid={!!errors.email}
+                      />
+                      {watchedFields.email && !errors.email && (
+                        <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        </div>
+                      )}
                     </div>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="votre@email.com"
-                      className="pl-10"
-                      {...register("email")}
-                      aria-invalid={!!errors.email}
-                    />
-                    {watchedFields.email && !errors.email && (
-                      <div className="absolute transform -translate-y-1/2 right-3 top-1/2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                    {errors.email && (
+                      <div className="flex items-center gap-2 text-sm text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{errors.email.message}</span>
                       </div>
                     )}
                   </div>
-                  {errors.email && (
-                    <div className="flex items-center gap-2 text-sm text-red-500">
-                      <AlertCircle className="w-4 h-4" />
-                      <span>{errors.email.message}</span>
-                    </div>
-                  )}
                 </div>
+
 
                 {/* Type de compte */}
                 <div className="space-y-2">
@@ -455,7 +539,7 @@ const RegisterPage = () => {
 
                 {/* Langue préférée */}
                 <div className="space-y-2">
-                  <Label htmlFor="preferredLanguage">
+                  <Label htmlFor="language">
                     Langue préférée <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
@@ -464,30 +548,30 @@ const RegisterPage = () => {
                     </div>
                     <Select
                       onValueChange={(value) => {
-                        setValue("preferredLanguage", value);
-                        trigger("preferredLanguage");
+                        setValue("language", value);
+                        trigger("language");
                       }}
-                      defaultValue={watchedFields.preferredLanguage}
+                      defaultValue={watchedFields.language}
                     >
                       <SelectTrigger className="pl-10">
                         <SelectValue placeholder="Sélectionnez une langue" />
                       </SelectTrigger>
                       <SelectContent>
-                        {languages.map((lang) => (
+                        {availableLanguages.map((lang) => (
                           <SelectItem key={lang.value} value={lang.value}>
                             <div className="flex items-center gap-2">
                               <span>{lang.flag}</span>
-                              <span>{lang.label}</span>
+                              <span>{lang.name}</span>
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  {errors.preferredLanguage && (
+                  {errors.language && (
                     <div className="flex items-center gap-2 text-sm text-red-500">
                       <AlertCircle className="w-4 h-4" />
-                      <span>{errors.preferredLanguage.message}</span>
+                      <span>{errors.language.message}</span>
                     </div>
                   )}
                 </div>
@@ -679,6 +763,13 @@ const RegisterPage = () => {
                   </div>
                 </div>
 
+                {selectErrorFS && (
+                  <div className="flex items-center gap-2 px-3 py-2 mt-2 text-sm text-red-500 rounded-sm bg-red-300/20">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{selectErrorFS}</span>
+                  </div>
+                )}
+                
                 {/* Bouton d'inscription */}
                 <Button
                   type="submit"

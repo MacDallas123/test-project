@@ -1,5 +1,5 @@
 // ContactPage.jsx
-import { useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,12 @@ import {
   Building2,
   MessageCircle,
   ArrowLeft,
+  AlertCircle,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { clearError, createContact, selectContactError, selectContactLoading } from "@/redux/slices/contactSlice";
+import { useAuth } from "@/hooks/useAuth";
+import { thunkSucceed } from "@/lib/tools";
 
 const contactInfo = [
   {
@@ -62,7 +67,15 @@ const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const dispatch = useDispatch();
+  const selectErrorFS = useSelector(selectContactError);
+  const isLoading = useSelector(selectContactLoading);
+
+  const { isLoggedIn, user } = useAuth();
+
   const handleInputChange = (e) => {
+    if(selectErrorFS) dispatch(clearError());
+    
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -70,42 +83,53 @@ const ContactPage = () => {
     }));
   };
 
+  useEffect(() => {
+    if(selectErrorFS) dispatch(clearError());
+    setFormData({
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.email,
+      phone: user?.phone,
+      address: "",
+      subject: "",
+      message: "",
+    })
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simuler l'envoi du formulaire
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    //const response = await dispatch(createContact(formData));
+    if(!isLoggedIn()) {
+      localStorage.setItem("contactData", JSON.stringify(formData));
+  
+      navigate("/auth/register?redirect=contact");
+    } else {
+      const response = await dispatch(createContact(formData));
 
-    console.log("Message envoyé:", formData);
+      if(thunkSucceed(response)) {
+        setIsSubmitted(true);
+        setFormData({
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          email: user?.email,
+          phone: user?.phone,
+          address: "",
+          subject: "",
+          message: "",
+        });
+    
+        setIsSubmitting(false);
+      }
+    }
+    //console.log("Message envoyé:", formData);
 
-    setIsSubmitted(true);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      address: "",
-      subject: "",
-      message: "",
-    });
-
-    setIsSubmitting(false);
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Bouton retour */}
-      {/* <div className="container px-4 pt-6 mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour
-        </Button>
-      </div> */}
 
       {/* Hero Section Contact */}
       {/* <section className="relative flex items-center justify-center py-8 overflow-hidden bg-primary"> */}
@@ -233,7 +257,7 @@ const ContactPage = () => {
                           htmlFor="address"
                           className="block mb-2 text-sm font-medium"
                         >
-                          Email *
+                          Adresse *
                         </label>
                         <Input
                           id="address"
@@ -310,7 +334,14 @@ const ContactPage = () => {
                         votre message pour un meilleur service.
                       </p>
                     </div>
-
+                    
+                    {selectErrorFS && (
+                      <div className="flex items-center gap-2 px-3 py-2 mt-2 text-sm text-red-500 rounded-sm bg-red-300/20">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{selectErrorFS}</span>
+                      </div>
+                    )}
+                    
                     <Button
                       type="submit"
                       variant="default"

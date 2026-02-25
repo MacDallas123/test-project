@@ -44,6 +44,7 @@ import CurrencySelector from "../custom/CurrencySelector";
 import SiteTileForm1 from "../custom/SiteTitleForm1";
 import { useDispatch, useSelector } from "react-redux";
 import { selectIsLoggedIn, setIsLoggedIn } from "@/redux/slices/AppSlice";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = ({ authPage = false, dasboardPage = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -60,8 +61,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const isLoggedIn = useSelector(selectIsLoggedIn);
+  // const isLoggedIn = useSelector(selectIsLoggedIn);
   const location = useLocation();
+
+  const { isLoggedIn, user, logout } = useAuth();
 
   // Fonction pour vérifier si un menu est actif
   const isMenuActive = (menuItem) => {
@@ -147,12 +150,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
   };
 
   // Pré remplissement
-  const user = {
-    first_name: "First Name",
-    last_name: "Last Name",
+  /*const user = {
+    firstName: "First Name",
+    lastName: "Last Name",
     role: "admin",
     email: "admin@gmail.com",
-  };
+  };*/
   //const isLoggedIn = () => false;
 
   // Contenu du menu utilisateur
@@ -342,11 +345,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
   };
 
   const handleLogout = async () => {
-    // Logique de déconnexion
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    dispatch(setIsLoggedIn(false));
+    await logout();
     console.log("LOGOUT DONE.");
-    navigate("/");
+    window.location.reload();
+    //navigate("/");
   };
 
   const toggleMobileMenu = () => {
@@ -438,7 +440,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           </div>
 
           {/* Desktop Navigation */}
-          {isLoggedIn ? (
+          {isLoggedIn() ? (
             <div className="items-center hidden gap-4 lg:flex">
               {/* Sélecteur de langue */}
               <LanguageSelector />
@@ -594,7 +596,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                   >
                     <div className="px-3 py-2 border-b">
                       <p className="text-sm font-medium">
-                        {user?.first_name} {user?.last_name}
+                        {user?.firstName} {user?.lastName}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {user?.role}
@@ -643,6 +645,131 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
               {/* Sélecteur de langue */}
               <LanguageSelector />
 
+              {mainMenus.map((item, idx) => {
+                const Icon = item.icon;
+                const isActive = isMenuActive(item);
+
+                if (!item.subMenus) {
+                  return (
+                    <Button
+                      key={item.href || idx}
+                      asChild
+                      variant="ghost"
+                      className="relative"
+                      title={item.label}
+                    >
+                      <Link className={getMenuClass(item)} to={item.href}>
+                        <div className="flex items-center gap-3">
+                          <Icon
+                            className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                          />
+                          {item.badge ? null : item.label}
+                        </div>
+
+                        {item.badge ? (
+                          <Badge className="absolute top-0 right-0 w-5 h-5 text-white translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                            {item.badge}
+                          </Badge>
+                        ) : null}
+                      </Link>
+                    </Button>
+                  );
+                }
+
+                // Menu with submenu - Hoverable
+                return (
+                  <div
+                    key={item.href || idx}
+                    className="relative"
+                    onMouseEnter={() => handleMouseEnter(idx)}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <Button
+                      variant="ghost"
+                      className={getDropdownButtonClass(item)}
+                      title={item.label}
+                    >
+                      {item.href ? (
+                        <Link
+                          to={item.href}
+                          className="flex items-center w-full h-full gap-2 transition-colors cursor-pointer"
+                          style={{ textDecoration: "none" }}
+                        >
+                          <div className="flex items-center gap-3">
+                            {Icon && (
+                              <Icon
+                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                              />
+                            )}
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
+                          />
+                        </Link>
+                      ) : (
+                        <div className="flex items-center gap-2 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            {Icon && (
+                              <Icon
+                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                              />
+                            )}
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
+                          />
+                        </div>
+                      )}
+
+                      {/* Indicateur visuel pour menu actif */}
+                      {isActive && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full"></div>
+                      )}
+                    </Button>
+
+                    {/* Dropdown on hover */}
+                    <AnimatePresence>
+                      {hoveredMenu === idx && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute left-0 z-50 w-56 mt-2 overflow-hidden bg-white border rounded-lg shadow-xl top-full min-w-56"
+                          onMouseEnter={() => handleMouseEnter(idx)}
+                          onMouseLeave={handleMouseLeave}
+                        >
+                          <div className="p-2">
+                            <div className="flex flex-col">
+                              {item.subMenus.map((sub, i) => {
+                                const isSubActive = isSubMenuActive(sub);
+                                return (
+                                  <Link
+                                    key={sub.href || i}
+                                    to={sub.href}
+                                    className={`px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent ${isSubActive ? "text-red-600 font-medium bg-red-50 border-l-2 border-red-600" : ""}`}
+                                    onClick={() => setHoveredMenu(null)}
+                                  >
+                                    <div className="flex items-center">
+                                      {isSubActive && (
+                                        <div className="w-1 h-4 mr-2 bg-red-600 rounded-full"></div>
+                                      )}
+                                      {sub.label}
+                                    </div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+              
               {/* Sélecteur de devise */}
               <CurrencySelector />
 
@@ -693,7 +820,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {isLoggedIn
+        {isLoggedIn()
           ? isMobileMenuOpen && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -708,7 +835,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate text-secondary">
-                      {user?.first_name} {user?.last_name}
+                      {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-xs truncate text-accent">
                       {user?.email}
@@ -802,9 +929,48 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mr-2 overflow-hidden bg-white shadow-lg lg:hidden"
+                className="mr-2 overflow-hidden shadow-lg bg-primary lg:hidden"
               >
                 <div className="container flex flex-col gap-4 py-4">
+                  
+                  {mainMenus.map((item, index) => {
+                    const IconComponent = item.icon;
+                    if (item.subMenus) {
+                      return (
+                        <CollapsibleMenuItem
+                          key={index}
+                          label={item.label}
+                          icon={<IconComponent className="w-4 h-4" />}
+                          children={item.subMenus}
+                          closeMobileMenu={closeMobileMenu}
+                        />
+                      );
+                    }
+
+                    return (
+                      <Link
+                        key={index}
+                        to={item.href}
+                        className="w-full"
+                        onClick={closeMobileMenu}
+                      >
+                        <Button
+                          variant="ghost"
+                          //className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
+                          className="justify-start w-full text-sm text-orange-300 transition-colors cursor-pointer hover:text-foreground hover:bg-accent/50"
+                          onClick={closeMobileMenu}
+                        >
+                          {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
+                          <IconComponent className="w-4 h-4 mr-3 text-red-500" />
+                          {item.label}
+                          {item.badge != null ? (
+                            <Badge>{item.badge}</Badge>
+                          ) : null}
+                        </Button>
+                      </Link>
+                    );
+                  })}
+
                   {authMenus.map((item) => {
                     const isActive = location.pathname === item.href;
                     return (
@@ -827,10 +993,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           `}
                         />
                         <span
-                          className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40 ${isActive ? "text-red-600" : ""}`}
+                          className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40 ${isActive ? "text-yellow-500" : "text-orange-300"}`}
                         >
                           <item.icon
-                            className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
+                            className={`text-destructive ${isActive ? "bg-white/20 rounded-full p-1 w-6 h-6" : "w-4 h-4"}`}
                           />
                           {item.label}
                         </span>

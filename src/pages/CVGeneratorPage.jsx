@@ -34,12 +34,20 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCV, createCV, generateCV, selectCurrentCV, selectCVError, selectCVLoading, updateCVById } from "@/redux/slices/cvSlice";
+import { thunkSucceed } from "@/lib/tools";
 
 const CVGeneratorPage = () => {
   const cvRef = useRef();
   const [activeSection, setActiveSection] = useState("personal");
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+
+  const dispatch = useDispatch();
+  const selectCurrentCVFS = useSelector(selectCurrentCV);
+  const selectLoadingFS = useSelector(selectCVLoading);
+  const selectErrorFS = useSelector(selectCVError);
 
   // États pour le CV
   const [cvData, setCvData] = useState({
@@ -231,12 +239,119 @@ const CVGeneratorPage = () => {
   };
 
   // Génération du CV
-  const handleGenerateCV = async () => {
+  /* const handleGenerateCV = async () => {
     setIsGenerating(true);
-    // Simulation de génération
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    const data = {
+
+    };
+    const response = await dispatch(createCV(data));
+
     setIsGenerating(false);
     setPreviewMode(true);
+  }; */
+
+  // Dans CVGeneratorPage.jsx, modifier la fonction handleGenerateCV
+
+  const handleGenerateCV = async () => {
+    setIsGenerating(true);
+    
+    try {
+      // 1. Préparer les données du CV
+      const cvPayload = {
+        //...cvData.personal,
+        personal: cvData.personal,
+        skills: cvData.skills,
+        education: cvData.education,
+        experience: cvData.experience,
+        projects: cvData.projects,
+        languages: cvData.languages,
+        certifications: cvData.certifications,
+        settings: cvData.settings,
+        title: `CV - ${cvData.personal.firstName || ''} ${cvData.personal.lastName || ''}`.trim() || "Nouveau CV"
+      };
+
+      let cvId;
+      
+      if (selectCurrentCVFS?.id) {
+        // Mettre à jour le CV existant
+        const updateResponse = await dispatch(updateCVById({ 
+          id: selectCurrentCVFS.id, 
+          data: cvPayload 
+        })).unwrap();
+        cvId = selectCurrentCVFS.id;
+        console.log("CV mis à jour:", updateResponse);
+      } else {
+        // Créer un nouveau CV
+        const createResponse = await dispatch(createCV(cvPayload)).unwrap();
+        cvId = createResponse.content.id;
+        console.log("CV créé:", createResponse);
+      }
+
+      if (!cvId) {
+        throw new Error("Impossible de récupérer l'ID du CV");
+      }
+
+      // 2. Générer le CV (PDF par défaut)
+      const generateResponse = await dispatch(generateCV({ 
+        id: cvId, 
+        format: 'pdf' 
+      })).unwrap();
+
+      console.log("CV généré:", generateResponse);
+
+      // 3. Ouvrir le CV généré dans un nouvel onglet
+      if (generateResponse.content?.url) {
+        window.open(generateResponse.content.url, '_blank');
+      } else {
+        // Fallback: afficher un message
+        alert("Le CV a été généré mais le lien n'est pas disponible");
+      }
+
+    } catch (error) {
+      console.error("Erreur lors de la génération du CV:", error);
+      
+      // Afficher une notification d'erreur
+      if (error.message) {
+        alert(`Erreur: ${error.message}`);
+      } else {
+        alert("Une erreur est survenue lors de la génération du CV");
+      }
+    } finally {
+      setIsGenerating(false);
+      setPreviewMode(false);
+      // setPreviewMode(true);
+    }
+  };
+
+  // Optionnel: Ajouter une fonction pour télécharger directement
+  const handleDownloadPDF = async () => {
+    if (selectCurrentCVFS?.id) {
+      setIsGenerating(true);
+      try {
+        const generateResponse = await dispatch(generateCV({ 
+          id: selectCurrentCVFS.id, 
+          format: 'pdf' 
+        })).unwrap();
+        
+        if (generateResponse.content?.url) {
+          // Créer un lien de téléchargement
+          const link = document.createElement('a');
+          link.href = generateResponse.content.url;
+          link.download = `CV_${cvData.personal.firstName || ''}_${cvData.personal.lastName || ''}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      } catch (error) {
+        console.error("Erreur de téléchargement:", error);
+      } finally {
+        setIsGenerating(false);
+      }
+    } else {
+      // Si pas de CV existant, d'abord générer le CV
+      await handleGenerateCV();
+    }
   };
 
   // Téléchargement PDF
@@ -245,10 +360,10 @@ const CVGeneratorPage = () => {
     documentTitle: `CV_${cvData.personal.firstName}_${cvData.personal.lastName}`,
   });
 
-  const handleDownloadPDF = () => {
+  /*const handleDownloadPDF = () => {
     alert("Telechargement CV indisponible pour le moment");
     handlePrint();
-  };
+  };*/
 
   // Sections du formulaire
   const sections = [
@@ -1478,7 +1593,7 @@ const CVGeneratorPage = () => {
               <div className="p-4 border rounded-lg">
                 <h3 className="mb-3 font-semibold">Actions</h3>
                 <div className="space-y-2">
-                  <Button
+                  {/* <Button
                     type="button"
                     variant="outline"
                     className="justify-start w-full gap-2"
@@ -1486,6 +1601,49 @@ const CVGeneratorPage = () => {
                   >
                     <Eye className="w-4 h-4" />
                     {previewMode ? "Masquer l'aperçu" : "Aperçu du CV"}
+                  </Button> */}
+
+                  <Button
+                    variant="outline"
+                    className="justify-start w-full gap-2"
+                    onClick={() => {
+                      dispatch(clearCV());
+                      // Réinitialiser le CV
+                      setCvData({
+                        personal: {
+                          firstName: "",
+                          lastName: "",
+                          title: "",
+                          email: "",
+                          phone: "",
+                          address: "",
+                          city: "",
+                          postalCode: "",
+                          country: "France",
+                          linkedin: "",
+                          github: "",
+                          portfolio: "",
+                          summary: "",
+                        },
+                        skills: [],
+                        education: [],
+                        experience: [],
+                        projects: [],
+                        languages: [],
+                        certifications: [],
+                        settings: {
+                          template: "modern",
+                          color: "#3b82f6",
+                          font: "Inter",
+                          showPhoto: false,
+                          photoUrl: "",
+                        },
+                      });
+                      setPreviewMode(false);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Nouveau CV
                   </Button>
 
                   <Button

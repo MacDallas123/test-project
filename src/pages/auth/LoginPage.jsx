@@ -1,5 +1,5 @@
 // LoginPage.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +37,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAction, selectUser, setIsLoggedIn } from "@/redux/slices/AppSlice";
+import { clearError, loginUser, selectAuthError } from "@/redux/slices/authSlice";
+import { thunkSucceed } from "@/lib/tools";
 
 //type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -53,6 +55,7 @@ const LoginPage = () => {
   
   const dispatch = useDispatch();
   const selectUserFS = useSelector(selectUser);
+  const selectErrorFS = useSelector(selectAuthError);
 
   const { t } = useLanguage();
 
@@ -76,7 +79,7 @@ const LoginPage = () => {
         {
           message: t(
             "login.identifier.incorrect",
-            "Veuillez entrer un email valide ou un numéro de téléphone",
+            "Veuillez entrer un email valide ou un numéro de téléphone (format international)",
           ),
         },
       ),
@@ -125,48 +128,34 @@ const LoginPage = () => {
     }
   };
 
+  useEffect(() => {
+    dispatch(clearError());
+  }, []);
+
+  const onFieldChange = () => {
+      dispatch(clearError());
+  }
+
   // Soumission du formulaire
   const onSubmit = async (data) => {
     setIsLoading(true);
 
     try {
-      // Simuler un appel API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      dispatch(setIsLoggedIn(true));
+      const response = await dispatch(loginUser(data));
 
-      console.log("Connexion avec:", data);
+      // console.log("Connexion avec:", data);
+
+      if(thunkSucceed(response)) {
+        navigate("/");
+      }
 
       // Redirection vers le dashboard
       // navigate("/dashboard");
-      navigate("/");
     } catch (error) {
       console.error("Erreur de connexion:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Connexion avec les comptes de démo
-  const handleDemoLogin = (type, identifier, password) => {
-    dispatch(loginAction({ identifier, password }));
-    /*setIsLoading(true);
-    
-    const demoCredentials = {
-      user: { identifier: "client@demo.com", password: "demo123" },
-      provider: { identifier: "prestataire@demo.com", password: "demo123" },
-      admin: { identifier: "admin@fibem.com", password: "demo123" },
-    };
-    
-    const demo = demoCredentials[type];
-    
-    setValue("identifier", demo.identifier);
-    setValue("password", demo.password);
-    
-    setTimeout(() => {
-      console.log(`Connexion démo ${type}:`, demo);
-      navigate("/dashboard");
-      setIsLoading(false);
-    }, 800);*/
   };
 
   return (
@@ -220,7 +209,10 @@ const LoginPage = () => {
                       )}
                       className="pl-10"
                       {...register("identifier", {
-                        onChange: (e) => detectIdentifierType(e.target.value),
+                        onChange: (e) => {
+                          onFieldChange();
+                          detectIdentifierType(e.target.value);
+                        },
                       })}
                       aria-invalid={!!errors.identifier}
                     />
@@ -258,7 +250,9 @@ const LoginPage = () => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Votre mot de passe"
                       className="pl-10 pr-10"
-                      {...register("password")}
+                      {...register("password", {
+                        onChange: () => onFieldChange()
+                      })}
                       aria-invalid={!!errors.password}
                     />
                     <button
@@ -293,7 +287,9 @@ const LoginPage = () => {
                       type="checkbox"
                       id="rememberMe"
                       className="w-4 h-4 border rounded border-input"
-                      {...register("rememberMe")}
+                      {...register("rememberMe", {
+                        onChange: () => onFieldChange()
+                      })}
                     />
                     <label
                       htmlFor="rememberMe"
@@ -310,6 +306,13 @@ const LoginPage = () => {
                     </span>
                   </div>
                 </div>
+                
+                {selectErrorFS && (
+                  <div className="flex items-center gap-2 px-3 py-2 mt-2 text-sm text-red-500 rounded-sm bg-red-300/20">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{selectErrorFS}</span>
+                  </div>
+                )}
 
                 {/* Bouton de connexion */}
                 <Button
