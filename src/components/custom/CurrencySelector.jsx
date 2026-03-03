@@ -100,11 +100,11 @@ const CurrencySelector = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex flex-col gap-1 px-2 md:flex-row text-primary-foreground"
+          className="flex flex-col gap-1 px-1 md:flex-row text-primary-foreground"
         >
           <div className="flex items-center gap-1">
             {currentCurrency.icon}
-            <span className="hidden text-sm font-medium md:block">
+            <span className="hidden text-xs font-medium lg:text-sm md:block">
               {currentCurrency.code}
             </span>
           </div>

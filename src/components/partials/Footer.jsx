@@ -239,14 +239,14 @@ const Footer = () => {
                       senfibem.paris@outlook.com
                     </a>
                   </li>
-                  <li className="flex items-center gap-3">
+                  <li className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium transition-colors bg-white border rounded hover:bg-gray-100 text-primary border-border"
+                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium transition-colors bg-white border rounded hover:bg-gray-100 text-primary border-border whitespace-nowrap"
                       onClick={() =>
                         window.open(
                           "https://maps.google.com/?q=51 Rue du Grévarin – 27200 Vernon",
-                          "_blank",
+                          "_blank"
                         )
                       }
                     >
@@ -310,10 +310,10 @@ const Footer = () => {
                       senfibem.dakar@outlook.com
                     </a>
                   </li>
-                  <li className="flex items-center gap-3">
+                  <li className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium transition-colors bg-white border rounded hover:bg-gray-100 text-primary border-border"
+                      className="flex items-center gap-2 px-3 py-1 text-sm font-medium transition-colors bg-white border rounded hover:bg-gray-100 text-primary border-border whitespace-nowrap"
                       onClick={() =>
                         window.open(
                           "https://maps.google.com/?q=51 Rue du Grévarin – 27200 Vernon",
@@ -443,7 +443,7 @@ const Footer = () => {
         </div>
 
         {/* Comptes & Réseaux sociaux */}
-        <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
+        {/* <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
           <div>
             <h4 className="mb-3 font-semibold text-white">
               {t("footer.social", "Suivez-nous")}
@@ -466,7 +466,7 @@ const Footer = () => {
               })}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Footer bottom */}
         <div className="pt-8 border-t border-border/40">

@@ -129,7 +129,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     }
 
     const baseClass =
-      "relative flex items-center gap-2 transition-colors cursor-pointer ";
+      `relative flex items-center gap-2 px-1 transition-colors cursor-pointer text-xs lg:text-md `;
 
     if (isActive) {
       return baseClass + "text-red-600 font-semibold";
@@ -143,10 +143,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     const isActive = isMenuActive(menuItem);
 
     if (isActive) {
-      return "relative group text-red-600 font-semibold hover:text-red-700";
+      return "relative group text-red-600 font-semibold hover:text-red-700 px-1";
     }
 
-    return "relative group text-primary-foreground hover:text-black";
+    return "relative group text-primary-foreground hover:text-black px-1";
   };
 
   // Pré remplissement
@@ -277,14 +277,14 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       label: t("authMenu.login", "Connexion"),
       href: "/auth/login",
       className:
-        "px-4 py-2 rounded-md text-white border border-primary bg-destructive/90 transition-colors duration-200 hover:bg-destructive hover:text-white",
+        "px-4 py-2 text-xs rounded-md text-white border border-primary bg-destructive/90 transition-colors duration-200 hover:bg-destructive hover:text-white",
     },
     {
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
       href: "/auth/register",
       className:
-        "px-4 py-2 rounded-md bg-primary/70 text-white border border-primary transition-colors duration-200 hover:text-destructive hover:bg-transparent",
+        "px-4 py-2 text-xs rounded-md bg-primary/70 text-white border border-primary transition-colors duration-200 hover:text-destructive hover:bg-transparent",
     },
   ];
 
@@ -381,11 +381,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
             className="flex items-center gap-3 group"
             onClick={closeMobileMenu}
           >
-            <div className="flex items-center justify-center w-10 h-10 transition-all duration-300 md:w-16 md:h-16 rounded-xl group-hover:scale-110">
+            <div className="flex items-center justify-center w-10 h-10 transition-all duration-300 xl:w-16 xl:h-16 rounded-xl group-hover:scale-110">
               <img src={Logo} alt="LOGO FIBEM" />
             </div>
             {/* <div className="flex flex-col">
-              <span className="text-lg font-bold md:text-xl bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-primary-foreground">
+              <span className="text-lg font-bold xl:text-xl bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-primary-foreground">
                 <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture
               </span>
             </div> */}
@@ -393,7 +393,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           </Link>
 
           {/* Recherche */}
-          <div className="relative flex-1 hidden w-full max-w-md px-4 lg:block">
+          <div className="relative flex-1 hidden w-full max-w-md px-4 md:block">
             <Input
               type="text"
               placeholder={t("search_placeholder", "Rechercher")}
@@ -408,7 +408,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           {/* Mobile search icon */}
           <div>
             <Button
-              className="flex items-center justify-center p-2 text-black transition bg-transparent rounded-full lg:hidden"
+              className="flex items-center justify-center p-2 px-2 transition bg-white/80 text-destructive md:hidden"
               aria-label={t("search") || "Recherche"}
               onClick={toggleMobileSearch}
             >
@@ -441,7 +441,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
           {/* Desktop Navigation */}
           {isLoggedIn() ? (
-            <div className="items-center hidden gap-4 lg:flex">
+            <div className="items-center hidden gap-2 2xl:flex">
               {/* Sélecteur de langue */}
               <LanguageSelector />
 
@@ -458,11 +458,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       key={item.href || idx}
                       asChild
                       variant="ghost"
-                      className="relative"
+                      className="relative px-1"
                       title={item.label}
                     >
                       <Link className={getMenuClass(item)} to={item.href}>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
                           <Icon
                             className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
                           />
@@ -641,7 +641,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="items-center hidden gap-4 lg:flex">
+            <div className="items-center hidden gap-2 xl:flex">
               {/* Sélecteur de langue */}
               <LanguageSelector />
 
@@ -655,11 +655,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       key={item.href || idx}
                       asChild
                       variant="ghost"
-                      className="relative"
+                      className="relative px-1"
                       title={item.label}
                     >
                       <Link className={getMenuClass(item)} to={item.href}>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
                           <Icon
                             className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
                           />
@@ -695,7 +695,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           className="flex items-center w-full h-full gap-2 transition-colors cursor-pointer"
                           style={{ textDecoration: "none" }}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
                             {Icon && (
                               <Icon
                                 className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
@@ -709,7 +709,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                         </Link>
                       ) : (
                         <div className="flex items-center gap-2 transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
                             {Icon && (
                               <Icon
                                 className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
@@ -786,7 +786,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           )}
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2 xl:hidden">
             {/* Sélecteur de langue mobile */}
             <LanguageSelector />
 
@@ -827,7 +827,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="my-2 overflow-auto bg-primary shadow-lg lg:hidden max-h-[500px]"
+                className="my-2 overflow-auto bg-primary shadow-lg xl:hidden max-h-[500px]"
               >
                 <div className="flex items-center gap-3 p-3 border border-border/50 bg-accent/10">
                   <div className="flex items-center justify-center w-10 h-10 text-sm font-medium rounded-full text-secondary-foreground bg-secondary">
@@ -929,9 +929,9 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mr-2 overflow-hidden shadow-lg bg-primary lg:hidden"
+                className="mr-2 overflow-hidden shadow-lg bg-primary xl:hidden"
               >
-                <div className="container flex flex-col gap-4 py-4">
+                <div className="container flex flex-col gap-2 py-4">
                   
                   {mainMenus.map((item, index) => {
                     const IconComponent = item.icon;

@@ -25,7 +25,7 @@ const LanguageSelector = () => {
           <div className="flex items-center gap-1">
             {/* <Globe className="w-4 h-4" /> */}
             <ReactCountryFlag svg countryCode={flag} className="w-4 h-4" />
-            <span className="hidden text-sm font-medium uppercase md:block">
+            <span className="hidden text-xs font-medium uppercase lg:text-sm md:block">
               {language}
             </span>
           </div>
