@@ -27,8 +27,11 @@ import Plat1 from "@/assets/hero.avif";
 import Plat2 from "@/assets/hero.avif";
 import Plat3 from "@/assets/hero.avif";
 import Plat4 from "@/assets/hero.avif";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const ServicesSection = () => {
+  const { formatPriceFrom } = useCurrency();
+  
   // Données des plats populaires
   const popularMeals = [
     {
@@ -36,7 +39,7 @@ const ServicesSection = () => {
       title: "Poulet Yassa",
       restaurant: "Le Dakarois",
       category: "Africain",
-      price: 3500,
+      price: formatPriceFrom(9.90),
       rating: 4.8,
       deliveryTime: "30-40 min",
       description:
@@ -49,7 +52,7 @@ const ServicesSection = () => {
       title: "Burger Gourmet",
       restaurant: "Burger House",
       category: "Fast-food",
-      price: 4500,
+      price: formatPriceFrom(12.50),
       rating: 4.7,
       deliveryTime: "25-35 min",
       description:
@@ -62,7 +65,7 @@ const ServicesSection = () => {
       title: "Pizza Margherita",
       restaurant: "Pizzeria Roma",
       category: "Italien",
-      price: 4000,
+      price: formatPriceFrom(10.90),
       rating: 4.9,
       deliveryTime: "35-45 min",
       description: "Base tomate, mozzarella fraîche, basilic et huile d'olive",
@@ -74,7 +77,7 @@ const ServicesSection = () => {
       title: "Salade César",
       restaurant: "Green Life",
       category: "Healthy",
-      price: 2800,
+      price: formatPriceFrom(8.80), // EUR
       rating: 4.6,
       deliveryTime: "20-30 min",
       description: "Poulet grillé, parmesan, croûtons et sauce césar maison",
@@ -206,7 +209,7 @@ const ServicesSection = () => {
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-bold line-clamp-1">{meal.title}</h4>
                       <span className="font-bold text-primary">
-                        {meal.price.toLocaleString()} XOF
+                        {meal.price.toLocaleString()}
                       </span>
                     </div>
 

@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Crown,
   CheckCircle,
@@ -41,13 +40,17 @@ import {
   Sparkles,
   Gift,
   Book,
+  Settings,
 } from "lucide-react";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const SubscriptionPage = () => {
   const [selectedProfile, setSelectedProfile] = useState("candidat");
   const [selectedPeriod, setSelectedPeriod] = useState("mensuel");
   const [selectedPlan, setSelectedPlan] = useState("essentiel");
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  const { formatPrice, formatNumberPrice, amountWithSymbol, symbol } = useCurrency();
 
   // Types de comptes
   const accountTypes = [
@@ -86,6 +89,13 @@ const SubscriptionPage = () => {
       description: "Restauration d'entreprise, traiteur",
       color: "bg-red-500",
     },
+    {
+      id: "administrateur",
+      name: "Administrateur",
+      icon: Settings,
+      description: "Gestion et administration de la plateforme",
+      color: "bg-gray-600",
+    },
   ];
 
   // Périodes d'abonnement
@@ -96,13 +106,13 @@ const SubscriptionPage = () => {
     { id: "annuel", name: "Annuel", discount: 20 },
   ];
 
-  // Plans d'abonnement
+  // Plans d'abonnement — prix en EUR, conversion via useCurrency
   const subscriptionPlans = {
     candidat: [
       {
         id: "essentiel",
         name: "Essentiel",
-        price: 2500,
+        priceEur: 25,
         description: "Accès basique aux offres d'emploi",
         features: [
           { name: "Consulter les offres d'emploi", included: true },
@@ -121,7 +131,7 @@ const SubscriptionPage = () => {
       {
         id: "pro",
         name: "Pro",
-        price: 5000,
+        priceEur: 50,
         description: "Accès complet aux opportunités",
         features: [
           { name: "Consulter les offres d'emploi", included: true },
@@ -140,7 +150,7 @@ const SubscriptionPage = () => {
       {
         id: "premium",
         name: "Premium",
-        price: 8000,
+        priceEur: 80,
         description: "Accès VIP aux meilleures offres",
         features: [
           { name: "Consulter les offres d'emploi", included: true },
@@ -161,7 +171,7 @@ const SubscriptionPage = () => {
       {
         id: "essentiel",
         name: "Essentiel",
-        price: 15000,
+        priceEur: 150,
         description: "Gestion basique de votre activité",
         features: [
           { name: "Tableau de bord de base", included: true },
@@ -180,7 +190,7 @@ const SubscriptionPage = () => {
       {
         id: "pro",
         name: "Professionnel",
-        price: 30000,
+        priceEur: 300,
         description: "Solution complète pour votre business",
         features: [
           { name: "Tableau de bord avancé", included: true },
@@ -199,7 +209,7 @@ const SubscriptionPage = () => {
       {
         id: "entreprise",
         name: "Entreprise",
-        price: 60000,
+        priceEur: 600,
         description: "Solution sur mesure pour les grandes structures",
         features: [
           { name: "Tableau de dashboards personnalisés", included: true },
@@ -220,7 +230,7 @@ const SubscriptionPage = () => {
       {
         id: "essentiel",
         name: "Basique",
-        price: 25000,
+        priceEur: 250,
         description: "Pour les petites entreprises",
         features: [
           { name: "Gestion des commandes de groupe", included: true },
@@ -237,7 +247,7 @@ const SubscriptionPage = () => {
       {
         id: "pro",
         name: "Corporate",
-        price: 50000,
+        priceEur: 500,
         description: "Pour les moyennes entreprises",
         features: [
           { name: "Gestion des commandes de groupe", included: true },
@@ -254,7 +264,7 @@ const SubscriptionPage = () => {
       {
         id: "premium",
         name: "Enterprise",
-        price: 100000,
+        priceEur: 1000,
         description: "Pour les grandes entreprises",
         features: [
           { name: "Gestion des commandes de groupe", included: true },
@@ -269,12 +279,11 @@ const SubscriptionPage = () => {
         popular: false,
       },
     ],
-    // Plans par défaut pour autres profils
     particulier: [
       {
         id: "essentiel",
         name: "Classique",
-        price: 0,
+        priceEur: 0,
         description: "Accès gratuit au catalogue",
         features: [
           { name: "Accès au catalogue complet", included: true },
@@ -291,7 +300,7 @@ const SubscriptionPage = () => {
       {
         id: "pro",
         name: "Premium",
-        price: 5000,
+        priceEur: 50,
         description: "Avantages exclusifs pour gourmets",
         features: [
           { name: "Accès au catalogue complet", included: true },
@@ -310,7 +319,7 @@ const SubscriptionPage = () => {
       {
         id: "essentiel",
         name: "Étudiant",
-        price: 1000,
+        priceEur: 10,
         description: "Tarif spécial pour étudiants",
         features: [
           { name: "Accès au catalogue complet", included: true },
@@ -325,17 +334,58 @@ const SubscriptionPage = () => {
         popular: true,
       },
     ],
+    administrateur: [
+      {
+        id: "essentiel",
+        name: "Accès Admin",
+        priceEur: 0,
+        description: "Accès complet à la gestion de la plateforme",
+        features: [
+          { name: "Tableau de bord administrateur", included: true },
+          { name: "Gestion des utilisateurs", included: true },
+          { name: "Gestion des abonnements", included: true },
+          { name: "Rapports et statistiques", included: true },
+          { name: "Configuration de la plateforme", included: true },
+          { name: "Gestion des contenus", included: true },
+          { name: "Support dédié", included: true },
+          { name: "Journaux d'audit", included: true },
+        ],
+        popular: false,
+      },
+    ],
   };
 
-  // Calcul du prix avec remise
-  const calculatePrice = (basePrice) => {
-    const period = subscriptionPeriods.find(p => p.id === selectedPeriod);
-    const discountMultiplier = (100 - period.discount) / 100;
-    return Math.round(basePrice * discountMultiplier);
+  /**
+   * Calcule le prix total avec remise, en EUR, puis formate via useCurrency.
+   * @param {number} priceEur - Prix de base en EUR
+   * @returns {string} - Montant formaté dans la devise courante
+   */
+  const calculateFormattedPrice = (priceEur) => {
+    if (!priceEur || priceEur === 0) return null;
+    const period = subscriptionPeriods.find((p) => p.id === selectedPeriod);
+    const discount = period?.discount ?? 0;
+    const discounted = priceEur * (1 - discount / 100);
+    return formatPrice(discounted); // formatPrice convertit EUR -> devise courante
+  };
+
+  /**
+   * Retourne le prix mensuel formaté (sans remise) dans la devise courante.
+   */
+  const getMonthlyFormatted = (priceEur) => {
+    if (!priceEur || priceEur === 0) return null;
+    return formatPrice(priceEur);
   };
 
   // Récupérer les plans pour le profil sélectionné
   const currentPlans = subscriptionPlans[selectedProfile] || subscriptionPlans.particulier;
+
+  // Période affichée dans la card
+  const periodLabel = {
+    mensuel: "mois",
+    "3mois": "3 mois",
+    "6mois": "6 mois",
+    annuel: "an",
+  };
 
   // Fonctionnalités par profil
   const profileFeatures = {
@@ -369,7 +419,16 @@ const SubscriptionPage = () => {
       { icon: Briefcase, text: "Offres de stage" },
       { icon: Users, text: "Réseau d'anciens" },
     ],
+    administrateur: [
+      { icon: Settings, text: "Configuration plateforme" },
+      { icon: UsersIcon, text: "Gestion des comptes" },
+      { icon: BarChart, text: "Rapports et statistiques" },
+      { icon: Shield, text: "Journaux d'audit" },
+    ],
   };
+
+  const selectedPlanData = currentPlans.find((p) => p.id === selectedPlan) || currentPlans[0];
+  const selectedPeriodData = subscriptionPeriods.find((p) => p.id === selectedPeriod);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -391,39 +450,162 @@ const SubscriptionPage = () => {
         </div>
       </section>
 
-      {/* Sélection du profil */}
-      <div className="container px-4 py-8 mx-auto">
+      {/* Configuration : Profil + Période — compact, inline */}
+      <div className="container px-4 mx-auto">
         <div className="max-w-6xl mx-auto">
-          <div className="p-6 mb-8 border rounded-lg bg-card">
-            <h2 className="mb-4 text-2xl font-semibold">Sélectionnez votre profil</h2>
-            <p className="mb-6 text-muted-foreground">
-              Les tarifs et fonctionnalités varient selon votre type de compte
-            </p>
-            
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-              {accountTypes.map((type) => {
-                const Icon = type.icon;
+          <div className="flex flex-col gap-4 px-5 py-4 my-6 border rounded-lg sm:flex-row sm:items-center sm:gap-6 bg-card">
+
+            {/* Profil */}
+            <div className="flex items-center flex-1 min-w-0 gap-3">
+              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Profil :</span>
+              <div className="flex flex-wrap gap-1.5">
+                {accountTypes.map((type) => {
+                  const Icon = type.icon;
+                  const isSelected = selectedProfile === type.id;
+                  return (
+                    <button
+                      key={type.id}
+                      onClick={() => {
+                        setSelectedProfile(type.id);
+                        setSelectedPlan("essentiel");
+                      }}
+                      title={type.description}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-200
+                        ${isSelected
+                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                          : "bg-background text-muted-foreground border-border hover:border-primary/60 hover:text-foreground"
+                        }`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      {type.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Separator orientation="vertical" className="hidden h-8 sm:block" />
+
+            {/* Période */}
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Période :</span>
+              <div className="flex gap-1.5">
+                {subscriptionPeriods.map((period) => (
+                  <button
+                    key={period.id}
+                    onClick={() => setSelectedPeriod(period.id)}
+                    className={`inline-flex flex-col items-center px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200
+                      ${selectedPeriod === period.id
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-background text-muted-foreground border-border hover:border-primary/60 hover:text-foreground"
+                      }`}
+                  >
+                    <span>{period.name}</span>
+                    {period.discount > 0 && (
+                      <span className={`text-[10px] font-semibold ${selectedPeriod === period.id ? "text-primary-foreground/80" : "text-green-600"}`}>
+                        -{period.discount}%
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Plans d'abonnement */}
+          <div className="mb-12">
+            <h2 className="mb-6 text-2xl font-semibold">Plans disponibles</h2>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {currentPlans.map((plan, index) => {
+                const formattedTotal = calculateFormattedPrice(plan.priceEur);
+                const formattedMonthly = getMonthlyFormatted(plan.priceEur);
+                const isFree = !plan.priceEur || plan.priceEur === 0;
+                const isSelected = selectedPlan === plan.id;
+
                 return (
                   <motion.div
-                    key={type.id}
+                    key={plan.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
                     whileHover={{ y: -5 }}
-                    whileTap={{ scale: 0.98 }}
                   >
-                    <Card
-                      className={`cursor-pointer transition-all duration-300 ${selectedProfile === type.id ? 'ring-2 ring-primary' : 'hover:border-primary/50'}`}
-                      onClick={() => setSelectedProfile(type.id)}
-                    >
-                      <CardContent className="flex flex-row items-center p-2 text-center md:flex-col md:p-6">
-                        <div className={`p-3 mb-4 ml-2 mr-5 md:mr-auto md:ml-auto rounded-full ${type.color} text-white`}>
-                          <Icon className="w-6 h-6" />
+                    <Card className={`h-full transition-all duration-300 ${isSelected ? "ring-2 ring-primary shadow-lg" : ""} ${plan.popular ? "border-primary/50 relative" : ""}`}>
+                      {plan.popular && (
+                        <div className="absolute top-0 transform -translate-x-1/2 -translate-y-1/2 left-1/2">
+                          <Badge className="px-3 py-1">
+                            <Star className="w-3 h-3 mr-1" />
+                            Plus populaire
+                          </Badge>
                         </div>
-                        <div>
-                            <h3 className="font-semibold">{type.name}</h3>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                            {type.description}
+                      )}
+
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          {plan.name}
+                          {plan.popular && <Sparkles className="w-5 h-5 text-yellow-500" />}
+                        </CardTitle>
+                        <CardDescription>{plan.description}</CardDescription>
+                      </CardHeader>
+
+                      <CardContent>
+                        <div className="mb-6">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-3xl font-bold">
+                              {isFree ? "Gratuit" : formattedTotal}
+                            </span>
+                            {!isFree && (
+                              <span className="text-sm text-muted-foreground">
+                                /{periodLabel[selectedPeriod] || selectedPeriod}
+                              </span>
+                            )}
+                          </div>
+                          {!isFree && selectedPeriod !== "mensuel" && (
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              <s>{formattedMonthly}/mois</s>
+                              {" • "}
+                              <span className="font-medium text-green-600">
+                                -{selectedPeriodData?.discount}%
+                              </span>
                             </p>
+                          )}
+                        </div>
+
+                        <Separator className="my-4" />
+
+                        <div className="space-y-3">
+                          {plan.features.map((feature, i) => (
+                            <div key={i} className="flex items-start gap-3">
+                              {feature.included ? (
+                                <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-500" />
+                              ) : (
+                                <XCircle className="flex-shrink-0 w-5 h-5 text-gray-300" />
+                              )}
+                              <span className={`text-sm ${!feature.included ? "text-gray-400" : ""}`}>
+                                {feature.name}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </CardContent>
+
+                      <CardFooter>
+                        <Button
+                          className="w-full"
+                          variant={isSelected ? "default" : "outline"}
+                          onClick={() => setSelectedPlan(plan.id)}
+                        >
+                          {isSelected ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Sélectionné
+                            </>
+                          ) : (
+                            "Sélectionner ce plan"
+                          )}
+                        </Button>
+                      </CardFooter>
                     </Card>
                   </motion.div>
                 );
@@ -431,137 +613,12 @@ const SubscriptionPage = () => {
             </div>
           </div>
 
-          {/* Période d'abonnement */}
-          <div className="p-6 mb-8 border rounded-lg bg-card">
-            <h2 className="mb-4 text-2xl font-semibold">Période d'abonnement</h2>
-            <p className="mb-6 text-muted-foreground">
-              Plus la période est longue, plus l'économie est importante
-            </p>
-            
-            <RadioGroup
-              value={selectedPeriod}
-              onValueChange={setSelectedPeriod}
-              className="grid grid-cols-2 gap-4 md:grid-cols-4"
-            >
-              {subscriptionPeriods.map((period) => (
-                <div key={period.id} className="relative">
-                  <RadioGroupItem
-                    value={period.id}
-                    id={period.id}
-                    className="sr-only"
-                  />
-                  <Label
-                    htmlFor={period.id}
-                    className={`flex flex-col items-center justify-center p-4 border-2 rounded-lg cursor-pointer transition-all duration-300 ${selectedPeriod === period.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'}`}
-                  >
-                    <span className="font-semibold">{period.name}</span>
-                    {period.discount > 0 && (
-                      <Badge className="mt-2" variant="secondary">
-                        -{period.discount}%
-                      </Badge>
-                    )}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-
-          {/* Plans d'abonnement */}
-          <div className="mb-12">
-            <h2 className="mb-6 text-2xl font-semibold">Plans disponibles</h2>
-            
-            <div className="grid gap-6 md:grid-cols-3">
-              {currentPlans.map((plan, index) => (
-                <motion.div
-                  key={plan.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <Card className={`h-full transition-all duration-300 ${selectedPlan === plan.id ? 'ring-2 ring-primary shadow-lg' : ''} ${plan.popular ? 'border-primary/50 relative' : ''}`}>
-                    {plan.popular && (
-                      <div className="absolute top-0 transform -translate-x-1/2 -translate-y-1/2 left-1/2">
-                        <Badge className="px-3 py-1">
-                          <Star className="w-3 h-3 mr-1" />
-                          Plus populaire
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        {plan.name}
-                        {plan.popular && <Sparkles className="w-5 h-5 text-yellow-500" />}
-                      </CardTitle>
-                      <CardDescription>{plan.description}</CardDescription>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <div className="mb-6">
-                        <div className="flex items-baseline">
-                          <span className="text-3xl font-bold">
-                            {plan.price === 0 ? 'Gratuit' : `${calculatePrice(plan.price).toLocaleString()} XOF`}
-                          </span>
-                          {plan.price > 0 && (
-                            <span className="ml-2 text-sm text-muted-foreground">
-                              /{selectedPeriod === 'annuel' ? 'an' : selectedPeriod === 'mensuel' ? 'mois' : selectedPeriod.replace('mois', 'mois')}
-                            </span>
-                          )}
-                        </div>
-                        {plan.price > 0 && selectedPeriod !== 'mensuel' && (
-                          <p className="text-sm text-muted-foreground">
-                            <s>{plan.price.toLocaleString()} XOF/mois</s> • Économisez {subscriptionPeriods.find(p => p.id === selectedPeriod).discount}%
-                          </p>
-                        )}
-                      </div>
-                      
-                      <Separator className="my-4" />
-                      
-                      <div className="space-y-3">
-                        {plan.features.map((feature, i) => (
-                          <div key={i} className="flex items-start gap-3">
-                            {feature.included ? (
-                              <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-500" />
-                            ) : (
-                              <XCircle className="flex-shrink-0 w-5 h-5 text-gray-300" />
-                            )}
-                            <span className={`text-sm ${!feature.included ? 'text-gray-400' : ''}`}>
-                              {feature.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                    
-                    <CardFooter>
-                      <Button
-                        className="w-full"
-                        variant={selectedPlan === plan.id ? "default" : "outline"}
-                        onClick={() => setSelectedPlan(plan.id)}
-                      >
-                        {selectedPlan === plan.id ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Sélectionné
-                          </>
-                        ) : (
-                          "Sélectionner ce plan"
-                        )}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
           {/* Fonctionnalités spécifiques au profil */}
           <div className="p-6 mb-8 border rounded-lg bg-card">
             <h2 className="mb-6 text-2xl font-semibold">
-              Fonctionnalités {selectedProfile === 'particulier' ? 'Premium' : 'Spécifiques'}
+              Fonctionnalités {selectedProfile === "particulier" ? "Premium" : "Spécifiques"}
             </h2>
-            
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               {(profileFeatures[selectedProfile] || profileFeatures.particulier).map((feature, index) => {
                 const Icon = feature.icon;
@@ -574,11 +631,12 @@ const SubscriptionPage = () => {
                       <h3 className="font-semibold">{feature.text}</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {selectedProfile === 'candidat' && "Améliorez vos chances d'embauche"}
-                      {selectedProfile === 'professionnel' && "Optimisez votre gestion quotidienne"}
-                      {selectedProfile === 'entreprise' && "Simplifiez la restauration d'entreprise"}
-                      {selectedProfile === 'particulier' && "Profitez d'avantages exclusifs"}
-                      {selectedProfile === 'stagiaire' && "Bénéficiez de tarifs préférentiels"}
+                      {selectedProfile === "candidat" && "Améliorez vos chances d'embauche"}
+                      {selectedProfile === "professionnel" && "Optimisez votre gestion quotidienne"}
+                      {selectedProfile === "entreprise" && "Simplifiez la restauration d'entreprise"}
+                      {selectedProfile === "particulier" && "Profitez d'avantages exclusifs"}
+                      {selectedProfile === "stagiaire" && "Bénéficiez de tarifs préférentiels"}
+                      {selectedProfile === "administrateur" && "Gérez la plateforme efficacement"}
                     </p>
                   </div>
                 );
@@ -589,46 +647,39 @@ const SubscriptionPage = () => {
           {/* Récapitulatif et paiement */}
           <div className="p-6 border rounded-lg bg-card">
             <h2 className="mb-6 text-2xl font-semibold">Récapitulatif de commande</h2>
-            
+
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-4">
                 <div className="p-4 border rounded-lg">
                   <h3 className="mb-3 font-semibold">Détails de l'abonnement</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Profil:</span>
+                      <span className="text-muted-foreground">Profil :</span>
                       <span className="font-medium">
-                        {accountTypes.find(t => t.id === selectedProfile)?.name}
+                        {accountTypes.find((t) => t.id === selectedProfile)?.name}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Plan:</span>
-                      <span className="font-medium">
-                        {currentPlans.find(p => p.id === selectedPlan)?.name}
-                      </span>
+                      <span className="text-muted-foreground">Plan :</span>
+                      <span className="font-medium">{selectedPlanData?.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Période:</span>
-                      <span className="font-medium">
-                        {subscriptionPeriods.find(p => p.id === selectedPeriod)?.name}
-                      </span>
+                      <span className="text-muted-foreground">Période :</span>
+                      <span className="font-medium">{selectedPeriodData?.name}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Prix mensuel:</span>
+                      <span className="text-muted-foreground">Prix mensuel :</span>
                       <span className="font-medium">
-                        {currentPlans.find(p => p.id === selectedPlan)?.price === 0 
-                          ? 'Gratuit' 
-                          : `${currentPlans.find(p => p.id === selectedPlan)?.price.toLocaleString()} XOF/mois`
-                        }
+                        {selectedPlanData?.priceEur === 0
+                          ? "Gratuit"
+                          : `${getMonthlyFormatted(selectedPlanData?.priceEur)}/mois`}
                       </span>
                     </div>
-                    {currentPlans.find(p => p.id === selectedPlan)?.price > 0 && (
+                    {selectedPlanData?.priceEur > 0 && selectedPeriodData?.discount > 0 && (
                       <div className="flex justify-between text-green-600">
-                        <span>Remise période:</span>
-                        <span className="font-medium">
-                          -{subscriptionPeriods.find(p => p.id === selectedPeriod)?.discount}%
-                        </span>
+                        <span>Remise période :</span>
+                        <span className="font-medium">-{selectedPeriodData.discount}%</span>
                       </div>
                     )}
                   </div>
@@ -636,8 +687,8 @@ const SubscriptionPage = () => {
 
                 {/* Conditions */}
                 <div className="flex items-start space-x-2">
-                  <Checkbox 
-                    id="terms" 
+                  <Checkbox
+                    id="terms"
                     checked={acceptTerms}
                     onCheckedChange={(checked) => setAcceptTerms(checked)}
                   />
@@ -650,26 +701,27 @@ const SubscriptionPage = () => {
               {/* Total et paiement */}
               <div className="p-4 border rounded-lg">
                 <h3 className="mb-3 font-semibold">Total à payer</h3>
-                
+
                 <div className="space-y-3">
                   <div className="flex justify-between text-lg">
-                    <span>Total:</span>
+                    <span>Total :</span>
                     <span className="text-2xl font-bold text-primary">
-                      {currentPlans.find(p => p.id === selectedPlan)?.price === 0 
-                        ? 'Gratuit' 
-                        : `${calculatePrice(currentPlans.find(p => p.id === selectedPlan)?.price || 0).toLocaleString()} XOF`
-                      }
+                      {selectedPlanData?.priceEur === 0
+                        ? "Gratuit"
+                        : calculateFormattedPrice(selectedPlanData?.priceEur)}
                     </span>
                   </div>
-                  
+
                   <div className="text-sm text-muted-foreground">
-                    {selectedPeriod === 'annuel' ? 'Facturation annuelle' : 
-                     selectedPeriod === 'mensuel' ? 'Facturation mensuelle' : 
-                     `Facturation tous les ${selectedPeriod}`}
+                    {selectedPeriod === "annuel"
+                      ? "Facturation annuelle"
+                      : selectedPeriod === "mensuel"
+                      ? "Facturation mensuelle"
+                      : `Facturation tous les ${selectedPeriodData?.name?.toLowerCase()}`}
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-2">
                     <h4 className="font-medium">Moyens de paiement acceptés</h4>
                     <div className="flex gap-2">
@@ -684,19 +736,18 @@ const SubscriptionPage = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  <Button 
-                    className="w-full gap-2 mt-4" 
+
+                  <Button
+                    className="w-full gap-2 mt-4"
                     size="lg"
                     disabled={!acceptTerms}
                   >
                     <CreditCard className="w-4 h-4" />
-                    {currentPlans.find(p => p.id === selectedPlan)?.price === 0 
-                      ? "Activer l'abonnement gratuit" 
-                      : "Procéder au paiement"
-                    }
+                    {selectedPlanData?.priceEur === 0
+                      ? "Activer l'abonnement gratuit"
+                      : "Procéder au paiement"}
                   </Button>
-                  
+
                   <p className="text-sm text-center text-muted-foreground">
                     Paiement sécurisé • Sans engagement • Annulation à tout moment
                   </p>
@@ -704,37 +755,6 @@ const SubscriptionPage = () => {
               </div>
             </div>
           </div>
-
-          {/* FAQ */}
-          {/* <div className="p-6 mt-12 border rounded-lg">
-            <h2 className="mb-6 text-2xl font-semibold">Questions fréquentes</h2>
-            
-            <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold">Puis-je changer de plan ultérieurement ?</h3>
-                <p className="mt-2 text-muted-foreground">
-                  Oui, vous pouvez changer de plan à tout moment. La différence de prix sera ajustée 
-                  au prorata de votre période d'abonnement en cours.
-                </p>
-              </div>
-              
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold">Y a-t-il des frais de résiliation ?</h3>
-                <p className="mt-2 text-muted-foreground">
-                  Non, vous pouvez résilier votre abonnement à tout moment sans frais. 
-                  Vous conservez l'accès aux fonctionnalités jusqu'à la fin de la période payée.
-                </p>
-              </div>
-              
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold">Les abonnements sont-ils renouvelés automatiquement ?</h3>
-                <p className="mt-2 text-muted-foreground">
-                  Oui, par défaut les abonnements sont renouvelés automatiquement. 
-                  Vous pouvez désactiver le renouvellement automatique à tout moment depuis votre tableau de bord.
-                </p>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

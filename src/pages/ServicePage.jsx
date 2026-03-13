@@ -50,12 +50,14 @@ import Plat5 from "@/assets/hero.avif";
 import Plat6 from "@/assets/hero.avif";
 import Plat7 from "@/assets/hero.avif";
 import Plat8 from "@/assets/hero.avif";
+import { useCurrency } from "@/context/CurrencyContext";
 
 const ServicePage = () => {
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { formatPriceFrom } = useCurrency();
+  
   // Données des restaurants
   const restaurants = [
     {
@@ -164,7 +166,7 @@ const ServicePage = () => {
       restaurantId: 1,
       restaurant: "Le Dakarois",
       category: "Africain",
-      price: 4500,
+      price: formatPriceFrom(9.90),
       rating: 4.9,
       deliveryTime: "30-40 min",
       description:
@@ -185,7 +187,7 @@ const ServicePage = () => {
       restaurantId: 2,
       restaurant: "Burger House",
       category: "Fast-food",
-      price: 5000,
+      price: formatPriceFrom(11.00),
       rating: 4.7,
       deliveryTime: "25-35 min",
       description:
@@ -206,7 +208,7 @@ const ServicePage = () => {
       restaurantId: 3,
       restaurant: "Pizzeria Roma",
       category: "Italien",
-      price: 4500,
+      price: formatPriceFrom(9.90),
       rating: 4.8,
       deliveryTime: "35-45 min",
       description:
@@ -226,7 +228,7 @@ const ServicePage = () => {
       restaurantId: 4,
       restaurant: "Green Life",
       category: "Healthy",
-      price: 3500,
+      price: formatPriceFrom(7.70),
       rating: 4.6,
       deliveryTime: "20-30 min",
       description:
@@ -246,7 +248,7 @@ const ServicePage = () => {
       restaurantId: 5,
       restaurant: "Sushi Zen",
       category: "Japonais",
-      price: 8000,
+      price: formatPriceFrom(16.00),
       rating: 4.9,
       deliveryTime: "40-50 min",
       description:
@@ -267,7 +269,7 @@ const ServicePage = () => {
       restaurantId: 6,
       restaurant: "La Boulangerie",
       category: "Français",
-      price: 3000,
+      price: formatPriceFrom(6.00),
       rating: 4.5,
       deliveryTime: "25-35 min",
       description:
@@ -287,7 +289,7 @@ const ServicePage = () => {
       restaurantId: 7,
       restaurant: "Spice Garden",
       category: "Indien",
-      price: 5000,
+      price: formatPriceFrom(11.00),
       rating: 4.7,
       deliveryTime: "35-45 min",
       description:
@@ -307,7 +309,7 @@ const ServicePage = () => {
       restaurantId: 8,
       restaurant: "Café de Paris",
       category: "Café",
-      price: 3500,
+      price: formatPriceFrom(7.70),
       rating: 4.4,
       deliveryTime: "20-30 min",
       description:
@@ -528,7 +530,7 @@ const ServicePage = () => {
                         {meal.title}
                       </h3>
                       <span className="font-bold text-primary whitespace-nowrap">
-                        {meal.price.toLocaleString()} XOF
+                        {meal.price.toLocaleString()}
                       </span>
                     </div>
 

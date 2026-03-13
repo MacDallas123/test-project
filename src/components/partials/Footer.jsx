@@ -160,12 +160,18 @@ const Footer = () => {
       label: "Instagram",
       className: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white hover:opacity-90"
     },
-    {
-      icon: Linkedin,
-      href: "https://linkedin.com/company/fibem",
-      label: "LinkedIn",
-      className: "bg-[#0077b5] text-white hover:bg-[#055e8a]"
-    },
+    /*{
+      icon: <svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 462.799"><path fill-rule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z"/></svg>,
+      href: "https://x.com/fibem",
+      label: "X (Twitter)",
+      className: "bg-[#000000] text-white hover:bg-[#1a1a1a]"
+    },*/
+    // {
+    //   icon: Twitter,
+    //   href: "https://twitter.com/fibem",
+    //   label: "Twitter",
+    //   className: "bg-[#1da1f2] text-white hover:bg-[#0f8cd6]"
+    // },
     {
       icon: Youtube,
       href: "https://youtube.com/fibem",
@@ -222,7 +228,7 @@ const Footer = () => {
 
           {/* Contacts */}
           {/* <div className="pt-4 mt-4 border-t border-border/40"> */}
-          <div className="pt-4 mt-4 space-y-4 border-t border-border/40 lg:col-span-2">
+          <div className="pt-4 mt-4 space-y-4 border-t border-secondary lg:col-span-2">
             <h4 className="mb-3 text-sm font-semibold text-accent">
               {t("footer.contacts", "Contacts")}
             </h4>
@@ -368,7 +374,7 @@ const Footer = () => {
 
           {/* Newsletter */}
           {/* <div className="pt-4 mt-4 border-t border-border/40"> */}
-          <div className="pt-4 mt-4 space-y-4 border-t border-border/40 lg:col-span-1">
+          <div className="pt-4 mt-4 space-y-4 border-t border-secondary lg:col-span-1">
             <h4 className="mb-3 text-sm font-semibold text-secondary">
               {t("footer.newsletter", "Newsletter")}
             </h4>
@@ -464,9 +470,9 @@ const Footer = () => {
 
         {/* Comptes & Réseaux sociaux */}
         <div className="flex flex-col justify-between gap-6 mb-8 md:flex-row md:items-center">
-          <div>
-            <h4 className="mb-3 font-semibold text-white">
-              {t("footer.social", "Suivez-nous")}
+          <div className="flex flex-row items-center justify-center">
+            <h4 className="mb-3 mr-10 font-semibold text-white">
+              {t("footer.social", "Suivez-nous :")}
             </h4>
             <div className="flex gap-3">
               {socialLinks.map((social) => {
@@ -489,7 +495,7 @@ const Footer = () => {
         </div>
 
         {/* Footer bottom */}
-        <div className="pt-8 border-t border-border/40">
+        <div className="pt-4 border-t border-secondary">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm font-light text-center text-white/70">
               &copy; {new Date().getFullYear()}{" "}

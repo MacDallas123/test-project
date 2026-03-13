@@ -184,12 +184,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
 
     // Temporary
-    {
+    /*{
       icon: LogIn,
       label: t("authMenu.login", "Connexion"),
       href: "/auth/login",
     },
-    /*{
+    {
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
       href: "/auth/register",

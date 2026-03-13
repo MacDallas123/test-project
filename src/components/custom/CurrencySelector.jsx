@@ -38,7 +38,7 @@ export const availableCurrencies = [
     icon: <DollarSign className="w-4 h-4" />,
     locale: "en-US",
   },
-  {
+  /*{
     code: "GBP",
     name: "Livre Sterling",
     symbol: "£",
@@ -55,7 +55,7 @@ export const availableCurrencies = [
     flag: "🇨🇦",
     icon: <DollarSign className="w-4 h-4" />,
     locale: "en-CA",
-  },
+  },*/
   {
     code: "XOF",
     name: "Franc CFA",
@@ -65,7 +65,7 @@ export const availableCurrencies = [
     icon: <span className="text-xs font-bold">F</span>,
     locale: "fr-CF",
   },
-  {
+  /*{
     code: "JPY",
     name: "Yen Japonais",
     symbol: "¥",
@@ -73,7 +73,7 @@ export const availableCurrencies = [
     flag: "🇯🇵",
     icon: <JapaneseYenIcon className="w-4 h-4" />,
     locale: "ja-JP",
-  },
+  },*/
 ];
 
 const CurrencySelector = () => {

@@ -1,4 +1,3 @@
-// CVGeneratorPage.jsx
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,1379 +5,1150 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Download,
-  Eye,
-  FileText,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Linkedin,
-  Github,
-  Globe,
-  GraduationCap,
-  Briefcase,
-  Award,
-  Star,
-  Plus,
-  Trash2,
-  Edit2,
-  CheckCircle,
-  Printer,
-  Share2,
-  Save,
-  Loader2,
-  ChevronDown,
-  ChevronUp,
+  Download, Eye, FileText, User, Mail, Phone, MapPin,
+  Linkedin, Github, Globe, GraduationCap, Briefcase,
+  Award, Star, Plus, Trash2, Edit2, CheckCircle, Printer,
+  Share2, Save, Loader2, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight, Info, AlertCircle, Sparkles,
+  LayoutTemplate, BookOpen, Languages, FolderOpen,
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { useDispatch, useSelector } from "react-redux";
-import { clearCV, createCV, generateCV, selectCurrentCV, selectCVError, selectCVLoading, updateCVById } from "@/redux/slices/cvSlice";
-import { thunkSucceed } from "@/lib/tools";
+import {
+  clearCV, createCV, generateCV,
+  selectCurrentCV, selectCVError, selectCVLoading, updateCVById,
+} from "@/redux/slices/cvSlice";
+import CVHistoryDialog from "@/components/dialog/CvHistoryDialog";
+import { useAuth } from "@/hooks/useAuth";
 
+// ─────────────────────────────────────────────
+// DONNÉES PAR DÉFAUT
+// ─────────────────────────────────────────────
+const defaultCvData = {
+  personal: {
+    firstName: "AAA",
+    lastName: "BBB",
+    title: "Développeur Full Stack",
+    email: "aaa.bbb@email.com",
+    phone: "+33 6 12 34 56 78",
+    address: "12 rue de Paris",
+    city: "Paris",
+    postalCode: "75001",
+    country: "France",
+    linkedin: "linkedin.com/in/aaabbb",
+    github: "github.com/aaabbb",
+    portfolio: "aaabbb.dev",
+    summary: "Développeur full stack passionné avec 5 ans d'expérience dans le développement web et mobile."
+  },
+  skills: [
+    { name: "JavaScript", level: "Avancé" },
+    { name: "React", level: "Avancé" },
+    { name: "Node.js", level: "Intermédiaire" },
+    { name: "SQL", level: "Intermédiaire" }
+  ],
+  education: [
+    {
+      institution: "Université de Paris",
+      degree: "Master Informatique",
+      startDate: "2018",
+      endDate: "2020",
+      location: "Paris, France",
+      description: "Spécialisation en développement web et applications mobiles."
+    }
+  ],
+  experience: [
+    {
+      company: "StartUpWeb",
+      position: "Développeur Full Stack",
+      startDate: "2021",
+      endDate: "Présent",
+      location: "Paris, France",
+      description: "Conception et développement d'applications web avec React et Node.js."
+    },
+    {
+      company: "AgenceDigital",
+      position: "Développeur Frontend",
+      startDate: "2019",
+      endDate: "2021",
+      location: "Paris, France",
+      description: "Création d'interfaces utilisateurs réactives en React."
+    }
+  ],
+  projects: [
+    {
+      name: "Gestionnaire de tâches",
+      description: "Application web pour gérer ses tâches quotidiennes.",
+      technologies: ["React", "Node.js", "MongoDB"],
+      link: "https://github.com/jeandupont/gestionnaire-taches"
+    }
+  ],
+  languages: [
+    { name: "Français", level: "Natif" },
+    { name: "Anglais", level: "Intermédiaire" }
+  ],
+  certifications: [
+    {
+      name: "Certification React avancée",
+      issuer: "OpenClassrooms",
+      year: "2021"
+    }
+  ],
+  settings: { template: "classic", color: "#3b82f6", font: "Inter", showPhoto: false, photoUrl: "" },
+};
+
+// ─────────────────────────────────────────────
+// NOTICE D'AIDE — composant réutilisable
+// ─────────────────────────────────────────────
+const HelpNotice = ({ tips, title = "Conseils", variant = "info" }) => {
+  const [open, setOpen] = useState(false);
+  const colors = {
+    info:    { bg: "bg-blue-50 border-blue-200",   icon: "text-blue-500",  title: "text-blue-700"  },
+    success: { bg: "bg-green-50 border-green-200", icon: "text-green-500", title: "text-green-700" },
+    warning: { bg: "bg-amber-50 border-amber-200", icon: "text-amber-500", title: "text-amber-700" },
+  };
+  const c = colors[variant] || colors.info;
+  return (
+    <div className={`border rounded-lg ${c.bg} overflow-hidden`}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`flex items-center justify-between w-full p-3 text-sm font-medium ${c.title}`}
+      >
+        <div className="flex items-center gap-2">
+          <Info className={`w-4 h-4 ${c.icon}`} />
+          {title}
+        </div>
+        {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="px-4 pb-3 space-y-1 overflow-hidden text-sm text-gray-700"
+          >
+            {tips.map((tip, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.icon.replace("text-", "bg-")}`} />
+                {tip}
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// BARRE DE PROGRESSION
+// ─────────────────────────────────────────────
+const ProgressBar = ({ steps, currentStep, onNavigate }) => {
+  const pct = Math.round(((currentStep) / (steps.length - 1)) * 100);
+  return (
+    <div className="space-y-3">
+      {/* Pourcentage + libellé */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium text-gray-700">
+          Étape {currentStep + 1} / {steps.length} — <span className="text-primary">{steps[currentStep]?.label}</span>
+        </span>
+        <span className="font-semibold text-primary">{pct}%</span>
+      </div>
+      {/* Barre */}
+      <div className="h-2 overflow-hidden bg-gray-200 rounded-full">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70"
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        />
+      </div>
+      {/* Pastilles cliquables */}
+      <div className="flex items-center justify-between">
+        {steps.map((step, i) => {
+          const done = i < currentStep;
+          const active = i === currentStep;
+          const Icon = step.icon;
+          return (
+            <button
+              key={step.id}
+              type="button"
+              onClick={() => onNavigate(i)}
+              title={step.label}
+              //className={`flex flex-col items-center gap-1 group transition-opacity ${i > currentStep + 1 ? "opacity-40 cursor-default pointer-events-none" : ""}`}
+              className={`flex flex-col items-center gap-1 group transition-opacity`}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
+                ${active ? "border-primary bg-primary text-white scale-110 shadow-md shadow-primary/30"
+                  : done ? "border-green-500 bg-green-50 text-green-600"
+                  : "border-gray-300 bg-white text-gray-400 group-hover:border-primary/50"}`}>
+                {done ? <CheckCircle className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
+              </div>
+              <span className={`hidden sm:block text-[10px] font-medium leading-tight text-center
+                ${active ? "text-primary" : done ? "text-green-600" : "text-gray-400"}`}>
+                {step.shortLabel || step.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// COMPOSANT PRINCIPAL
+// ─────────────────────────────────────────────
 const CVGeneratorPage = () => {
   const cvRef = useRef();
-  const [activeSection, setActiveSection] = useState("personal");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
-
   const dispatch = useDispatch();
   const selectCurrentCVFS = useSelector(selectCurrentCV);
-  const selectLoadingFS = useSelector(selectCVLoading);
-  const selectErrorFS = useSelector(selectCVError);
+  const selectLoadingFS   = useSelector(selectCVLoading);
+  const [isCvHistoryOpen, setIsCvHistoryOpen] = useState(false);
 
-  // États pour le CV
-  const [cvData, setCvData] = useState({
-    // Informations personnelles
-    personal: {
-      firstName: "",
-      lastName: "",
-      title: "",
-      email: "",
-      phone: "",
-      address: "",
-      city: "",
-      postalCode: "",
-      country: "France",
-      linkedin: "",
-      github: "",
-      portfolio: "",
-      summary: "",
-    },
+  const { user } = useAuth();
 
-    // Compétences
-    skills: [
-      { id: 1, name: "React", level: "Expert" },
-      { id: 2, name: "TypeScript", level: "Avancé" },
-      { id: 3, name: "Node.js", level: "Avancé" },
-      { id: 4, name: "UI/UX Design", level: "Intermédiaire" },
-    ],
+  // ── État global ──────────────────────────────
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [cvType, setCvType] = useState(null); // "classique" | "fibem"
 
-    // Formation
-    education: [
-      {
-        id: 1,
-        degree: "Master en Informatique",
-        school: "Université Paris-Saclay",
-        location: "Paris, France",
-        startDate: "2018-09",
-        endDate: "2020-06",
-        current: false,
-        description:
-          "Spécialisation en développement web et intelligence artificielle",
-      },
-      {
-        id: 2,
-        degree: "Licence en Mathématiques",
-        school: "Université Paris-Diderot",
-        location: "Paris, France",
-        startDate: "2015-09",
-        endDate: "2018-06",
-        current: false,
-        description: "Mention Bien",
-      },
-    ],
+  const [cvData, setCvData] = useState(defaultCvData);
+  const [newSkill, setNewSkill] = useState({ name: "", level: "Intermédiaire" });
 
-    // Expérience professionnelle
-    experience: [
-      {
-        id: 1,
-        title: "Développeur Full Stack Senior",
-        company: "TechSolutions Inc.",
-        location: "Paris, France",
-        startDate: "2021-03",
-        endDate: "",
-        current: true,
-        description:
-          "Développement d'applications web React/Node.js. Gestion d'équipe de 3 développeurs. Architecture et déploiement sur AWS.",
-      },
-      {
-        id: 2,
-        title: "Développeur Frontend",
-        company: "DigitalAgency",
-        location: "Lyon, France",
-        startDate: "2020-07",
-        endDate: "2021-02",
-        current: false,
-        description:
-          "Création d'interfaces utilisateur responsive. Collaboration avec les designers UX/UI. Optimisation des performances.",
-      },
-    ],
+  // ── Définition des étapes ────────────────────
+  // Étape 0 = choix du type ; étapes 1…N = sections
+  const STEPS = [
+    { id: "type",           label: "Type de CV",     shortLabel: "Type",       icon: LayoutTemplate },
+    { id: "personal",       label: "Infos perso.",   shortLabel: "Perso.",     icon: User           },
+    { id: "experience",     label: "Expérience",     shortLabel: "Expér.",     icon: Briefcase      },
+    { id: "education",      label: "Formation",      shortLabel: "Formation",  icon: GraduationCap  },
+    { id: "skills",         label: "Compétences",    shortLabel: "Compét.",    icon: Star           },
+    { id: "languages",      label: "Langues",        shortLabel: "Langues",    icon: Languages      },
+    { id: "certifications", label: "Certifications", shortLabel: "Certif.",    icon: Award          },
+    { id: "projects",       label: "Projets",        shortLabel: "Projets",    icon: FolderOpen     },
+    { id: "settings",       label: "Apparence",      shortLabel: "Style",      icon: Edit2          },
+    //{ id: "preview",        label: "Aperçu & Export",shortLabel: "Export",     icon: Eye            },
+    { id: "preview",        label: "Export",shortLabel: "Export",     icon: Eye            },
+  ];
 
-    // Projets
-    projects: [
-      {
-        id: 1,
-        name: "Plateforme E-commerce",
-        description:
-          "Développement d'une plateforme e-commerce avec React et Node.js",
-        technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-        link: "https://github.com/user/ecommerce",
-      },
-      {
-        id: 2,
-        name: "Application de Gestion",
-        description: "Application web de gestion de tâches en temps réel",
-        technologies: ["Vue.js", "Firebase", "Tailwind CSS"],
-        link: "https://github.com/user/task-manager",
-      },
-    ],
+  // ── Helpers état ─────────────────────────────
+  const handleInputChange = (section, field, value) =>
+    setCvData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
 
-    // Langues
-    languages: [
-      { id: 1, name: "Français", level: "Langue maternelle" },
-      { id: 2, name: "Anglais", level: "Courant (C1)" },
-      { id: 3, name: "Espagnol", level: "Intermédiaire (B1)" },
-    ],
-
-    // Certifications
-    certifications: [
-      {
-        id: 1,
-        name: "AWS Certified Developer",
-        issuer: "Amazon Web Services",
-        date: "2022",
-      },
-      {
-        id: 2,
-        name: "React Advanced Patterns",
-        issuer: "Frontend Masters",
-        date: "2021",
-      },
-    ],
-
-    // Paramètres du CV
-    settings: {
-      template: "modern",
-      color: "#3b82f6",
-      font: "Inter",
-      showPhoto: false,
-      photoUrl: "",
-    },
-  });
-
-  // Gestion des changements
-  const handleInputChange = (section, field, value) => {
-    setCvData((prev) => ({
+  const handleArrayChange = (section, index, field, value) =>
+    setCvData(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value,
-      },
+      [section]: prev[section].map((item, i) => i === index ? { ...item, [field]: value } : item),
     }));
-  };
 
-  const handleArrayChange = (section, index, field, value) => {
-    setCvData((prev) => ({
-      ...prev,
-      [section]: prev[section].map((item, i) =>
-        i === index ? { ...item, [field]: value } : item,
-      ),
-    }));
-  };
+  const addItem = (section, defaultItem) =>
+    setCvData(prev => ({ ...prev, [section]: [...prev[section], { id: Date.now(), ...defaultItem }] }));
 
-  const addItem = (section, defaultItem) => {
-    setCvData((prev) => ({
-      ...prev,
-      [section]: [...prev[section], { id: Date.now(), ...defaultItem }],
-    }));
-  };
-
-  const removeItem = (section, id) => {
-    setCvData((prev) => ({
-      ...prev,
-      [section]: prev[section].filter((item) => item.id !== id),
-    }));
-  };
+  const removeItem = (section, id) =>
+    setCvData(prev => ({ ...prev, [section]: prev[section].filter(item => item.id !== id) }));
 
   const moveItem = (section, index, direction) => {
     const items = [...cvData[section]];
     const newIndex = direction === "up" ? index - 1 : index + 1;
-
     if (newIndex >= 0 && newIndex < items.length) {
       [items[index], items[newIndex]] = [items[newIndex], items[index]];
-      setCvData((prev) => ({
-        ...prev,
-        [section]: items,
-      }));
+      setCvData(prev => ({ ...prev, [section]: items }));
     }
   };
 
-  // Ajouter une compétence
-  const [newSkill, setNewSkill] = useState({
-    name: "",
-    level: "Intermédiaire",
-  });
   const addSkill = () => {
-    if (newSkill.name.trim()) {
-      addItem("skills", newSkill);
-      setNewSkill({ name: "", level: "Intermédiaire" });
-    }
+    if (newSkill.name.trim()) { addItem("skills", newSkill); setNewSkill({ name: "", level: "Intermédiaire" }); }
   };
 
-  // Génération du CV
-  /* const handleGenerateCV = async () => {
-    setIsGenerating(true);
-    
-    const data = {
+  // ── Navigation ───────────────────────────────
+  const goNext = () => setCurrentStep(s => Math.min(s + 1, STEPS.length - 1));
+  const goPrev = () => setCurrentStep(s => Math.max(s - 1, 0));
+  //const goTo   = (i) => { if (i <= currentStep + 1) setCurrentStep(i); };
+  const goTo   = (i) => { setCurrentStep(i); };
 
-    };
-    const response = await dispatch(createCV(data));
+  const canGoNext = () => {
+    if (currentStep === 0) return cvType !== null;
+    if (currentStep === 1) return cvData.personal.firstName && cvData.personal.lastName && cvData.personal.email;
+    return true;
+  };
 
-    setIsGenerating(false);
-    setPreviewMode(true);
-  }; */
-
-  // Dans CVGeneratorPage.jsx, modifier la fonction handleGenerateCV
-
+  // ── Génération ───────────────────────────────
   const handleGenerateCV = async () => {
     setIsGenerating(true);
-    
     try {
-      // 1. Préparer les données du CV
+      cvData.settings.template = cvType;
       const cvPayload = {
-        //...cvData.personal,
-        personal: cvData.personal,
-        skills: cvData.skills,
-        education: cvData.education,
-        experience: cvData.experience,
-        projects: cvData.projects,
-        languages: cvData.languages,
-        certifications: cvData.certifications,
-        settings: cvData.settings,
-        title: `CV - ${cvData.personal.firstName || ''} ${cvData.personal.lastName || ''}`.trim() || "Nouveau CV"
+        personal: cvData.personal, skills: cvData.skills,
+        education: cvData.education, experience: cvData.experience,
+        projects: cvData.projects, languages: cvData.languages,
+        certifications: cvData.certifications, settings: cvData.settings,
+        cvType,
+        title: `CV - ${cvData.personal.firstName || ""} ${cvData.personal.lastName || ""}`.trim() || "Nouveau CV",
       };
-
       let cvId;
-      
       if (selectCurrentCVFS?.id) {
-        // Mettre à jour le CV existant
-        const updateResponse = await dispatch(updateCVById({ 
-          id: selectCurrentCVFS.id, 
-          data: cvPayload 
-        })).unwrap();
+        await dispatch(updateCVById({ id: selectCurrentCVFS.id, data: cvPayload })).unwrap();
         cvId = selectCurrentCVFS.id;
-        console.log("CV mis à jour:", updateResponse);
       } else {
-        // Créer un nouveau CV
-        const createResponse = await dispatch(createCV(cvPayload)).unwrap();
-        cvId = createResponse.content.id;
-        console.log("CV créé:", createResponse);
+        const r = await dispatch(createCV(cvPayload)).unwrap();
+        cvId = r.content.id;
       }
-
-      if (!cvId) {
-        throw new Error("Impossible de récupérer l'ID du CV");
-      }
-
-      // 2. Générer le CV (PDF par défaut)
-      const generateResponse = await dispatch(generateCV({ 
-        id: cvId, 
-        format: 'pdf' 
-      })).unwrap();
-
-      console.log("CV généré:", generateResponse);
-
-      // 3. Ouvrir le CV généré dans un nouvel onglet
-      if (generateResponse.content?.url) {
-        window.open(generateResponse.content.url, '_blank');
-      } else {
-        // Fallback: afficher un message
-        alert("Le CV a été généré mais le lien n'est pas disponible");
-      }
-
-    } catch (error) {
-      console.error("Erreur lors de la génération du CV:", error);
-      
-      // Afficher une notification d'erreur
-      if (error.message) {
-        alert(`Erreur: ${error.message}`);
-      } else {
-        alert("Une erreur est survenue lors de la génération du CV");
-      }
+      const genResp = await dispatch(generateCV({ id: cvId, format: "pdf" })).unwrap();
+      if (genResp.content?.url) window.open(genResp.content.url, "_blank");
+      else alert("Le CV a été généré mais le lien n'est pas disponible");
+    } catch (err) {
+      alert(`Erreur : ${err.message || "Une erreur est survenue lors de la génération du CV"}`);
     } finally {
       setIsGenerating(false);
-      setPreviewMode(false);
-      // setPreviewMode(true);
     }
   };
 
-  // Optionnel: Ajouter une fonction pour télécharger directement
-  const handleDownloadPDF = async () => {
-    if (selectCurrentCVFS?.id) {
-      setIsGenerating(true);
-      try {
-        const generateResponse = await dispatch(generateCV({ 
-          id: selectCurrentCVFS.id, 
-          format: 'pdf' 
-        })).unwrap();
-        
-        if (generateResponse.content?.url) {
-          // Créer un lien de téléchargement
-          const link = document.createElement('a');
-          link.href = generateResponse.content.url;
-          link.download = `CV_${cvData.personal.firstName || ''}_${cvData.personal.lastName || ''}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-      } catch (error) {
-        console.error("Erreur de téléchargement:", error);
-      } finally {
-        setIsGenerating(false);
-      }
-    } else {
-      // Si pas de CV existant, d'abord générer le CV
-      await handleGenerateCV();
-    }
-  };
-
-  // Téléchargement PDF
   const handlePrint = useReactToPrint({
     content: () => cvRef.current,
     documentTitle: `CV_${cvData.personal.firstName}_${cvData.personal.lastName}`,
   });
 
-  /*const handleDownloadPDF = () => {
-    alert("Telechargement CV indisponible pour le moment");
-    handlePrint();
-  };*/
+  // ── Contenu de chaque étape ──────────────────
+  const renderStep = () => {
+    const stepId = STEPS[currentStep]?.id;
 
-  // Sections du formulaire
-  const sections = [
-    { id: "personal", name: "Informations personnelles", icon: User },
-    { id: "skills", name: "Compétences", icon: Star },
-    { id: "experience", name: "Expérience", icon: Briefcase },
-    { id: "education", name: "Formation", icon: GraduationCap },
-    { id: "projects", name: "Projets", icon: FileText },
-    { id: "languages", name: "Langues", icon: Globe },
-    { id: "certifications", name: "Certifications", icon: Award },
-    { id: "settings", name: "Apparence", icon: Edit2 },
-  ];
+    // ── ÉTAPE 0 : Choix du type de CV ───────────
+    if (stepId === "type") return (
+      <div className="space-y-8">
+        <div className="space-y-2 text-center">
+          <h2 className="text-2xl font-bold">Quel type de CV souhaitez-vous créer ?</h2>
+          <p className="text-sm text-muted-foreground">
+            Choisissez le format qui correspond le mieux à votre situation.
+          </p>
+        </div>
 
-  // Rendu de la section active
-  const renderActiveSection = () => {
-    switch (activeSection) {
-      case "personal":
-        return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold">Informations personnelles</h3>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Prénom *</Label>
-                <Input
-                  id="firstName"
-                  value={cvData.personal.firstName}
-                  onChange={(e) =>
-                    handleInputChange("personal", "firstName", e.target.value)
-                  }
-                  placeholder="AAA"
-                />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* CV Classique */}
+          <button
+            type="button"
+            onClick={() => setCvType("classique")}
+            className={`relative p-6 rounded-2xl border-2 text-left transition-all group hover:shadow-lg
+              ${cvType === "classique" ? "border-primary bg-primary/5 shadow-md shadow-primary/20" : "border-gray-200 hover:border-primary/40"}`}
+          >
+            {cvType === "classique" && (
+              <div className="absolute flex items-center justify-center w-6 h-6 rounded-full top-4 right-4 bg-primary">
+                <CheckCircle className="w-4 h-4 text-white" />
               </div>
+            )}
+            <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center
+              ${cvType === "classique" ? "bg-primary text-white" : "bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary"}`}>
+              <FileText className="w-6 h-6" />
+            </div>
+            <h3 className="mb-2 text-lg font-bold">CV Classique</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Format standard reconnu par tous les recruteurs. Idéal pour les candidatures en entreprise, les secteurs traditionnels ou si vous manquez d'expérience.
+            </p>
+            <ul className="space-y-1 text-xs text-gray-500">
+              <li className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Mise en page sobre et professionnelle</li>
+              <li className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Compatible tous secteurs</li>
+              <li className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Facilement personnalisable</li>
+            </ul>
+          </button>
 
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Nom *</Label>
-                <Input
-                  id="lastName"
-                  value={cvData.personal.lastName}
-                  onChange={(e) =>
-                    handleInputChange("personal", "lastName", e.target.value)
-                  }
-                  placeholder="BBBB"
-                />
+          {/* CV FIBEM */}
+          <button
+            type="button"
+            onClick={() => setCvType("fibem")}
+            className={`relative p-6 rounded-2xl border-2 text-left transition-all group hover:shadow-lg
+              ${cvType === "fibem" ? "border-primary bg-primary/5 shadow-md shadow-primary/20" : "border-gray-200 hover:border-primary/40"}`}
+          >
+            {cvType === "fibem" && (
+              <div className="absolute flex items-center justify-center w-6 h-6 rounded-full top-4 right-4 bg-primary">
+                <CheckCircle className="w-4 h-4 text-white" />
               </div>
+            )}
+            <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center
+              ${cvType === "fibem" ? "bg-primary text-white" : "bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary"}`}>
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <h3 className="mb-2 text-lg font-bold">CV FIBEM</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Format spécifique à la plateforme FIBEM. Optimisé pour les recruteurs utilisant notre système, avec des sections dédiées et un rendu visuel adapté.
+            </p>
+            <ul className="space-y-1 text-xs text-gray-500">
+              <li className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Intégration native à FIBEM</li>
+              <li className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Mise en avant des projets</li>
+              <li className="flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5 text-green-500" /> Sections enrichies</li>
+            </ul>
+          </button>
+        </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="title">Titre professionnel</Label>
-                <Input
-                  id="title"
-                  value={cvData.personal.title}
-                  onChange={(e) =>
-                    handleInputChange("personal", "title", e.target.value)
-                  }
-                  placeholder="Ex: Développeur Full Stack Senior"
-                />
-              </div>
+        {!cvType && (
+          <div className="flex items-center gap-2 p-3 text-sm border rounded-lg bg-amber-50 border-amber-200 text-amber-700">
+            <AlertCircle className="flex-shrink-0 w-4 h-4" />
+            Veuillez sélectionner un type de CV pour continuer.
+          </div>
+        )}
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    value={cvData.personal.email}
-                    onChange={(e) =>
-                      handleInputChange("personal", "email", e.target.value)
-                    }
-                    placeholder="contact@email.com"
-                  />
-                </div>
-              </div>
+        <HelpNotice
+          title="Comment choisir ?"
+          variant="info"
+          tips={[
+            "Le CV Classique convient à toutes les candidatures hors plateforme FIBEM.",
+            "Le CV FIBEM est recommandé si l'offre est publiée sur FIBEM.",
+            "Vous pourrez toujours changer de type ultérieurement.",
+            "Les deux formats supportent photo, couleurs et polices personnalisées.",
+          ]}
+        />
+      </div>
+    );
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Téléphone</Label>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    value={cvData.personal.phone}
-                    onChange={(e) =>
-                      handleInputChange("personal", "phone", e.target.value)
-                    }
-                    placeholder="+33 6 12 34 56 78"
-                  />
-                </div>
-              </div>
+    // ── ÉTAPE 1 : Informations personnelles ─────
+    if (stepId === "personal") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <User className="w-5 h-5 text-primary" /> Informations personnelles
+          </h3>
+          <Badge variant="secondary">{cvType === "fibem" ? "FIBEM" : "Classique"}</Badge>
+        </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="city">Ville</Label>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="city"
-                    value={cvData.personal.city}
-                    onChange={(e) =>
-                      handleInputChange("personal", "city", e.target.value)
-                    }
-                    placeholder="Paris"
-                  />
-                </div>
-              </div>
+        <HelpNotice
+          title="Que renseigner ici ?"
+          tips={[
+            "Prénom, nom et email sont obligatoires.",
+            "Votre titre professionnel apparaîtra juste sous votre nom (ex : \"Développeur Full Stack Senior\").",
+            "Le profil professionnel est un résumé de 2-3 phrases sur votre parcours et objectifs.",
+            "Renseignez LinkedIn / GitHub uniquement si vos profils sont à jour.",
+          ]}
+        />
 
-              <div className="space-y-2">
-                <Label htmlFor="country">Pays</Label>
-                <Input
-                  id="country"
-                  value={cvData.personal.country}
-                  onChange={(e) =>
-                    handleInputChange("personal", "country", e.target.value)
-                  }
-                  placeholder="France"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="linkedin">LinkedIn</Label>
-                <div className="flex items-center gap-2">
-                  <Linkedin className="w-4 h-4 text-blue-600" />
-                  <Input
-                    id="linkedin"
-                    value={cvData.personal.linkedin}
-                    onChange={(e) =>
-                      handleInputChange("personal", "linkedin", e.target.value)
-                    }
-                    placeholder="https://linkedin.com/in/user"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="github">GitHub</Label>
-                <div className="flex items-center gap-2">
-                  <Github className="w-4 h-4" />
-                  <Input
-                    id="github"
-                    value={cvData.personal.github}
-                    onChange={(e) =>
-                      handleInputChange("personal", "github", e.target.value)
-                    }
-                    placeholder="https://github.com/user"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="portfolio">Portfolio / Site web</Label>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  <Input
-                    id="portfolio"
-                    value={cvData.personal.portfolio}
-                    onChange={(e) =>
-                      handleInputChange("personal", "portfolio", e.target.value)
-                    }
-                    placeholder="https://user.dev"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="summary">Profil professionnel</Label>
-                <Textarea
-                  id="summary"
-                  value={cvData.personal.summary}
-                  onChange={(e) =>
-                    handleInputChange("personal", "summary", e.target.value)
-                  }
-                  placeholder="Décrivez votre profil professionnel en quelques lignes..."
-                  rows={4}
-                />
-                <p className="text-xs text-muted-foreground">
-                  2-3 phrases qui résument votre expérience et vos objectifs
-                </p>
-              </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">Prénom <span className="text-red-500">*</span></Label>
+            <Input id="firstName" value={cvData.personal.firstName}
+              onChange={e => handleInputChange("personal", "firstName", e.target.value)} placeholder="Nom" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Nom <span className="text-red-500">*</span></Label>
+            <Input id="lastName" value={cvData.personal.lastName}
+              onChange={e => handleInputChange("personal", "lastName", e.target.value)} placeholder="Prénom" />
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="title">Titre professionnel</Label>
+            <Input id="title" value={cvData.personal.title}
+              onChange={e => handleInputChange("personal", "title", e.target.value)}
+              placeholder="Ex : Développeur Full Stack Senior" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-muted-foreground" />
+              <Input id="email" type="email" value={cvData.personal.email}
+                onChange={e => handleInputChange("personal", "email", e.target.value)} placeholder="contact@email.com" />
             </div>
           </div>
-        );
-
-      case "skills":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Compétences</h3>
-              <Badge variant="outline">
-                {cvData.skills.length} compétences
-              </Badge>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Téléphone</Label>
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-muted-foreground" />
+              <Input id="phone" value={cvData.personal.phone}
+                onChange={e => handleInputChange("personal", "phone", e.target.value)} placeholder="+33 6 12 34 56 78" />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="city">Ville</Label>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <Input id="city" value={cvData.personal.city}
+                onChange={e => handleInputChange("personal", "city", e.target.value)} placeholder="Paris" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="country">Pays</Label>
+            <Input id="country" value={cvData.personal.country}
+              onChange={e => handleInputChange("personal", "country", e.target.value)} placeholder="France" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="linkedin">LinkedIn</Label>
+            <div className="flex items-center gap-2">
+              <Linkedin className="w-4 h-4 text-muted-foreground" />
+              <Input id="linkedin" value={cvData.personal.linkedin}
+                onChange={e => handleInputChange("personal", "linkedin", e.target.value)} placeholder="linkedin.com/in/marie-dupont" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="github">GitHub</Label>
+            <div className="flex items-center gap-2">
+              <Github className="w-4 h-4 text-muted-foreground" />
+              <Input id="github" value={cvData.personal.github}
+                onChange={e => handleInputChange("personal", "github", e.target.value)} placeholder="github.com/marie-dupont" />
+            </div>
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="portfolio">Portfolio / Site web</Label>
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-muted-foreground" />
+              <Input id="portfolio" value={cvData.personal.portfolio}
+                onChange={e => handleInputChange("personal", "portfolio", e.target.value)} placeholder="https://marie-dupont.dev" />
+            </div>
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="summary">Profil professionnel</Label>
+            <Textarea id="summary" value={cvData.personal.summary}
+              onChange={e => handleInputChange("personal", "summary", e.target.value)}
+              placeholder="Développeuse Full Stack avec 5 ans d'expérience en React / Node.js. Passionnée par l'architecture logicielle et l'expérience utilisateur. En recherche d'un poste à fort impact dans une équipe agile."
+              rows={4} />
+            <p className="text-xs text-muted-foreground">2-3 phrases qui résument votre expérience et vos objectifs</p>
+          </div>
+        </div>
+      </div>
+    );
 
-            <div className="space-y-4">
-              {cvData.skills.map((skill, index) => (
-                <div
-                  key={skill.id}
-                  className="flex items-center gap-4 p-4 border rounded-lg"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium">{skill.name}</span>
-                      <Badge variant="secondary">{skill.level}</Badge>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => moveItem("skills", index, "up")}
-                        disabled={index === 0}
-                        className="p-1 rounded hover:bg-muted disabled:opacity-30"
-                      >
-                        <ChevronUp className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => moveItem("skills", index, "down")}
-                        disabled={index === cvData.skills.length - 1}
-                        className="p-1 rounded hover:bg-muted disabled:opacity-30"
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                      </button>
-                    </div>
+    // ── ÉTAPE 2 : Expérience ─────────────────────
+    if (stepId === "experience") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <Briefcase className="w-5 h-5 text-primary" /> Expérience professionnelle
+          </h3>
+          <Badge variant="outline">{cvData.experience.length} expérience{cvData.experience.length !== 1 ? "s" : ""}</Badge>
+        </div>
+
+        <HelpNotice
+          title="Comment valoriser votre expérience ?"
+          tips={[
+            "Listez vos expériences de la plus récente à la plus ancienne.",
+            "Utilisez des verbes d'action : développé, géré, optimisé, coordonné…",
+            "Quantifiez vos réalisations : chiffres, pourcentages, délais.",
+            "Cochez la case \"En poste\" si vous êtes encore dans l'entreprise.",
+            "Une description de 3-5 lignes par poste est idéale.",
+          ]}
+        />
+
+        <div className="space-y-4">
+          {cvData.experience.map((exp, index) => (
+            <div key={exp.id} className="p-4 space-y-4 border rounded-xl bg-gray-50/50">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-gray-700">Expérience #{index + 1}</h4>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => moveItem("experience", index, "up")} disabled={index === 0}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => moveItem("experience", index, "down")} disabled={index === cvData.experience.length - 1}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeItem("skills", skill.id)}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                  >
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("experience", exp.id)}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
-              ))}
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h4 className="font-medium">Ajouter une compétence</h4>
+              </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Nom de la compétence</Label>
-                  <Input
-                    value={newSkill.name}
-                    onChange={(e) =>
-                      setNewSkill({ ...newSkill, name: e.target.value })
-                    }
-                    placeholder="Ex: React, Python, Gestion de projet..."
-                  />
+                  <Label>Poste <span className="text-red-500">*</span></Label>
+                  <Input value={exp.title} onChange={e => handleArrayChange("experience", index, "title", e.target.value)} placeholder="Développeur Full Stack" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Niveau</Label>
-                  <select
-                    className="w-full px-3 py-2 border rounded-md"
-                    value={newSkill.level}
-                    onChange={(e) =>
-                      setNewSkill({ ...newSkill, level: e.target.value })
-                    }
-                  >
-                    <option value="Débutant">Débutant</option>
-                    <option value="Intermédiaire">Intermédiaire</option>
-                    <option value="Avancé">Avancé</option>
-                    <option value="Expert">Expert</option>
-                  </select>
+                  <Label>Entreprise <span className="text-red-500">*</span></Label>
+                  <Input value={exp.company} onChange={e => handleArrayChange("experience", index, "company", e.target.value)} placeholder="TechCorp SARL" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Lieu</Label>
+                  <Input value={exp.location} onChange={e => handleArrayChange("experience", index, "location", e.target.value)} placeholder="Paris, France" />
+                </div>
+                <div className="space-y-2">
+                  <Label>En poste actuellement</Label>
+                  <div className="flex items-center gap-2 pt-2">
+                    <input type="checkbox" checked={exp.current}
+                      onChange={e => handleArrayChange("experience", index, "current", e.target.checked)} className="rounded" />
+                    <span className="text-sm">Je travaille toujours ici</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Date de début <span className="text-red-500">*</span></Label>
+                  <Input type="month" value={exp.startDate} onChange={e => handleArrayChange("experience", index, "startDate", e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date de fin {!exp.current && <span className="text-red-500">*</span>}</Label>
+                  <Input type="month" value={exp.endDate} onChange={e => handleArrayChange("experience", index, "endDate", e.target.value)} disabled={exp.current} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Description <span className="text-red-500">*</span></Label>
+                  <Textarea value={exp.description} onChange={e => handleArrayChange("experience", index, "description", e.target.value)}
+                    placeholder="Missions, responsabilités et réalisations concrètes..." rows={4} />
+                  <p className="text-xs text-muted-foreground">Utilisez des verbes d'action et chiffres concrets</p>
                 </div>
               </div>
-              <Button type="button" onClick={addSkill} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Ajouter cette compétence
+            </div>
+          ))}
+        </div>
+
+        <Button type="button" variant="outline" onClick={() => addItem("experience", { title: "", company: "", location: "", startDate: "", endDate: "", current: false, description: "" })} className="w-full gap-2 border-dashed">
+          <Plus className="w-4 h-4" /> Ajouter une expérience
+        </Button>
+      </div>
+    );
+
+    // ── ÉTAPE 3 : Formation ──────────────────────
+    if (stepId === "education") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <GraduationCap className="w-5 h-5 text-primary" /> Formation
+          </h3>
+          <Badge variant="outline">{cvData.education.length} formation{cvData.education.length !== 1 ? "s" : ""}</Badge>
+        </div>
+
+        <HelpNotice
+          title="Conseils pour la section Formation"
+          tips={[
+            "Listez les diplômes du plus récent au plus ancien.",
+            "Indiquez la mention si elle est honorable (Bien, Très Bien).",
+            "Pour les jeunes diplômés, la formation peut précéder l'expérience.",
+            "Mentionnez les projets académiques marquants dans la description.",
+          ]}
+        />
+
+        <div className="space-y-4">
+          {cvData.education.map((edu, index) => (
+            <div key={edu.id} className="p-4 space-y-4 border rounded-xl bg-gray-50/50">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-gray-700">Formation #{index + 1}</h4>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => moveItem("education", index, "up")} disabled={index === 0}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => moveItem("education", index, "down")} disabled={index === cvData.education.length - 1}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
+                  </div>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("education", edu.id)}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Diplôme <span className="text-red-500">*</span></Label>
+                  <Input value={edu.degree} onChange={e => handleArrayChange("education", index, "degree", e.target.value)} placeholder="Master en Informatique" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Établissement <span className="text-red-500">*</span></Label>
+                  <Input value={edu.school} onChange={e => handleArrayChange("education", index, "school", e.target.value)} placeholder="Université de Paris" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Lieu</Label>
+                  <Input value={edu.location} onChange={e => handleArrayChange("education", index, "location", e.target.value)} placeholder="Paris, France" />
+                </div>
+                <div className="space-y-2">
+                  <Label>En formation actuellement</Label>
+                  <div className="flex items-center gap-2 pt-2">
+                    <input type="checkbox" checked={edu.current}
+                      onChange={e => handleArrayChange("education", index, "current", e.target.checked)} className="rounded" />
+                    <span className="text-sm">Je suis encore en formation</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Date de début</Label>
+                  <Input type="month" value={edu.startDate} onChange={e => handleArrayChange("education", index, "startDate", e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date de fin</Label>
+                  <Input type="month" value={edu.endDate} onChange={e => handleArrayChange("education", index, "endDate", e.target.value)} disabled={edu.current} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Description</Label>
+                  <Textarea value={edu.description} onChange={e => handleArrayChange("education", index, "description", e.target.value)}
+                    placeholder="Mention, spécialisation, mémoire, projets réalisés..." rows={3} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <Button type="button" variant="outline" onClick={() => addItem("education", { degree: "", school: "", location: "", startDate: "", endDate: "", current: false, description: "" })} className="w-full gap-2 border-dashed">
+          <Plus className="w-4 h-4" /> Ajouter une formation
+        </Button>
+      </div>
+    );
+
+    // ── ÉTAPE 4 : Compétences ────────────────────
+    if (stepId === "skills") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <Star className="w-5 h-5 text-primary" /> Compétences
+          </h3>
+          <Badge variant="outline">{cvData.skills.length} compétence{cvData.skills.length !== 1 ? "s" : ""}</Badge>
+        </div>
+
+        <HelpNotice
+          title="Quelles compétences mettre en avant ?"
+          tips={[
+            "Privilégiez 8 à 12 compétences bien choisies plutôt qu'une longue liste.",
+            "Mixez compétences techniques (hard skills) et transversales (soft skills).",
+            "Classez-les par ordre de maîtrise ou de pertinence pour le poste.",
+            "Soyez honnête sur les niveaux — les recruteurs vérifient souvent.",
+          ]}
+        />
+
+        <div className="space-y-3">
+          {cvData.skills.map((skill, index) => (
+            <div key={skill.id} className="flex items-center gap-4 p-3 border rounded-lg bg-gray-50/50">
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{skill.name}</span>
+                  <Badge variant="secondary" className="text-xs">{skill.level}</Badge>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <button type="button" onClick={() => moveItem("skills", index, "up")} disabled={index === 0}
+                  className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
+                <button type="button" onClick={() => moveItem("skills", index, "down")} disabled={index === cvData.skills.length - 1}
+                  className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
+              </div>
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("skills", skill.id)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                <Trash2 className="w-4 h-4" />
               </Button>
             </div>
+          ))}
+        </div>
 
-            <div className="p-4 border rounded-lg bg-muted/30">
-              <h4 className="mb-2 font-medium">Conseils</h4>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>
-                  • Mettez en avant les compétences pertinentes pour le poste
-                  visé
-                </li>
-                <li>• Privilégiez 8-12 compétences principales</li>
-                <li>• Classez-les par ordre de maîtrise ou pertinence</li>
-                <li>• Incluez des compétences techniques et transversales</li>
-              </ul>
+        <Separator />
+
+        <div className="space-y-4">
+          <h4 className="font-medium">Ajouter une compétence</h4>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-2 md:col-span-2">
+              <Label>Nom</Label>
+              <Input value={newSkill.name} onChange={e => setNewSkill({ ...newSkill, name: e.target.value })}
+                placeholder="Ex : React, Python, Gestion de projet…"
+                onKeyDown={e => e.key === "Enter" && addSkill()} />
+            </div>
+            <div className="space-y-2">
+              <Label>Niveau</Label>
+              <select className="w-full px-3 py-2 text-sm border rounded-md" value={newSkill.level}
+                onChange={e => setNewSkill({ ...newSkill, level: e.target.value })}>
+                <option>Débutant</option>
+                <option>Intermédiaire</option>
+                <option>Avancé</option>
+                <option>Expert</option>
+              </select>
             </div>
           </div>
-        );
+          <Button type="button" onClick={addSkill} className="gap-2" disabled={!newSkill.name.trim()}>
+            <Plus className="w-4 h-4" /> Ajouter cette compétence
+          </Button>
+        </div>
+      </div>
+    );
 
-      case "experience":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold">
-                Expérience professionnelle
-              </h3>
-              <Badge variant="outline">
-                {cvData.experience.length} expériences
-              </Badge>
+    // ── ÉTAPE 5 : Langues ───────────────────────
+    if (stepId === "languages") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <Globe className="w-5 h-5 text-primary" /> Langues
+          </h3>
+          <Badge variant="outline">{cvData.languages.length} langue{cvData.languages.length !== 1 ? "s" : ""}</Badge>
+        </div>
+
+        <HelpNotice
+          title="Comment renseigner les langues ?"
+          tips={[
+            "Indiquez le niveau CECRL si possible : A1, A2, B1, B2, C1, C2.",
+            "\"Langue maternelle\" s'écrit toujours en premier.",
+            "Ne mentez pas sur le niveau — vous serez testé en entretien.",
+            "Précisez \"Langue professionnelle\" si vous travaillez dans cette langue.",
+          ]}
+        />
+
+        <div className="space-y-3">
+          {cvData.languages.map((lang, index) => (
+            <div key={lang.id} className="flex items-center gap-4 p-3 border rounded-lg bg-gray-50/50">
+              <div className="grid flex-1 grid-cols-2 gap-3">
+                <Input value={lang.name} onChange={e => handleArrayChange("languages", index, "name", e.target.value)} placeholder="Français" />
+                <select className="w-full px-3 py-2 text-sm border rounded-md" value={lang.level}
+                  onChange={e => handleArrayChange("languages", index, "level", e.target.value)}>
+                  <option>Langue maternelle</option>
+                  <option>Courant (C1/C2)</option>
+                  <option>Avancé (B2)</option>
+                  <option>Intermédiaire (B1)</option>
+                  <option>Débutant (A1/A2)</option>
+                  <option>Notions</option>
+                </select>
+              </div>
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("languages", lang.id)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
+          ))}
+        </div>
 
-            <div className="space-y-4">
-              {cvData.experience.map((exp, index) => (
-                <div key={exp.id} className="p-4 space-y-4 border rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">Expérience #{index + 1}</h4>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => moveItem("experience", index, "up")}
-                          disabled={index === 0}
-                          className="p-1 rounded hover:bg-muted disabled:opacity-30"
-                        >
-                          <ChevronUp className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveItem("experience", index, "down")}
-                          disabled={index === cvData.experience.length - 1}
-                          className="p-1 rounded hover:bg-muted disabled:opacity-30"
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem("experience", exp.id)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+        <Button type="button" variant="outline" onClick={() => addItem("languages", { name: "", level: "Intermédiaire (B1)" })} className="w-full gap-2 border-dashed">
+          <Plus className="w-4 h-4" /> Ajouter une langue
+        </Button>
+      </div>
+    );
 
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Poste *</Label>
-                      <Input
-                        value={exp.title}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "experience",
-                            index,
-                            "title",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex: Développeur Full Stack"
-                      />
-                    </div>
+    // ── ÉTAPE 6 : Certifications ─────────────────
+    if (stepId === "certifications") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <Award className="w-5 h-5 text-primary" /> Certifications
+          </h3>
+          <Badge variant="outline">{cvData.certifications.length} certification{cvData.certifications.length !== 1 ? "s" : ""}</Badge>
+        </div>
 
-                    <div className="space-y-2">
-                      <Label>Entreprise *</Label>
-                      <Input
-                        value={exp.company}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "experience",
-                            index,
-                            "company",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Nom de l'entreprise"
-                      />
-                    </div>
+        <HelpNotice
+          title="Quelles certifications inclure ?"
+          tips={[
+            "Priorisez les certifications reconnues dans votre secteur.",
+            "Indiquez l'organisme émetteur (AWS, Google, PMI…).",
+            "Si la certification est expirée, mentionnez-le entre parenthèses.",
+            "Les certifications récentes (< 3 ans) ont plus de valeur.",
+          ]}
+        />
 
-                    <div className="space-y-2">
-                      <Label>Lieu</Label>
-                      <Input
-                        value={exp.location}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "experience",
-                            index,
-                            "location",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex: Paris, France"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Actuellement en poste</Label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={exp.current}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "experience",
-                              index,
-                              "current",
-                              e.target.checked,
-                            )
-                          }
-                          className="rounded"
-                        />
-                        <Label className="!mb-0">
-                          Je travaille toujours ici
-                        </Label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Date de début *</Label>
-                      <Input
-                        type="month"
-                        value={exp.startDate}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "experience",
-                            index,
-                            "startDate",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Date de fin {!exp.current && "*"}</Label>
-                      <Input
-                        type="month"
-                        value={exp.endDate}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "experience",
-                            index,
-                            "endDate",
-                            e.target.value,
-                          )
-                        }
-                        disabled={exp.current}
-                      />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <Label>Description *</Label>
-                      <Textarea
-                        value={exp.description}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "experience",
-                            index,
-                            "description",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Décrivez vos missions, responsabilités et réalisations..."
-                        rows={4}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Utilisez des verbes d'action et des chiffres concrets
-                      </p>
-                    </div>
-                  </div>
+        <div className="space-y-3">
+          {cvData.certifications.map((cert, index) => (
+            <div key={cert.id} className="p-4 space-y-3 border rounded-xl bg-gray-50/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">Certification #{index + 1}</span>
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("certifications", cert.id)}
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="space-y-1 md:col-span-2">
+                  <Label className="text-xs">Nom de la certification</Label>
+                  <Input value={cert.name} onChange={e => handleArrayChange("certifications", index, "name", e.target.value)} placeholder="AWS Certified Developer" />
                 </div>
-              ))}
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                addItem("experience", {
-                  title: "",
-                  company: "",
-                  location: "",
-                  startDate: "",
-                  endDate: "",
-                  current: false,
-                  description: "",
-                })
-              }
-              className="w-full gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Ajouter une expérience
-            </Button>
-          </div>
-        );
-
-      case "education":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Formation</h3>
-              <Badge variant="outline">
-                {cvData.education.length} formations
-              </Badge>
-            </div>
-
-            <div className="space-y-4">
-              {cvData.education.map((edu, index) => (
-                <div key={edu.id} className="p-4 space-y-4 border rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">Formation #{index + 1}</h4>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => moveItem("education", index, "up")}
-                          disabled={index === 0}
-                          className="p-1 rounded hover:bg-muted disabled:opacity-30"
-                        >
-                          <ChevronUp className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveItem("education", index, "down")}
-                          disabled={index === cvData.education.length - 1}
-                          className="p-1 rounded hover:bg-muted disabled:opacity-30"
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem("education", edu.id)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Diplôme *</Label>
-                      <Input
-                        value={edu.degree}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "education",
-                            index,
-                            "degree",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex: Master en Informatique"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Établissement *</Label>
-                      <Input
-                        value={edu.school}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "education",
-                            index,
-                            "school",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex: Université Paris-Saclay"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Lieu</Label>
-                      <Input
-                        value={edu.location}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "education",
-                            index,
-                            "location",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex: Paris, France"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Actuellement en cours</Label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={edu.current}
-                          onChange={(e) =>
-                            handleArrayChange(
-                              "education",
-                              index,
-                              "current",
-                              e.target.checked,
-                            )
-                          }
-                          className="rounded"
-                        />
-                        <Label className="!mb-0">Formation en cours</Label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Date de début *</Label>
-                      <Input
-                        type="month"
-                        value={edu.startDate}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "education",
-                            index,
-                            "startDate",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Date de fin {!edu.current && "*"}</Label>
-                      <Input
-                        type="month"
-                        value={edu.endDate}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "education",
-                            index,
-                            "endDate",
-                            e.target.value,
-                          )
-                        }
-                        disabled={edu.current}
-                      />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <Label>Description</Label>
-                      <Textarea
-                        value={edu.description}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "education",
-                            index,
-                            "description",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Mention, spécialisation, projets réalisés..."
-                        rows={3}
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Année</Label>
+                  <Input value={cert.date} onChange={e => handleArrayChange("certifications", index, "date", e.target.value)} placeholder="2024" />
                 </div>
-              ))}
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                addItem("education", {
-                  degree: "",
-                  school: "",
-                  location: "",
-                  startDate: "",
-                  endDate: "",
-                  current: false,
-                  description: "",
-                })
-              }
-              className="w-full gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Ajouter une formation
-            </Button>
-          </div>
-        );
-
-      case "settings":
-        return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold">Apparence du CV</h3>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Modèle de CV</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {["moderne", "classique", "créatif", "minimaliste"].map(
-                      (template) => (
-                        <button
-                          key={template}
-                          type="button"
-                          onClick={() =>
-                            handleInputChange("settings", "template", template)
-                          }
-                          className={`p-4 border rounded-lg text-center transition-colors ${
-                            cvData.settings.template === template
-                              ? "border-primary bg-primary/10"
-                              : "hover:border-primary/50"
-                          }`}
-                        >
-                          <div className="mb-2 text-sm font-medium capitalize">
-                            {template}
-                          </div>
-                          <div className="w-3/4 h-1 mx-auto mb-1 rounded bg-primary/30"></div>
-                          <div className="w-2/3 h-1 mx-auto mb-1 rounded bg-primary/20"></div>
-                          <div className="w-1/2 h-1 mx-auto rounded bg-primary/10"></div>
-                        </button>
-                      ),
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Couleur principale</Label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="color"
-                      value={cvData.settings.color}
-                      onChange={(e) =>
-                        handleInputChange("settings", "color", e.target.value)
-                      }
-                      className="w-12 h-12 cursor-pointer"
-                    />
-                    <div className="flex-1">
-                      <Input
-                        value={cvData.settings.color}
-                        onChange={(e) =>
-                          handleInputChange("settings", "color", e.target.value)
-                        }
-                        placeholder="#3b82f6"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "#3b82f6",
-                      "#10b981",
-                      "#8b5cf6",
-                      "#f59e0b",
-                      "#ef4444",
-                    ].map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        onClick={() =>
-                          handleInputChange("settings", "color", color)
-                        }
-                        className="w-8 h-8 border rounded-full"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
+                <div className="space-y-1 md:col-span-3">
+                  <Label className="text-xs">Organisme émetteur</Label>
+                  <Input value={cert.issuer} onChange={e => handleArrayChange("certifications", index, "issuer", e.target.value)} placeholder="Amazon Web Services" />
                 </div>
               </div>
+            </div>
+          ))}
+        </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Police de caractères</Label>
-                  <select
-                    className="w-full px-3 py-2 border rounded-md"
-                    value={cvData.settings.font}
-                    onChange={(e) =>
-                      handleInputChange("settings", "font", e.target.value)
-                    }
-                  >
-                    <option value="Inter">Inter (Moderne)</option>
-                    <option value="Roboto">Roboto (Neutre)</option>
-                    <option value="Open Sans">Open Sans (Lisible)</option>
-                    <option value="Merriweather">
-                      Merriweather (Classique)
-                    </option>
-                    <option value="Montserrat">Montserrat (Élégant)</option>
-                  </select>
+        <Button type="button" variant="outline" onClick={() => addItem("certifications", { name: "", issuer: "", date: "" })} className="w-full gap-2 border-dashed">
+          <Plus className="w-4 h-4" /> Ajouter une certification
+        </Button>
+      </div>
+    );
+
+    // ── ÉTAPE 7 : Projets ────────────────────────
+    if (stepId === "projects") return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            <FolderOpen className="w-5 h-5 text-primary" /> Projets
+          </h3>
+          <Badge variant="outline">{cvData.projects.length} projet{cvData.projects.length !== 1 ? "s" : ""}</Badge>
+        </div>
+
+        <HelpNotice
+          title="Quels projets mentionner ?"
+          tips={[
+            "Projets personnels, open source, académiques ou associatifs sont les bienvenus.",
+            "Indiquez les technologies utilisées — c'est très utile pour les recruteurs tech.",
+            "Ajoutez un lien GitHub ou démo si disponible.",
+            "Décrivez le problème résolu et votre rôle dans le projet.",
+          ]}
+        />
+
+        <div className="space-y-4">
+          {cvData.projects.map((project, index) => (
+            <div key={project.id} className="p-4 space-y-3 border rounded-xl bg-gray-50/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">Projet #{index + 1}</span>
+                <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("projects", project.id)}
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="space-y-1 md:col-span-2">
+                  <Label className="text-xs">Nom du projet</Label>
+                  <Input value={project.name} onChange={e => handleArrayChange("projects", index, "name", e.target.value)} placeholder="Application de gestion de tâches" />
                 </div>
+                <div className="space-y-1 md:col-span-2">
+                  <Label className="text-xs">Description</Label>
+                  <Textarea value={project.description} onChange={e => handleArrayChange("projects", index, "description", e.target.value)}
+                    placeholder="Décrivez le projet, votre rôle et les résultats obtenus..." rows={3} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Technologies (séparées par des virgules)</Label>
+                  <Input
+                    value={Array.isArray(project.technologies) ? project.technologies.join(", ") : project.technologies}
+                    onChange={e => handleArrayChange("projects", index, "technologies", e.target.value.split(",").map(t => t.trim()))}
+                    placeholder="React, Node.js, MongoDB" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Lien (GitHub, démo…)</Label>
+                  <Input value={project.link} onChange={e => handleArrayChange("projects", index, "link", e.target.value)} placeholder="https://github.com/user/project" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-                <div className="space-y-2">
-                  <Label>Photo de profil</Label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="showPhoto"
-                      checked={cvData.settings.showPhoto}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "settings",
-                          "showPhoto",
-                          e.target.checked,
-                        )
-                      }
-                      className="rounded"
-                    />
-                    <Label htmlFor="showPhoto" className="!mb-0">
-                      Inclure une photo
-                    </Label>
-                  </div>
+        <Button type="button" variant="outline" onClick={() => addItem("projects", { name: "", description: "", technologies: [], link: "" })} className="w-full gap-2 border-dashed">
+          <Plus className="w-4 h-4" /> Ajouter un projet
+        </Button>
+      </div>
+    );
 
-                  {cvData.settings.showPhoto && (
-                    <div className="mt-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              handleInputChange(
-                                "settings",
-                                "photoUrl",
-                                event.target.result,
-                              );
-                            };
-                            reader.readAsDataURL(e.target.files[0]);
-                          }
-                        }}
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Photo professionnelle recommandée (format carré)
-                      </p>
-                    </div>
+    // ── ÉTAPE 8 : Apparence ──────────────────────
+    if (stepId === "settings") return (
+      <div className="space-y-6">
+        <h3 className="flex items-center gap-2 text-xl font-semibold">
+          <Edit2 className="w-5 h-5 text-primary" /> Apparence du CV
+        </h3>
+
+        <HelpNotice
+          title="Conseils de mise en page"
+          tips={[
+            "Choisissez un modèle adapté à votre secteur : moderne pour la tech, classique pour la finance ou le droit.",
+            "La couleur principale doit rester sobre : bleu, gris, vert foncé…",
+            "Évitez les polices fantaisie — elles nuisent à la lisibilité.",
+            "La photo n'est pas obligatoire et peut être source de discrimination dans certains pays.",
+            "Ciblez 1 à 2 pages maximum pour la plupart des profils.",
+          ]}
+        />
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Modèle de CV</Label>
+              {/* <div className="grid grid-cols-2 gap-3">
+                {["moderne", "classique", "créatif", "minimaliste"].map(template => (
+                  <button key={template} type="button" onClick={() => handleInputChange("settings", "template", template)}
+                    className={`p-4 border rounded-lg text-center transition-colors ${cvData.settings.template === template ? "border-primary bg-primary/10" : "hover:border-primary/50"}`}>
+                    <div className="mb-2 text-sm font-medium capitalize">{template}</div>
+                    <div className="w-3/4 h-1 mx-auto mb-1 rounded bg-primary/30"></div>
+                    <div className="w-2/3 h-1 mx-auto mb-1 rounded bg-primary/20"></div>
+                    <div className="w-1/2 h-1 mx-auto rounded bg-primary/10"></div>
+                  </button>
+                ))}
+              </div> */}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Couleur principale</Label>
+              <div className="flex items-center gap-4">
+                <input type="color" value={cvData.settings.color}
+                  onChange={e => handleInputChange("settings", "color", e.target.value)} className="w-12 h-12 border rounded-lg cursor-pointer" />
+                <Input value={cvData.settings.color} onChange={e => handleInputChange("settings", "color", e.target.value)} placeholder="#3b82f6" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#ef4444", "#0f172a", "#0e7490"].map(color => (
+                  <button key={color} type="button" onClick={() => handleInputChange("settings", "color", color)}
+                    className={`w-8 h-8 border-2 rounded-full transition-transform hover:scale-110 ${cvData.settings.color === color ? "border-gray-800 scale-110" : "border-transparent"}`}
+                    style={{ backgroundColor: color }} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Police de caractères</Label>
+              <select className="w-full px-3 py-2 border rounded-md" value={cvData.settings.font}
+                onChange={e => handleInputChange("settings", "font", e.target.value)}>
+                <option value="Inter">Inter (Moderne)</option>
+                <option value="Roboto">Roboto (Neutre)</option>
+                <option value="Open Sans">Open Sans (Lisible)</option>
+                <option value="Merriweather">Merriweather (Classique)</option>
+                <option value="Montserrat">Montserrat (Élégant)</option>
+              </select>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Photo de profil</Label>
+              <div className="flex items-center gap-3">
+                <input type="checkbox" id="showPhoto" checked={cvData.settings.showPhoto}
+                  onChange={e => handleInputChange("settings", "showPhoto", e.target.checked)} className="rounded" />
+                <Label htmlFor="showPhoto" className="!mb-0 font-normal">Inclure une photo professionnelle</Label>
+              </div>
+              {cvData.settings.showPhoto && (
+                <div className="mt-2 space-y-2">
+                  <Input type="file" accept="image/*" onChange={e => {
+                    if (e.target.files[0]) {
+                      const reader = new FileReader();
+                      reader.onload = ev => handleInputChange("settings", "photoUrl", ev.target.result);
+                      reader.readAsDataURL(e.target.files[0]);
+                    }
+                  }} />
+                  <p className="text-xs text-muted-foreground">Photo professionnelle recommandée (format carré, fond neutre)</p>
+                  {cvData.settings.photoUrl && (
+                    <img src={cvData.settings.photoUrl} alt="Aperçu" className="object-cover w-20 h-20 border-2 border-gray-200 rounded-full" />
                   )}
                 </div>
-
-                <div className="p-4 border rounded-lg bg-muted/30">
-                  <h4 className="mb-2 font-medium">Conseils de mise en page</h4>
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    <li>• Choisissez un modèle adapté à votre secteur</li>
-                    <li>• Privilégiez la lisibilité</li>
-                    <li>• Limitez le CV à 1-2 pages maximum</li>
-                    <li>• Utilisez des espaces blancs pour aérer</li>
-                  </ul>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        );
+        </div>
+      </div>
+    );
 
-      default:
-        return (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold capitalize">
-              {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
-            </h3>
-            <p className="text-muted-foreground">
-              Section en cours de développement
-            </p>
+    // ── ÉTAPE 9 : Aperçu & Export ────────────────
+    if (stepId === "preview") return (
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
+            {/* <Eye className="w-5 h-5 text-primary" /> Aperçu & Export */}
+            <Eye className="w-5 h-5 text-primary" /> Export
+          </h3>
+          <div className="flex items-center gap-2">
+            {/* <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
+              <Printer className="w-4 h-4" /> Imprimer
+            </Button> */}
+            {/* <Button variant="default" size="sm" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2">
+              {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Télécharger PDF</>}
+            </Button> */}
           </div>
-        );
-    }
+        </div>
+
+        {/* <HelpNotice
+          title="Avant de télécharger votre CV…"
+          variant="success"
+          tips={[
+            "Vérifiez que toutes les informations sont correctes et à jour.",
+            "Assurez-vous que les dates sont cohérentes.",
+            "Relisez l'orthographe et la grammaire soigneusement.",
+            "Adaptez le profil professionnel à chaque candidature.",
+            "Le fichier PDF sera optimisé pour l'impression A4.",
+          ]}
+        />
+
+        <div className="overflow-hidden border shadow-sm rounded-xl">
+          {renderCVPreview()}
+        </div> */}
+
+        <div className="flex items-center justify-center p-4 overflow-hidden border rounded-xl">
+          <span className="mr-4 text-gray-500">Le document est prêt à être généré</span>
+
+          <Button variant="default" size="sm" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2">
+              {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le PDF</>}
+            </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-3 pt-2">
+          {/* <Button variant="outline" className="gap-2">
+            <Save className="w-4 h-4" /> Sauvegarder le modèle
+          </Button> */}
+          <Button variant="outline" className="gap-2">
+            <Share2 className="w-4 h-4" /> Partager
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={() => setIsCvHistoryOpen(true)}>
+            <BookOpen className="w-4 h-4" /> Historique de CV
+          </Button>
+          <Button variant="ghost" onClick={() => {
+            dispatch(clearCV());
+            setCvData(defaultCvData);
+            setCvType(null);
+            setCurrentStep(0);
+          }} className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50">
+            <Trash2 className="w-4 h-4" /> Recommencer
+          </Button>
+        </div>
+      </div>
+    );
+
+    return null;
   };
 
-  // Rendu du CV
+  // ── Aperçu CV ────────────────────────────────
   const renderCVPreview = () => {
-    const {
-      personal,
-      skills,
-      experience,
-      education,
-      languages,
-      certifications,
-      projects,
-      settings,
-    } = cvData;
+    const { personal, skills, experience, education, languages, certifications, projects, settings } = cvData;
     const fullName = `${personal.firstName} ${personal.lastName}`.trim();
-
     return (
-      <div
-        ref={cvRef}
-        className="max-w-4xl p-8 mx-auto text-gray-800 bg-white border shadow-sm"
-        style={{ fontFamily: settings.font }}
-      >
+      <div ref={cvRef} className="max-w-4xl p-8 mx-auto text-gray-800 bg-white" style={{ fontFamily: settings.font }}>
         {/* En-tête */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h1
-                className="mb-2 text-3xl font-bold"
-                style={{ color: settings.color }}
-              >
-                {fullName || "Votre Nom"}
-              </h1>
-              {personal.title && (
-                <h2 className="mb-4 text-xl text-gray-600">{personal.title}</h2>
-              )}
-
-              {personal.summary && (
-                <p className="mb-4 text-gray-700">{personal.summary}</p>
-              )}
+              <h1 className="mb-1 text-3xl font-bold" style={{ color: settings.color }}>{fullName || "Votre Nom"}</h1>
+              {personal.title && <h2 className="mb-3 text-xl text-gray-600">{personal.title}</h2>}
+              {personal.summary && <p className="mb-4 text-sm leading-relaxed text-gray-700">{personal.summary}</p>}
             </div>
-
             {settings.showPhoto && settings.photoUrl && (
               <div className="ml-6">
                 <div className="w-24 h-24 overflow-hidden border-2 border-gray-200 rounded-full">
-                  <img
-                    src={settings.photoUrl}
-                    alt={fullName}
-                    className="object-cover w-full h-full"
-                  />
+                  <img src={settings.photoUrl} alt={fullName} className="object-cover w-full h-full" />
                 </div>
               </div>
             )}
           </div>
-
-          {/* Coordonnées */}
-          <div className="flex flex-wrap gap-4 text-sm">
-            {personal.email && (
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" style={{ color: settings.color }} />
-                <span>{personal.email}</span>
-              </div>
-            )}
-            {personal.phone && (
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" style={{ color: settings.color }} />
-                <span>{personal.phone}</span>
-              </div>
-            )}
-            {personal.city && (
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" style={{ color: settings.color }} />
-                <span>
-                  {personal.city}, {personal.country}
-                </span>
-              </div>
-            )}
-            {personal.linkedin && (
-              <div className="flex items-center gap-2">
-                <Linkedin
-                  className="w-4 h-4"
-                  style={{ color: settings.color }}
-                />
-                <span>LinkedIn</span>
-              </div>
-            )}
+          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            {personal.email && <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" style={{ color: settings.color }} />{personal.email}</span>}
+            {personal.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" style={{ color: settings.color }} />{personal.phone}</span>}
+            {personal.city && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" style={{ color: settings.color }} />{personal.city}, {personal.country}</span>}
+            {personal.linkedin && <span className="flex items-center gap-1"><Linkedin className="w-3.5 h-3.5" style={{ color: settings.color }} />LinkedIn</span>}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Colonne gauche */}
-          <div className="space-y-8 lg:col-span-2">
-            {/* Expérience */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
             {experience.length > 0 && (
               <div>
-                <h3
-                  className="pb-2 mb-4 text-xl font-bold border-b"
-                  style={{ borderColor: settings.color, color: settings.color }}
-                >
-                  Expérience Professionnelle
-                </h3>
-                <div className="space-y-6">
-                  {experience.map((exp, index) => (
-                    <div
-                      key={index}
-                      className="pb-4 border-b border-gray-100 last:border-0"
-                    >
-                      <div className="flex items-start justify-between mb-2">
+                <h3 className="pb-1 mb-3 text-base font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>Expérience Professionnelle</h3>
+                <div className="space-y-4">
+                  {experience.map((exp, i) => (
+                    <div key={i} className="pb-3 border-b border-gray-100 last:border-0">
+                      <div className="flex items-start justify-between mb-1">
                         <div>
-                          <h4 className="text-lg font-bold">{exp.title}</h4>
-                          <div className="font-medium text-gray-600">
-                            {exp.company}
-                          </div>
-                          {exp.location && (
-                            <div className="text-sm text-gray-500">
-                              {exp.location}
-                            </div>
-                          )}
+                          <h4 className="text-sm font-bold">{exp.title}</h4>
+                          <div className="text-xs font-medium text-gray-600">{exp.company}{exp.location && ` — ${exp.location}`}</div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-medium text-gray-600">
-                            {exp.startDate} -{" "}
-                            {exp.current ? "Présent" : exp.endDate}
-                          </div>
-                        </div>
+                        <div className="ml-2 text-xs text-gray-500 whitespace-nowrap">{exp.startDate} – {exp.current ? "Présent" : exp.endDate}</div>
                       </div>
-                      <p className="text-gray-700">{exp.description}</p>
+                      <p className="text-xs leading-relaxed text-gray-700">{exp.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Formation */}
             {education.length > 0 && (
               <div>
-                <h3
-                  className="pb-2 mb-4 text-xl font-bold border-b"
-                  style={{ borderColor: settings.color, color: settings.color }}
-                >
-                  Formation
-                </h3>
-                <div className="space-y-4">
-                  {education.map((edu, index) => (
-                    <div
-                      key={index}
-                      className="pb-4 border-b border-gray-100 last:border-0"
-                    >
-                      <div className="flex items-start justify-between mb-2">
+                <h3 className="pb-1 mb-3 text-base font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>Formation</h3>
+                <div className="space-y-3">
+                  {education.map((edu, i) => (
+                    <div key={i} className="pb-3 border-b border-gray-100 last:border-0">
+                      <div className="flex items-start justify-between">
                         <div>
-                          <h4 className="font-bold">{edu.degree}</h4>
-                          <div className="text-gray-600">{edu.school}</div>
-                          {edu.location && (
-                            <div className="text-sm text-gray-500">
-                              {edu.location}
-                            </div>
-                          )}
+                          <h4 className="text-sm font-bold">{edu.degree}</h4>
+                          <div className="text-xs text-gray-600">{edu.school}{edu.location && ` — ${edu.location}`}</div>
+                          {edu.description && <p className="text-xs text-gray-500 mt-0.5">{edu.description}</p>}
                         </div>
-                        <div className="text-right">
-                          <div className="text-gray-600">
-                            {edu.startDate} -{" "}
-                            {edu.current ? "Présent" : edu.endDate}
-                          </div>
-                        </div>
+                        <div className="ml-2 text-xs text-gray-500 whitespace-nowrap">{edu.startDate} – {edu.current ? "Présent" : edu.endDate}</div>
                       </div>
-                      {edu.description && (
-                        <p className="text-sm text-gray-700">
-                          {edu.description}
-                        </p>
-                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {projects.length > 0 && (
+              <div>
+                <h3 className="pb-1 mb-3 text-base font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>Projets</h3>
+                <div className="space-y-3">
+                  {projects.map((p, i) => (
+                    <div key={i} className="text-xs">
+                      <span className="font-bold">{p.name}</span>
+                      {p.technologies?.length > 0 && <span className="text-gray-500"> — {p.technologies.join(", ")}</span>}
+                      {p.description && <p className="text-gray-700 mt-0.5">{p.description}</p>}
                     </div>
                   ))}
                 </div>
@@ -1386,73 +1156,41 @@ const CVGeneratorPage = () => {
             )}
           </div>
 
-          {/* Colonne droite */}
-          <div className="space-y-8">
-            {/* Compétences */}
+          <div className="space-y-6">
             {skills.length > 0 && (
               <div>
-                <h3
-                  className="pb-2 mb-4 text-xl font-bold border-b"
-                  style={{ borderColor: settings.color, color: settings.color }}
-                >
-                  Compétences
-                </h3>
-                <div className="space-y-2">
-                  {skills.map((skill, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="font-medium">{skill.name}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {skill.level}
-                      </Badge>
+                <h3 className="pb-1 mb-3 text-base font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>Compétences</h3>
+                <div className="space-y-1">
+                  {skills.map((s, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="font-medium">{s.name}</span>
+                      <span className="text-gray-500">{s.level}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Langues */}
             {languages.length > 0 && (
               <div>
-                <h3
-                  className="pb-2 mb-4 text-xl font-bold border-b"
-                  style={{ borderColor: settings.color, color: settings.color }}
-                >
-                  Langues
-                </h3>
-                <div className="space-y-2">
-                  {languages.map((lang, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="font-medium">{lang.name}</span>
-                      <span className="text-sm text-gray-600">
-                        {lang.level}
-                      </span>
+                <h3 className="pb-1 mb-3 text-base font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>Langues</h3>
+                <div className="space-y-1">
+                  {languages.map((l, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="font-medium">{l.name}</span>
+                      <span className="text-gray-500">{l.level}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Certifications */}
             {certifications.length > 0 && (
               <div>
-                <h3
-                  className="pb-2 mb-4 text-xl font-bold border-b"
-                  style={{ borderColor: settings.color, color: settings.color }}
-                >
-                  Certifications
-                </h3>
-                <div className="space-y-3">
-                  {certifications.map((cert, index) => (
-                    <div key={index}>
-                      <div className="font-medium">{cert.name}</div>
-                      <div className="text-sm text-gray-600">{cert.issuer}</div>
-                      <div className="text-xs text-gray-500">{cert.date}</div>
+                <h3 className="pb-1 mb-3 text-base font-bold border-b" style={{ borderColor: settings.color, color: settings.color }}>Certifications</h3>
+                <div className="space-y-2">
+                  {certifications.map((c, i) => (
+                    <div key={i} className="text-xs">
+                      <div className="font-medium">{c.name}</div>
+                      <div className="text-gray-500">{c.issuer} {c.date && `· ${c.date}`}</div>
                     </div>
                   ))}
                 </div>
@@ -1461,374 +1199,125 @@ const CVGeneratorPage = () => {
           </div>
         </div>
 
-        {/* Pied de page */}
-        <div className="pt-4 mt-8 text-xs text-center text-gray-500 border-t border-gray-200">
-          CV généré <span className="text-3xl text-secondary">L</span>ivrer
-          <span className="text-3xl text-secondary">N</span>ourriture •{" "}
-          {new Date().getFullYear()}
+        <div className="pt-4 mt-6 text-xs text-center text-gray-400 border-t border-gray-100">
+          CV {cvType === "fibem" ? "FIBEM" : "Classique"} — Généré le {new Date().toLocaleDateString("fr-FR")}
         </div>
       </div>
     );
   };
 
+  // ── RENDU PRINCIPAL ──────────────────────────
   return (
     <div className="min-h-screen bg-background">
+      {/* Hero */}
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-white">
-        <div className="container px-4 py-12 mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-full bg-primary/10">
-              <FileText className="w-8 h-8 text-primary" />
+        <div className="container px-4 py-10 mx-auto">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center mb-4 rounded-full w-14 h-14 bg-primary/10">
+              <FileText className="w-7 h-7 text-primary" />
             </div>
-            <h1 className="mb-4 text-4xl font-bold">Générer un CV FIBEM</h1>
-            <p className="text-lg text-gray-600">
-              Créez un CV professionnel en quelques minutes
-            </p>
+            <h1 className="mb-2 text-3xl font-bold">Générateur de CV</h1>
+            <p className="text-sm text-gray-500">Créez un CV professionnel en quelques étapes guidées</p>
           </motion.div>
         </div>
       </div>
-        
-      <div className="container px-4 py-12 mx-auto">
-        {/* En-tête */}
-        {/* <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold md:text-4xl">
-            Générateur de CV
-          </h1>
-          <p className="text-muted-foreground">
-            Créez un CV professionnel en quelques minutes
-          </p>
-        </div> */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid gap-8 lg:grid-cols-3">
-          {/* Navigation des sections */}
-          <div 
-            
-            className="lg:col-span-1">
-            {/* <div className="sticky space-y-4 top-8"> */}
-            <div className="space-y-4 top-8">
-              {/* Navigation */}
-              <div className="border rounded-lg">
-                <div className="p-4 border-b">
-                  <h3 className="font-semibold">Sections du CV</h3>
-                </div>
-                <div className="p-2 space-y-1">
-                  {sections.map((section) => {
-                    const Icon = section.icon;
-                    const itemCount = cvData[section.id]?.length || 0;
 
-                    return (
-                      <button
-                        key={section.id}
-                        type="button"
-                        onClick={() => setActiveSection(section.id)}
-                        className={`flex items-center justify-between w-full p-3 rounded-lg text-left transition-colors ${
-                          activeSection === section.id
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-4 h-4" />
-                          <span>{section.name}</span>
-                        </div>
-                        {itemCount > 0 && (
-                          <Badge
-                            variant={
-                              activeSection === section.id
-                                ? "secondary"
-                                : "outline"
-                            }
-                            className="text-xs"
-                          >
-                            {itemCount}
-                          </Badge>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Progression */}
-              <div className="p-4 border rounded-lg">
-                <h3 className="mb-3 font-semibold">Progression</h3>
-                <div className="space-y-3">
-                  {sections.map((section) => {
-                    const isComplete =
-                      section.id === "personal"
-                        ? cvData.personal.firstName &&
-                          cvData.personal.lastName &&
-                          cvData.personal.email
-                        : section.id === "experience"
-                          ? cvData.experience.length > 0 &&
-                            cvData.experience.every((e) => e.title && e.company)
-                          : section.id === "education"
-                            ? cvData.education.length > 0 &&
-                              cvData.education.every(
-                                (e) => e.degree && e.school,
-                              )
-                            : cvData[section.id]?.length > 0;
-
-                    return (
-                      <div key={section.id} className="flex items-center gap-3">
-                        {isComplete ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <div className="w-4 h-4 border border-gray-300 rounded-full" />
-                        )}
-                        <span className="text-sm">{section.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Actions rapides */}
-              <div className="p-4 border rounded-lg">
-                <h3 className="mb-3 font-semibold">Actions</h3>
-                <div className="space-y-2">
-                  {/* <Button
-                    type="button"
-                    variant="outline"
-                    className="justify-start w-full gap-2"
-                    onClick={() => setPreviewMode(!previewMode)}
-                  >
-                    <Eye className="w-4 h-4" />
-                    {previewMode ? "Masquer l'aperçu" : "Aperçu du CV"}
-                  </Button> */}
-
-                  <Button
-                    variant="outline"
-                    className="justify-start w-full gap-2"
-                    onClick={() => {
-                      dispatch(clearCV());
-                      // Réinitialiser le CV
-                      setCvData({
-                        personal: {
-                          firstName: "",
-                          lastName: "",
-                          title: "",
-                          email: "",
-                          phone: "",
-                          address: "",
-                          city: "",
-                          postalCode: "",
-                          country: "France",
-                          linkedin: "",
-                          github: "",
-                          portfolio: "",
-                          summary: "",
-                        },
-                        skills: [],
-                        education: [],
-                        experience: [],
-                        projects: [],
-                        languages: [],
-                        certifications: [],
-                        settings: {
-                          template: "modern",
-                          color: "#3b82f6",
-                          font: "Inter",
-                          showPhoto: false,
-                          photoUrl: "",
-                        },
-                      });
-                      setPreviewMode(false);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Nouveau CV
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="justify-start w-full gap-2"
-                    onClick={handleGenerateCV}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Génération...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4" />
-                        Générer le CV
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Formulaire principal */}
-          <div className={`${previewMode ? "lg:col-span-2" : "lg:col-span-2"}`}>
-            {previewMode ? (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold">Aperçu de votre CV</h2>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPreviewMode(false)}
-                      className="gap-2"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      Modifier
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={handleDownloadPDF}
-                      className="gap-2"
-                    >
-                      <Download className="w-4 h-4" />
-                      Télécharger PDF
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handlePrint}
-                      className="gap-2"
-                    >
-                      <Printer className="w-4 h-4" />
-                      Imprimer
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="overflow-hidden border rounded-lg">
-                  {renderCVPreview()}
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <Button variant="outline" className="gap-2">
-                    <Save className="w-4 h-4" />
-                    Sauvegarder le modèle
-                  </Button>
-                  <Button variant="outline" className="gap-2">
-                    <Share2 className="w-4 h-4" />
-                    Partager
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => {
-                      // Réinitialiser le CV
-                      setCvData({
-                        personal: {
-                          firstName: "",
-                          lastName: "",
-                          title: "",
-                          email: "",
-                          phone: "",
-                          address: "",
-                          city: "",
-                          postalCode: "",
-                          country: "France",
-                          linkedin: "",
-                          github: "",
-                          portfolio: "",
-                          summary: "",
-                        },
-                        skills: [],
-                        education: [],
-                        experience: [],
-                        projects: [],
-                        languages: [],
-                        certifications: [],
-                        settings: {
-                          template: "modern",
-                          color: "#3b82f6",
-                          font: "Inter",
-                          showPhoto: false,
-                          photoUrl: "",
-                        },
-                      });
-                      setPreviewMode(false);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Nouveau CV
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="border rounded-lg">
-                <div className="p-6">{renderActiveSection()}</div>
-
-                <div className="flex items-center justify-between p-4 border-t">
-                  <div className="text-sm text-muted-foreground">
-                    {activeSection === "personal" &&
-                      "Remplissez vos informations de base"}
-                    {activeSection === "skills" &&
-                      "Ajoutez vos compétences techniques et transversales"}
-                    {activeSection === "experience" &&
-                      "Décrivez votre parcours professionnel"}
-                    {activeSection === "education" &&
-                      "Ajoutez vos diplômes et formations"}
-                    {activeSection === "settings" &&
-                      "Personnalisez l'apparence de votre CV"}
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="default"
-                    onClick={handleGenerateCV}
-                    disabled={isGenerating}
-                    className="gap-2"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Génération...
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-4 h-4" />
-                        Voir l'aperçu
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+      <div className="container max-w-5xl px-4 py-8 mx-auto">
+        {/* Barre de progression */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-5 mb-8 bg-white border shadow-sm rounded-2xl">
+          <ProgressBar steps={STEPS} currentStep={currentStep} onNavigate={goTo} />
         </motion.div>
-      </div>
 
-        {/* Conseils généraux */}
-        {!previewMode && (
-          <div className="p-4 mt-8 border rounded-lg bg-muted/30">
+        {/* Navigation Précédent / Suivant */}
+        <div className="flex flex-wrap items-center justify-between mt-6 mb-6">
+          <div className="flex flex-row w-full md:w-auto">
+            <Button type="button" variant="outline" onClick={() => setIsCvHistoryOpen(true)}>
+              <BookOpen className="w-4 h-4" /> Historique des CV
+            </Button>
+
+            <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2 ml-4">
+              <ChevronLeft className="w-4 h-4" /> Précédent
+            </Button>
+
+          </div>
+
+          <div className="hidden text-xs text-muted-foreground sm:block">
+            {currentStep + 1} / {STEPS.length}
+          </div>
+
+          {currentStep < STEPS.length - 1 ? (
+            <div>
+              <Button type="button" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+                Suivant <ChevronRight className="w-4 h-4" />
+              </Button>
+
+              <Button type="button" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2 ml-4">
+                {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le CV</>}
+              </Button>
+            </div>
+          ) : (
+            <Button type="button" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2">
+              {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le CV</>}
+            </Button>
+          )}
+        </div>
+        
+        {/* Contenu de l'étape */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="bg-white border rounded-2xl shadow-sm p-6 md:p-8 min-h-[400px]"
+          >
+            {renderStep()}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Conseils généraux (toujours visible sauf aperçu final) */}
+        {STEPS[currentStep]?.id !== "preview" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 mt-8 border rounded-xl bg-muted/30">
             <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="mb-2 font-semibold">
-                  Conseils pour un CV efficace
-                </h4>
-                <ul className="grid grid-cols-1 gap-2 text-sm text-muted-foreground md:grid-cols-2">
-                  <li>• Soyez concis et pertinent</li>
+                <h4 className="mb-2 text-sm font-semibold">Conseils pour un CV efficace</h4>
+                <ul className="grid grid-cols-1 gap-1 text-xs text-muted-foreground md:grid-cols-2">
+                  <li>• Soyez concis et pertinent — maximum 2 pages</li>
                   <li>• Adaptez votre CV à chaque candidature</li>
-                  <li>• Utilisez des mots-clés du secteur</li>
+                  <li>• Utilisez des mots-clés du secteur visé</li>
                   <li>• Vérifiez l'orthographe et la grammaire</li>
-                  <li>• Mettez en avant vos réalisations</li>
-                  <li>• Gardez une mise en page professionnelle</li>
+                  <li>• Mettez en avant vos réalisations chiffrées</li>
+                  <li>• Gardez une mise en page aérée et professionnelle</li>
                 </ul>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+      </div>
 
+      <CVHistoryDialog
+        isOpen={isCvHistoryOpen}
+        onClose={() => setIsCvHistoryOpen(false)}
+        selectedUser={user}
+        cvHistory={[
+          {
+            id: "1",
+            titre: "CV Développeur Senior",
+            type: "fibem",        // "fibem" | "classique"
+            statut: "genere",     // "genere" | "en_cours" | "echoue"
+            template: "moderne",
+            dateCreation: "12/03/2025",
+            dateModification: "15/03/2025",
+            url: "https://...",
+          },
+        ]}
+        onPreviewCV={(cv) => window.open(cv.url, "_blank")}
+        onDownloadCV={(cv) => { /* download logic */ }}
+        onDeleteCV={(cv)  => { /* delete logic  */ }}
+        onDuplicateCV={(cv) => { /* duplicate logic */ }}
+      />
     </div>
   );
 };

@@ -40,6 +40,7 @@ import {
   Building,
   Check,
   X,
+  Settings,
 } from "lucide-react";
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
@@ -49,6 +50,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "@/redux/slices/AppSlice";
 import { registerUser, selectAuthError, selectAuthLoading } from "@/redux/slices/authSlice";
 import { thunkSucceed } from "@/lib/tools";
+import { Indicator } from "@radix-ui/react-progress";
+import ReactCountryFlag from "react-country-flag";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -122,14 +125,16 @@ const RegisterPage = () => {
             "register.phone.tooLong",
             "Le numéro de téléphone est trop long",
           ),
-        })
-        .regex(/^\+?[0-9\s\-()]{7,20}$/, {
+        }),
+        /*.regex(/^\+?[0-9\s\-()]{7,20}$/, {
           message: t(
             "register.phone.invalid",
             "Format invalide (ex: +012 34 56 78)",
           ),
-        }),
-
+        }),*/
+      Indicator: z
+        .string(),
+      
       email: z
         .string()
         .min(1, { message: t("register.email.required", "L'email est requis") })
@@ -303,7 +308,13 @@ const RegisterPage = () => {
       value: "CANDIDATE",
       label: "Candidat",
       icon: User,
-      description: "Recherche d'emploi ou de missions (candidats, stagiaires)",
+      description: "Recherche d'emploi ou de missions (candidats, stagiaires, apprenti)",
+    },
+    {
+      value: "PROFESSIONAL",
+      label: "Professionnel",
+      icon: UserCircle,
+      description: "Entreprise, Freelances,...",
     },
     {
       value: "PARTNER",
@@ -311,11 +322,12 @@ const RegisterPage = () => {
       icon: Handshake,
       description: "Entreprises et prestataires",
     },
+    
     {
-      value: "PROFESSIONAL",
-      label: "Professionnel",
-      icon: UserCircle,
-      description: "Entreprise, Freelances,...",
+      value: "ADMIN",
+      label: "Administrateur",
+      icon: Settings,
+      description: "Acces plus approfondi a la plaforme ( Commerciaux,... )",
     },
   ];
 
@@ -491,7 +503,7 @@ const RegisterPage = () => {
                   <Label htmlFor="accountType">
                     Type de compte <span className="text-red-500">*</span>
                   </Label>
-                  <div className="grid gap-3 md:grid-cols-4">
+                  <div className="grid gap-3 md:grid-cols-3">
                     {accountTypes.map((type) => {
                       const Icon = type.icon;
                       const isSelected =
@@ -560,7 +572,8 @@ const RegisterPage = () => {
                         {availableLanguages.map((lang) => (
                           <SelectItem key={lang.value} value={lang.value}>
                             <div className="flex items-center gap-2">
-                              <span>{lang.flag}</span>
+                              <ReactCountryFlag svg countryCode={lang.reactFlag} className="w-4 h-4" />
+                              {/* <span>{lang.flag}</span> */}
                               <span>{lang.name}</span>
                             </div>
                           </SelectItem>

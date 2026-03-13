@@ -40,7 +40,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Adresse",
-    description: "Vernand, France",
+    description: "Vernon, France",
     details: "75 001",
     gradient: "from-green-500 to-emerald-500",
   },
@@ -266,7 +266,7 @@ const ContactPage = () => {
                           value={formData.address}
                           onChange={handleInputChange}
                           required
-                          placeholder="Ex: Vernand"
+                          placeholder="Ex: Vernon"
                           className="h-12"
                         />
                       </div>
