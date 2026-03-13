@@ -31,7 +31,7 @@ import {
   fetchInvoiceById,
 } from "@/redux/slices/invoiceSlice";
 import { useCurrency } from "@/context/CurrencyContext";
-import InvoiceHistoryDialog from "@/components/dialog/invoiceHistoryDialog";
+import InvoiceHistoryDialog from "@/components/dialog/InvoiceHistoryDialog";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD
@@ -943,8 +943,9 @@ const InvoicePage = () => {
         </motion.div>
 
         {/* Navigation */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="flex flex-row gap-2">
+        {/* <div className="flex flex-wrap items-center justify-between gap-3 mb-6"> */}
+        <div className="flex flex-row items-center justify-between gap-3 mb-6">
+          <div className="flex flex-col gap-2 md:flex-row">
             {/* Bouton Historique des factures */}
             <Button type="button" variant="outline" onClick={() => setIsInvoiceHistoryOpen(true)} className="gap-2">
               <BookOpen className="w-4 h-4" /> Historique des factures
@@ -958,7 +959,7 @@ const InvoicePage = () => {
             {currentStep + 1} / {STEPS.length}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 md:flex-row">
             {currentStep < STEPS.length - 1 && (
               <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
                 Suivant <ChevronRight className="w-4 h-4" />

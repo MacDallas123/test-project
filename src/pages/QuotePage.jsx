@@ -26,7 +26,7 @@ import {
   fetchQuoteById,
 } from "@/redux/slices/quoteSlice";
 import { useCurrency } from "@/context/CurrencyContext";
-import QuoteHistoryDialog from "@/components/dialog/quoteHistoryDialog";
+import QuoteHistoryDialog from "@/components/dialog/QuoteHistoryDialog";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD
