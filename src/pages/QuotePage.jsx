@@ -811,9 +811,8 @@ const QuotePage = () => {
             </div>
 
             {/* Document preview */}
-            <div className="overflow-hidden border shadow-sm rounded-xl">
+            {/* <div className="overflow-hidden border shadow-sm rounded-xl">
               <div ref={quoteRef} className="max-w-4xl p-8 mx-auto bg-white">
-                {/* En-tête */}
                 <div className="mb-8">
                   <div className="flex items-center justify-between">
                     <div>
@@ -851,7 +850,6 @@ const QuotePage = () => {
                   )}
                 </div>
 
-                {/* Tableau articles */}
                 <table className="w-full mb-8 text-sm">
                   <thead>
                     <tr className="bg-emerald-50">
@@ -875,7 +873,6 @@ const QuotePage = () => {
                   </tbody>
                 </table>
 
-                {/* Totaux */}
                 <div className="flex justify-end mb-8">
                   <div className="w-64 space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-gray-600">Sous-total HT</span><span className="font-medium">{subtotal.toLocaleString()} {symbol}</span></div>
@@ -902,7 +899,7 @@ const QuotePage = () => {
                   {formData.validUntil && ` — Valable jusqu'au ${new Date(formData.validUntil).toLocaleDateString("fr-FR")}`}
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         );
       }
@@ -950,8 +947,8 @@ const QuotePage = () => {
         </motion.div>
 
         {/* Navigation */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="flex flex-row gap-2">
+        <div className="flex flex-row items-center justify-between gap-3 mb-6">
+          <div className="flex flex-col gap-2">
             <Button type="button" variant="outline" onClick={() => setIsQuoteHistoryOpen(true)} className="gap-2">
               <BookOpen className="w-4 h-4" /> Historique des devis
             </Button>
@@ -964,18 +961,19 @@ const QuotePage = () => {
             {currentStep + 1} / {STEPS.length}
           </div>
 
-          <div className="flex gap-2">
-            {currentStep < STEPS.length - 1 && (
-              <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
-                Suivant <ChevronRight className="w-4 h-4" />
-              </Button>
-            )}
+          <div className="flex flex-col gap-2">
             <Button type="button" onClick={handleGenerateQuote} disabled={isGenerating || !isFormValid()}
               className="gap-2 bg-emerald-600 hover:bg-emerald-700">
               {isGenerating
                 ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</>
                 : <><Download className="w-4 h-4" /> Générer le devis</>}
             </Button>
+            {currentStep < STEPS.length - 1 && (
+              <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+                Suivant <ChevronRight className="w-4 h-4" />
+              </Button>
+            )}
+            
           </div>
         </div>
 
@@ -987,11 +985,32 @@ const QuotePage = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="bg-white border rounded-2xl shadow-sm p-6 md:p-8 min-h-[400px]"
+            className="bg-white border rounded-2xl shadow-sm p-6 md:p-8 min-h-[400px] mb-4"
           >
             {renderStep()}
           </motion.div>
         </AnimatePresence>
+        
+        <div className="flex flex-row items-center justify-between gap-3 mb-6">
+          <div className="flex flex-col gap-2">
+            <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2">
+              <ChevronLeft className="w-4 h-4" /> Précédent
+            </Button>
+          </div>
+
+          <div className="hidden text-xs text-muted-foreground sm:block">
+            {currentStep + 1} / {STEPS.length}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {currentStep < STEPS.length - 1 && (
+              <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+                Suivant <ChevronRight className="w-4 h-4" />
+              </Button>
+            )}
+            
+          </div>
+        </div>
 
         {/* Conseils généraux */}
         {STEPS[currentStep]?.id !== "preview" && (

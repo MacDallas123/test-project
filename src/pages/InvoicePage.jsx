@@ -787,9 +787,8 @@ const InvoicePage = () => {
             </div>
 
             {/* Document preview */}
-            <div className="overflow-hidden border shadow-sm rounded-xl">
+            {/* <div className="overflow-hidden border shadow-sm rounded-xl">
               <div ref={invoiceRef} className="max-w-4xl p-8 mx-auto bg-white">
-                {/* En-tête */}
                 <div className="mb-8">
                   <div className="flex items-center justify-between">
                     <div>
@@ -840,7 +839,6 @@ const InvoicePage = () => {
                   </div>
                 </div>
 
-                {/* Tableau articles */}
                 <table className="w-full mb-8 text-sm">
                   <thead>
                     <tr className="bg-primary/5">
@@ -866,7 +864,6 @@ const InvoicePage = () => {
                   </tbody>
                 </table>
 
-                {/* Totaux */}
                 <div className="flex justify-end mb-8">
                   <div className="w-64 space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-gray-600">Sous-total HT</span><span className="font-medium">{subtotal.toLocaleString()} {symbol}</span></div>
@@ -879,11 +876,9 @@ const InvoicePage = () => {
                   </div>
                 </div>
 
-                {/* Notes */}
                 {formData.notes && <div className="mb-4"><h4 className="mb-1 text-sm font-semibold">Notes :</h4><p className="text-sm text-gray-600">{formData.notes}</p></div>}
                 {formData.termsAndConditions && <div><h4 className="mb-1 text-sm font-semibold">Conditions générales :</h4><p className="text-xs text-gray-500">{formData.termsAndConditions}</p></div>}
 
-                {/* Banque */}
                 {(formData.bankName || formData.bankAccount) && (
                   <div className="p-3 mt-6 rounded-lg bg-gray-50">
                     <h4 className="mb-1 text-sm font-semibold">Coordonnées bancaires :</h4>
@@ -896,7 +891,7 @@ const InvoicePage = () => {
                   Facture générée le {new Date().toLocaleDateString("fr-FR")}
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         );
 
@@ -911,8 +906,8 @@ const InvoicePage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-white">
-        <div className="container px-4 py-10 mx-auto">
+      <div className="bg-linear-to-r from-primary/10 via-primary/5 to-white">
+        <div className="container px-4 py-4 mx-auto">
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center justify-center mb-4 rounded-full w-14 h-14 bg-primary/10">
               <Receipt className="w-7 h-7 text-primary" />
@@ -945,10 +940,10 @@ const InvoicePage = () => {
         {/* Navigation */}
         {/* <div className="flex flex-wrap items-center justify-between gap-3 mb-6"> */}
         <div className="flex flex-row items-center justify-between gap-3 mb-6">
-          <div className="flex flex-col gap-2 md:flex-row">
+          <div className="flex flex-col flex-1 gap-2 md:flex-none">
             {/* Bouton Historique des factures */}
-            <Button type="button" variant="outline" onClick={() => setIsInvoiceHistoryOpen(true)} className="gap-2">
-              <BookOpen className="w-4 h-4" /> Historique des factures
+            <Button type="button" variant="outline" onClick={() => setIsInvoiceHistoryOpen(true)} className="gap-2 text-wrap">
+              <BookOpen className="w-4 h-4" /> Historique des <br />factures
             </Button>
             <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2">
               <ChevronLeft className="w-4 h-4" /> Précédent
@@ -959,17 +954,18 @@ const InvoicePage = () => {
             {currentStep + 1} / {STEPS.length}
           </div>
 
-          <div className="flex flex-col gap-2 md:flex-row">
-            {currentStep < STEPS.length - 1 && (
-              <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
-                Suivant <ChevronRight className="w-4 h-4" />
-              </Button>
-            )}
+          <div className="flex flex-col flex-1 gap-2 md:flex-none">
             <Button type="button" onClick={handleGenerateInvoice} disabled={isGenerating || !isFormValid()} className="gap-2">
               {isGenerating
                 ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</>
                 : <><Download className="w-4 h-4" /> Générer la facture</>}
             </Button>
+            {currentStep < STEPS.length - 1 && (
+              <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+                Suivant <ChevronRight className="w-4 h-4" />
+              </Button>
+            )}
+            
           </div>
         </div>
 

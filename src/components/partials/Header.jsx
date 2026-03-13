@@ -373,22 +373,17 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       transition={{ duration: 0.5 }}
       className="sticky top-0 left-0 right-0 transition-all duration-300 z-1500 bg-primary"
     >
-      <div className="container px-4 py-3 mx-auto">
+      <div className="container px-2 py-1 mx-auto md:px-4 md:py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-3 group"
+            className="flex flex-col items-center gap-1 md:gap-3 md:flex-row group"
             onClick={closeMobileMenu}
           >
             <div className="flex items-center justify-center w-10 h-10 transition-all duration-300 xl:w-16 xl:h-16 rounded-xl group-hover:scale-110">
               <img src={Logo} alt="LOGO FIBEM" />
             </div>
-            {/* <div className="flex flex-col">
-              <span className="text-lg font-bold xl:text-xl bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-primary-foreground">
-                <span className="text-3xl text-secondary">L</span>ivrer<span className="text-3xl text-secondary">N</span>ourriture
-              </span>
-            </div> */}
             <SiteTileForm1 />
           </Link>
 
@@ -408,7 +403,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           {/* Mobile search icon */}
           <div>
             <Button
-              className="flex items-center justify-center p-2 px-2 transition bg-white/80 text-destructive md:hidden"
+              className="flex items-center justify-center p-2 px-2 transition text-destructive md:hidden"
               aria-label={t("search") || "Recherche"}
               onClick={toggleMobileSearch}
             >
