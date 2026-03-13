@@ -20,7 +20,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
-import CreditNoteHistoryDialog from "@/components/dialog/creditNoteHistoryDialog";
+import CreditNoteHistoryDialog from "@/components/dialog/CreditNoteHistoryDialog";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD
