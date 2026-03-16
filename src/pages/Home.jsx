@@ -148,7 +148,7 @@ const Home = () => {
       <CharacteristicsSection />
 
       {/* Section À Propos / Qui sommes-nous ? */}
-      <section className="px-4 py-20 bg-muted/30">
+      {/* <section className="px-4 py-20 bg-muted/30">
         <div className="flex flex-col items-center justify-center mb-12">
           <h2 className="mb-4 text-3xl font-bold text-center md:text-4xl drop-shadow">
             {t(
@@ -235,7 +235,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       
       {/* Section Catalogue de Produits */}

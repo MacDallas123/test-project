@@ -13,6 +13,8 @@ import {
   Share2, Save, Loader2, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Info, AlertCircle, Sparkles,
   LayoutTemplate, BookOpen, Languages, FolderOpen,
+  Pencil,
+  X,
 } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,10 +45,10 @@ const defaultCvData = {
     summary: "Développeur full stack passionné avec 5 ans d'expérience dans le développement web et mobile."
   },
   skills: [
-    { name: "JavaScript", level: "Avancé" },
-    { name: "React", level: "Avancé" },
-    { name: "Node.js", level: "Intermédiaire" },
-    { name: "SQL", level: "Intermédiaire" }
+    { id: "1", name: "JavaScript", level: "Avancé" },
+    { id: "2", name: "React", level: "Avancé" },
+    { id: "3", name: "Node.js", level: "Intermédiaire" },
+    { id: "4", name: "SQL", level: "Intermédiaire" }
   ],
   education: [
     {
@@ -149,6 +151,18 @@ const HelpNotice = ({ tips, title = "Conseils", variant = "info" }) => {
 // ─────────────────────────────────────────────
 const ProgressBar = ({ steps, currentStep, onNavigate }) => {
   const pct = Math.round(((currentStep) / (steps.length - 1)) * 100);
+
+  // Helper for mobile: only show previous, current, and next step
+  const getMobileSteps = () => {
+    const prevStep = currentStep > 0 ? currentStep - 1 : null;
+    const nextStep = currentStep < steps.length - 1 ? currentStep + 1 : null;
+    let visible = [];
+    if (prevStep !== null) visible.push(prevStep);
+    visible.push(currentStep);
+    if (nextStep !== null) visible.push(nextStep);
+    return visible;
+  };
+
   return (
     <div className="space-y-3">
       {/* Pourcentage + libellé */}
@@ -167,34 +181,67 @@ const ProgressBar = ({ steps, currentStep, onNavigate }) => {
           transition={{ duration: 0.4, ease: "easeOut" }}
         />
       </div>
+
       {/* Pastilles cliquables */}
       <div className="flex items-center justify-between">
-        {steps.map((step, i) => {
-          const done = i < currentStep;
-          const active = i === currentStep;
-          const Icon = step.icon;
-          return (
-            <button
-              key={step.id}
-              type="button"
-              onClick={() => onNavigate(i)}
-              title={step.label}
-              //className={`flex flex-col items-center gap-1 group transition-opacity ${i > currentStep + 1 ? "opacity-40 cursor-default pointer-events-none" : ""}`}
-              className={`flex flex-col items-center gap-1 group transition-opacity`}
-            >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
-                ${active ? "border-primary bg-primary text-white scale-110 shadow-md shadow-primary/30"
-                  : done ? "border-green-500 bg-green-50 text-green-600"
-                  : "border-gray-300 bg-white text-gray-400 group-hover:border-primary/50"}`}>
-                {done ? <CheckCircle className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
-              </div>
-              <span className={`hidden sm:block text-[10px] font-medium leading-tight text-center
-                ${active ? "text-primary" : done ? "text-green-600" : "text-gray-400"}`}>
-                {step.shortLabel || step.label}
-              </span>
-            </button>
-          );
-        })}
+        {/* Desktop: All steps */}
+        <div className="items-center justify-between hidden w-full sm:flex">
+          {steps.map((step, i) => {
+            const done = i < currentStep;
+            const active = i === currentStep;
+            const Icon = step.icon;
+            return (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => onNavigate(i)}
+                title={step.label}
+                className={`flex flex-col items-center gap-1 group transition-opacity`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
+                  ${active ? "border-primary bg-primary text-white scale-110 shadow-md shadow-primary/30"
+                    : done ? "border-green-500 bg-green-50 text-green-600"
+                    : "border-gray-300 bg-white text-gray-400 group-hover:border-primary/50"}`}>
+                  {done ? <CheckCircle className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
+                </div>
+                <span className={`text-[10px] font-medium leading-tight text-center
+                  ${active ? "text-primary" : done ? "text-green-600" : "text-gray-400"}`}>
+                  {step.shortLabel || step.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Mobile: Only prev, current, next */}
+        <div className="flex items-center justify-between w-full sm:hidden">
+          {getMobileSteps().map((stepIndex, idx) => {
+            const step = steps[stepIndex];
+            const done = stepIndex < currentStep;
+            const active = stepIndex === currentStep;
+            const Icon = step.icon;
+            return (
+              <button
+                key={step.id}
+                type="button"
+                onClick={() => onNavigate(stepIndex)}
+                title={step.label}
+                className={`flex flex-col items-center gap-1 group flex-1 transition-opacity`}
+              >
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all
+                  ${active ? "border-primary bg-primary text-white scale-110 shadow-md shadow-primary/30"
+                    : done ? "border-green-500 bg-green-50 text-green-600"
+                    : "border-gray-300 bg-white text-gray-400 group-hover:border-primary/50"}`}>
+                  {done ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-4 h-4" />}
+                </div>
+                <span className={`text-[9px] font-medium leading-tight text-center
+                  ${active ? "text-primary" : done ? "text-green-600" : "text-gray-400"}`}>
+                  {step.shortLabel || step.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -220,6 +267,7 @@ const CVGeneratorPage = () => {
 
   const [cvData, setCvData] = useState(defaultCvData);
   const [newSkill, setNewSkill] = useState({ name: "", level: "Intermédiaire" });
+  const [editingSkill, setEditingSkill] = useState(null);
 
   // ── Définition des étapes ────────────────────
   // Étape 0 = choix du type ; étapes 1…N = sections
@@ -253,6 +301,14 @@ const CVGeneratorPage = () => {
   const removeItem = (section, id) =>
     setCvData(prev => ({ ...prev, [section]: prev[section].filter(item => item.id !== id) }));
 
+  const activateSkillEdition = (id) => {
+    setEditingSkill(id);
+  }
+
+  const deactivateSkillEdition = (id) => {
+    setEditingSkill(null);
+  }
+ 
   const moveItem = (section, index, direction) => {
     const items = [...cvData[section]];
     const newIndex = direction === "up" ? index - 1 : index + 1;
@@ -263,7 +319,12 @@ const CVGeneratorPage = () => {
   };
 
   const addSkill = () => {
-    if (newSkill.name.trim()) { addItem("skills", newSkill); setNewSkill({ name: "", level: "Intermédiaire" }); }
+    if (newSkill.name.trim()) {
+      const maxId = cvData.skills.length > 0 ? Math.max(...cvData.skills.map(skill => typeof skill.id === "number" ? skill.id : 0)) : 0;
+      const nextId = maxId + 1;
+      addItem("skills", { ...newSkill, id: nextId });
+      setNewSkill({ id: nextId + 1, name: "", level: "Intermédiaire" });
+    }
   };
 
   // ── Navigation ───────────────────────────────
@@ -696,22 +757,95 @@ const CVGeneratorPage = () => {
         <div className="space-y-3">
           {cvData.skills.map((skill, index) => (
             <div key={skill.id} className="flex items-center gap-4 p-3 border rounded-lg bg-gray-50/50">
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{skill.name}</span>
-                  <Badge variant="secondary" className="text-xs">{skill.level}</Badge>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <button type="button" onClick={() => moveItem("skills", index, "up")} disabled={index === 0}
-                  className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
-                <button type="button" onClick={() => moveItem("skills", index, "down")} disabled={index === cvData.skills.length - 1}
-                  className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
-              </div>
-              <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("skills", skill.id)}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50">
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              {editingSkill === skill.id ? (
+                <>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-4">
+                      <Input
+                        value={skill.name}
+                        onChange={e => handleArrayChange("skills", index, "name", e.target.value)}
+                        className="font-medium"
+                        placeholder="Nom de la compétence"
+                        autoFocus
+                      />
+                      <select
+                        className="px-3 py-2 text-xs border rounded-md w-36"
+                        value={skill.level}
+                        onChange={e => handleArrayChange("skills", index, "level", e.target.value)}
+                      >
+                        <option>Débutant</option>
+                        <option>Intermédiaire</option>
+                        <option>Avancé</option>
+                        <option>Expert</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => moveItem("skills", index, "up")}
+                      disabled={index === 0}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveItem("skills", index, "down")}
+                      disabled={index === cvData.skills.length - 1}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    // Accept: just ends editing mode
+                    onClick={() => deactivateSkillEdition(skill.id)}
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                  </Button>
+                  {/* <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                    // Cancel: resets values and ends editing mode
+                    onClick={() => {
+                      // Optionally, you might want to reset skill fields here using original value if keeping a backup.
+                      deactivateSkillEdition(skill.id);
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button> */}
+                </>
+              ) : (
+                <>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{skill.name}</span>
+                      <Badge variant="secondary" className="text-xs">{skill.level}</Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => moveItem("skills", index, "up")} disabled={index === 0}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => moveItem("skills", index, "down")} disabled={index === cvData.skills.length - 1}
+                      className="p-1 rounded hover:bg-muted disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
+                  </div>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => activateSkillEdition(skill.id)}
+                    className="text-orange-400 hover:text-orange-500 hover:bg-orange-50">
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItem("skills", skill.id)}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
             </div>
           ))}
         </div>
@@ -1229,13 +1363,13 @@ const CVGeneratorPage = () => {
         </motion.div>
 
         {/* Navigation Précédent / Suivant */}
-        <div className="flex flex-wrap items-center justify-between mt-6 mb-6">
-          <div className="flex flex-row w-full md:w-auto">
+        <div className="flex flex-row items-center justify-between gap-2 mt-6 mb-6">
+          <div className="flex flex-col gap-2 mt-2">
             <Button type="button" variant="outline" onClick={() => setIsCvHistoryOpen(true)}>
               <BookOpen className="w-4 h-4" /> Historique des CV
             </Button>
 
-            <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2 ml-4">
+            <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2">
               <ChevronLeft className="w-4 h-4" /> Précédent
             </Button>
 
@@ -1246,13 +1380,13 @@ const CVGeneratorPage = () => {
           </div>
 
           {currentStep < STEPS.length - 1 ? (
-            <div>
-              <Button type="button" onClick={goNext} disabled={!canGoNext()} className="gap-2">
-                Suivant <ChevronRight className="w-4 h-4" />
+            <div className="flex flex-col gap-2 mt-2">
+              <Button type="button" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2">
+                {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le CV</>}
               </Button>
 
-              <Button type="button" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2 ml-4">
-                {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le CV</>}
+              <Button type="button" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+                Suivant <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           ) : (
@@ -1275,7 +1409,40 @@ const CVGeneratorPage = () => {
             {renderStep()}
           </motion.div>
         </AnimatePresence>
+        
+        <div className="flex flex-row items-center justify-between gap-2 mt-6 mb-6">
+          <div className="flex flex-col gap-2 mt-2">
+            <Button type="button" variant="outline" onClick={() => setIsCvHistoryOpen(true)}>
+              <BookOpen className="w-4 h-4" /> Historique des CV
+            </Button>
 
+            <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2">
+              <ChevronLeft className="w-4 h-4" /> Précédent
+            </Button>
+
+          </div>
+
+          <div className="hidden text-xs text-muted-foreground sm:block">
+            {currentStep + 1} / {STEPS.length}
+          </div>
+
+          {currentStep < STEPS.length - 1 ? (
+            <div className="flex flex-col gap-2 mt-2">
+              <Button type="button" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2">
+                {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le CV</>}
+              </Button>
+
+              <Button type="button" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+                Suivant <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button type="button" onClick={handleGenerateCV} disabled={isGenerating} className="gap-2">
+              {isGenerating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</> : <><Download className="w-4 h-4" /> Générer le CV</>}
+            </Button>
+          )}
+        </div>
+        
         {/* Conseils généraux (toujours visible sauf aperçu final) */}
         {STEPS[currentStep]?.id !== "preview" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 mt-8 border rounded-xl bg-muted/30">

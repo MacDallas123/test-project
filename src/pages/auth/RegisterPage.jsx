@@ -324,6 +324,13 @@ const RegisterPage = () => {
     },
     
     {
+      value: "PROJECT_MASTER",
+      label: "Chef de projet",
+      icon: UserCircle,
+      description: "Acces en tant que chef de projet",
+    },
+
+    {
       value: "ADMIN",
       label: "Administrateur",
       icon: Settings,

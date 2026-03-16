@@ -1,10 +1,8 @@
-// CartPage.jsx - Version Livraison de Repas
+// CartPage.jsx - Flat Design / Table Layout
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   ShoppingCart,
   Trash2,
@@ -13,33 +11,254 @@ import {
   CreditCard,
   Shield,
   Truck,
-  Gift,
   MapPin,
   Clock,
   CheckCircle,
-  Package,
-  Home,
   ChefHat,
-  Receipt,
-  Phone,
   MessageSquare,
   Sparkles,
-  Leaf,
-  Flame,
-  DollarSign,
-  User,
-  Star,
+  ArrowLeft,
+  Tag,
+  AlertCircle,
 } from "lucide-react";
 
-// Images de plats (à remplacer par vos assets réels)
 import Plat1 from "@/assets/hero.avif";
 import Plat2 from "@/assets/hero.avif";
 import Plat3 from "@/assets/hero.avif";
 
+/* ─── Palette & tokens ──────────────────────────────────────── */
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  .cart-root {
+    --p: hsl(var(--primary));
+    --p-10: hsl(var(--primary) / .10);
+    --p-15: hsl(var(--primary) / .15);
+    --p-20: hsl(var(--primary) / .20);
+    --p-fg: hsl(var(--primary-foreground));
+    --ink: #0f172a;
+    --ink-2: #475569;
+    --ink-3: #94a3b8;
+    --line: #e2e8f0;
+    --surface: #f8fafc;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ─ table ─ */
+  .cart-table { width:100%; border-collapse:collapse; }
+  .cart-table thead tr {
+    background: var(--p);
+    color: var(--p-fg);
+  }
+  .cart-table thead th {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: left;
+  }
+  .cart-table thead th:last-child { text-align: right; }
+  .cart-table thead th.center { text-align: center; }
+
+  .cart-table tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background .15s;
+  }
+  .cart-table tbody tr:last-child { border-bottom: none; }
+  .cart-table tbody tr:hover { background: var(--p-10); }
+  .cart-table tbody td { padding: 14px 16px; vertical-align: middle; }
+  .cart-table tbody td.right { text-align: right; }
+  .cart-table tbody td.center { text-align: center; }
+
+  /* ─ qty control ─ */
+  .qty-ctrl {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .qty-btn {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-2);
+    transition: background .15s, color .15s;
+  }
+  .qty-btn:hover { background: var(--p-10); color: var(--p); }
+  .qty-num {
+    min-width: 32px; text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; font-weight: 500;
+    border-left: 1.5px solid var(--line);
+    border-right: 1.5px solid var(--line);
+    padding: 0 4px; line-height: 28px;
+    color: var(--ink);
+  }
+
+  /* ─ delete btn ─ */
+  .del-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-3); padding: 4px;
+    border-radius: 4px;
+    transition: color .15s, background .15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .del-btn:hover { color: #ef4444; background: #fef2f2; }
+
+  /* ─ restaurant header row ─ */
+  .rest-header-row td {
+    background: var(--p-10);
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--p);
+    border-bottom: 2px solid var(--p-20) !important;
+  }
+
+  /* ─ tag chip ─ */
+  .tag-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1.5px solid var(--p-20);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--p);
+    background: var(--p-10);
+    margin-right: 4px;
+  }
+
+  /* ─ note chip ─ */
+  .note-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--ink-2);
+    margin-top: 3px;
+  }
+
+  /* ─ summary card ─ */
+  .summary-card {
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 18px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row.total {
+    background: var(--p);
+    color: var(--p-fg);
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .summary-row.sub { color: var(--ink-2); }
+
+  /* ─ status pill ─ */
+  .pill-ok {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+    background: #dcfce7; color: #16a34a;
+  }
+  .pill-warn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+    background: #fef9c3; color: #b45309;
+  }
+
+  /* ─ sidebar ─ */
+  .sidebar-section {
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .sidebar-section-header {
+    padding: 12px 16px;
+    background: var(--p);
+    color: var(--p-fg);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .sidebar-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .sidebar-row:last-child { border-bottom: none; }
+  .sidebar-icon {
+    width: 30px; height: 30px; border-radius: 4px;
+    background: var(--p-10);
+    color: var(--p);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ─ action btns ─ */
+  .outline-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 14px; border-radius: 4px;
+    border: 1.5px solid var(--line);
+    background: white; color: var(--ink-2);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+    width: 100%;
+    text-decoration: none;
+  }
+  .outline-btn:hover {
+    border-color: var(--p);
+    color: var(--p);
+    background: var(--p-10);
+  }
+
+  /* ─ promo bar ─ */
+  .promo-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    border: 1.5px solid var(--p-20);
+    border-radius: 6px;
+    background: var(--p-10);
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* ─ header band ─ */
+  .page-band {
+    background: var(--p);
+    color: var(--p-fg);
+  }
+
+  /* ─ empty state ─ */
+  .empty-icon {
+    width: 80px; height: 80px; border-radius: 8px;
+    background: var(--p-10);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+  }
+
+  /* ─ price mono ─ */
+  .price { font-family: 'DM Mono', monospace; font-weight: 500; }
+  .price-primary { color: var(--p); font-family: 'DM Mono', monospace; font-weight: 600; }
+`;
+
+/* ─── Component ─────────────────────────────────────────────── */
 const CartPage = () => {
   const navigate = useNavigate();
 
-  // État du panier avec données de repas
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -51,8 +270,7 @@ const CartPage = () => {
       quantity: 2,
       deliveryTime: "30-40 min",
       category: "Africain",
-      description:
-        "Poulet mariné au citron avec oignons caramélisés, accompagné de riz blanc et légumes frais.",
+      description: "Poulet mariné au citron, riz blanc et légumes frais.",
       image: Plat1,
       tags: ["Épicé", "Traditionnel"],
       specialInstructions: "Sans piment",
@@ -67,8 +285,7 @@ const CartPage = () => {
       quantity: 1,
       deliveryTime: "25-35 min",
       category: "Fast-food",
-      description:
-        "Double steak haché, cheddar, bacon, oignons caramélisés et sauce spéciale maison.",
+      description: "Double steak, cheddar, bacon et sauce maison.",
       image: Plat2,
       tags: ["Gourmet", "Nouveau"],
       specialInstructions: "Sans oignons",
@@ -83,145 +300,72 @@ const CartPage = () => {
       quantity: 1,
       deliveryTime: "40-50 min",
       category: "Japonais",
-      description:
-        "Assortiment de sushis, sashimis et makis frais du jour avec sauces accompagnement.",
+      description: "Assortiment sushis, sashimis et makis du jour.",
       image: Plat3,
       tags: ["Frais", "Premium"],
       specialInstructions: "",
     },
   ]);
 
-  // Données des restaurants
   const restaurants = [
-    {
-      id: "1",
-      name: "Le Dakarois",
-      deliveryFee: 500,
-      minimumOrder: 3000,
-      rating: 4.8,
-      logoColor: "bg-orange-600",
-    },
-    {
-      id: "2",
-      name: "Burger House",
-      deliveryFee: 700,
-      minimumOrder: 2000,
-      rating: 4.7,
-      logoColor: "bg-red-600",
-    },
-    {
-      id: "5",
-      name: "Sushi Zen",
-      deliveryFee: 800,
-      minimumOrder: 5000,
-      rating: 4.9,
-      logoColor: "bg-blue-600",
-    },
+    { id: "1", name: "Le Dakarois",  deliveryFee: 500,  minimumOrder: 3000, rating: 4.8 },
+    { id: "2", name: "Burger House", deliveryFee: 700,  minimumOrder: 2000, rating: 4.7 },
+    { id: "5", name: "Sushi Zen",    deliveryFee: 800,  minimumOrder: 5000, rating: 4.9 },
   ];
 
-  // Regrouper les items par restaurant
-  const groupedByRestaurant = cartItems.reduce((groups, item) => {
-    if (!groups[item.restaurantId]) {
-      const restaurant = restaurants.find((r) => r.id === item.restaurantId);
-      groups[item.restaurantId] = {
-        restaurant: item.restaurant,
-        restaurantId: item.restaurantId,
-        deliveryFee: restaurant?.deliveryFee || 0,
-        minimumOrder: restaurant?.minimumOrder || 0,
-        logoColor: restaurant?.logoColor || "bg-gray-600",
-        items: [],
-      };
+  /* ─ helpers ─ */
+  const updateQuantity = (id, qty) => {
+    if (qty < 1) { removeItem(id); return; }
+    setCartItems(cartItems.map(i => i.id === id ? { ...i, quantity: qty } : i));
+  };
+  const removeItem = (id) => setCartItems(cartItems.filter(i => i.id !== id));
+  const clearCart  = () => setCartItems([]);
+  const checkout   = () => navigate("/checkout");
+
+  const groupedByRestaurant = cartItems.reduce((acc, item) => {
+    if (!acc[item.restaurantId]) {
+      const r = restaurants.find(r => r.id === item.restaurantId);
+      acc[item.restaurantId] = { ...r, restaurantName: item.restaurant, items: [] };
     }
-    groups[item.restaurantId].items.push(item);
-    return groups;
+    acc[item.restaurantId].items.push(item);
+    return acc;
   }, {});
 
-  // Gestion du panier
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) {
-      removeItem(id);
-      return;
-    }
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item,
-      ),
-    );
-  };
+  const getSubtotal    = (rid) => cartItems.filter(i => i.restaurantId === rid).reduce((s, i) => s + i.price * i.quantity, 0);
+  const meetsMin       = (rid) => { const r = restaurants.find(x => x.id === rid); return getSubtotal(rid) >= (r?.minimumOrder || 0); };
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-  };
+  const subtotal    = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const deliveryFee = Object.values(groupedByRestaurant).reduce((max, g) => Math.max(max, g.deliveryFee || 0), 0);
+  const total       = subtotal + deliveryFee;
+  const totalQty    = cartItems.reduce((s, i) => s + i.quantity, 0);
+  const allReady    = Object.keys(groupedByRestaurant).every(rid => meetsMin(rid));
+  const fmt         = (n) => n.toLocaleString("fr-FR");
 
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
-  const checkout = () => {
-    navigate("/checkout");
-  };
-
-  const getRestaurantInfo = (restaurantId) => {
-    return restaurants.find((r) => r.id === restaurantId);
-  };
-
-  // Calcul du sous-total pour un restaurant spécifique
-  const getRestaurantSubtotal = (restaurantId) => {
-    return cartItems
-      .filter((item) => item.restaurantId === restaurantId)
-      .reduce((sum, item) => sum + item.price * item.quantity, 0);
-  };
-
-  // Calcul du total général
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-
-  // Calcul des frais de livraison (maximum des frais de livraison des restaurants)
-  const deliveryFee = Object.values(groupedByRestaurant).reduce(
-    (max, group) => {
-      return Math.max(max, group.deliveryFee);
-    },
-    0,
-  );
-
-  const total = subtotal + deliveryFee;
-
-  // Vérifier si le minimum de commande est atteint pour chaque restaurant
-  const checkMinimumOrder = (restaurantId) => {
-    const restaurant = restaurants.find((r) => r.id === restaurantId);
-    const restaurantSubtotal = getRestaurantSubtotal(restaurantId);
-    return restaurantSubtotal >= (restaurant?.minimumOrder || 0);
-  };
-
+  /* ─ Empty state ─ */
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-        <div className="container px-4 py-16 mx-auto">
-          <div className="max-w-md mx-auto text-center">
-            <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary/10 to-primary/20">
-              <ShoppingCart className="w-12 h-12 text-primary" />
-            </div>
-            <h1 className="mb-4 text-2xl font-bold">Votre panier est vide</h1>
-            <p className="mb-8 text-gray-600">
-              Ajoutez des plats délicieux à votre panier pour commencer votre
-              commande
-            </p>
-            <div className="space-y-4">
-              <Button asChild className="w-full gap-2">
-                <Link to="/menu">
-                  <ChefHat className="w-4 h-4" />
-                  Explorer le menu
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full gap-2">
-                <Link to="/restaurants">
-                  <MapPin className="w-4 h-4" />
-                  Voir les restaurants
-                </Link>
-              </Button>
-            </div>
+      <div className="min-h-screen bg-white cart-root">
+        <style>{css}</style>
+        <div className="px-6 py-10 page-band">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-2xl font-bold tracking-tight">Mon Panier</h1>
+          </div>
+        </div>
+        <div className="max-w-md px-6 py-20 mx-auto text-center">
+          <div className="empty-icon">
+            <ShoppingCart size={36} style={{ color: "var(--p)" }} />
+          </div>
+          <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--ink)" }}>Votre panier est vide</h2>
+          <p className="mb-8 text-sm" style={{ color: "var(--ink-2)" }}>
+            Ajoutez des plats à votre panier pour commencer une commande.
+          </p>
+          <div className="flex flex-col gap-3">
+            <Button asChild className="gap-2">
+              <Link to="/menu"><ChefHat size={15} /> Explorer le menu</Link>
+            </Button>
+            <Link to="/restaurants" className="justify-center outline-btn">
+              <MapPin size={15} /> Voir les restaurants
+            </Link>
           </div>
         </div>
       </div>
@@ -229,529 +373,305 @@ const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
-      {/* Hero Section */}
-      {/* <section className="bg-linear-to-r from-primary/10 via-white to-primary/10"> */}
-      <section className="bg-primary/10">
-        <div className="container px-4 py-12 mx-auto">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-              Votre Panier
-            </h1>
-            <p className="mb-8 text-lg text-gray-600">
-              Révisez votre commande avant de passer à la caisse
-            </p>
+    <div className="min-h-screen bg-white cart-root">
+      <style>{css}</style>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full bg-primary/10 text-primary">
-              <Clock className="w-4 h-4" />
-              Livraison estimée : 30-45 minutes
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="container px-4 py-8 mx-auto lg:px-8">
-        {/* En-tête */}
-        <div className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
-          <div className="mb-4 md:mb-0">
-            <h2 className="text-2xl font-bold md:text-3xl">Votre commande</h2>
-            <p className="text-gray-600">
-              Groupé par restaurant pour une meilleure organisation
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="px-3 py-1 text-sm">
-              <ShoppingCart className="w-3 h-3 mr-1" />
-              {cartItems.reduce((sum, item) => sum + item.quantity, 0)} article
-              {cartItems.length > 1 ? "s" : ""}
-            </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearCart}
-              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+      {/* ── Header band ── */}
+      <div className="px-6 py-8 page-band">
+        <div className="flex flex-wrap items-end justify-between max-w-6xl gap-4 mx-auto">
+          <div>
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1 mb-3 text-sm transition-opacity opacity-70 hover:opacity-100"
+              style={{ color: "var(--p-fg)", background: "none", border: "none", cursor: "pointer" }}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Vider le panier
-            </Button>
+              <ArrowLeft size={14} /> Retour
+            </button>
+            <h1 className="text-2xl font-bold tracking-tight">Mon Panier</h1>
+            <p className="mt-1 text-sm opacity-75">
+              <Clock size={13} className="inline mr-1" />
+              Livraison estimée : 30-45 min — {totalQty} article{totalQty > 1 ? "s" : ""}
+            </p>
           </div>
+          <button
+            onClick={clearCart}
+            style={{ background: "none", border: "1.5px solid rgba(255,255,255,.35)", borderRadius: 4, padding: "7px 14px", color: "var(--p-fg)", cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}
+          >
+            <Trash2 size={13} /> Vider le panier
+          </button>
         </div>
+      </div>
 
-        {/* Commandes par restaurant */}
+      {/* ── Main layout ── */}
+      <div className="max-w-6xl mx-auto px-4 lg:px-6 py-8 grid lg:grid-cols-[1fr_320px] gap-8 items-start">
+
+        {/* ── LEFT: Table(s) ── */}
         <div className="space-y-8">
-          {Object.values(groupedByRestaurant).map((group, index) => {
-            const restaurantSubtotal = getRestaurantSubtotal(
-              group.restaurantId,
-            );
-            const restaurantInfo = getRestaurantInfo(group.restaurantId);
-            const meetsMinimumOrder = checkMinimumOrder(group.restaurantId);
+          {Object.values(groupedByRestaurant).map((group, gi) => {
+            const sub   = getSubtotal(group.id);
+            const ready = meetsMin(group.id);
+            const r     = restaurants.find(x => x.id === group.id);
 
             return (
               <motion.div
-                key={group.restaurantId}
-                initial={{ opacity: 0, y: 20 }}
+                key={group.id}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="overflow-hidden transition-shadow duration-300 bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md"
+                transition={{ delay: gi * 0.07 }}
+                style={{ border: "1.5px solid var(--line)", borderRadius: 6, overflow: "hidden" }}
               >
-                {/* Header du restaurant */}
-                <div className="p-6 bg-gradient-to-r from-gray-50 to-white">
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() =>
-                        navigate(`/restaurant/${group.restaurantId}`)
-                      }
-                      className="flex items-center gap-3 transition-opacity group hover:opacity-80"
-                    >
-                      <div
-                        className={`flex items-center justify-center w-12 h-12 rounded-xl ${group.logoColor} text-white shadow-md`}
-                      >
-                        <ChefHat className="w-6 h-6" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="text-lg font-bold transition-colors group-hover:text-primary">
-                          {group.restaurant}
-                        </h3>
-                        <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                            <span>{restaurantInfo?.rating || 4.5}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>
-                              {group.items[0]?.deliveryTime || "30-40 min"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Statut de commande minimum */}
-                    <div className="text-right">
-                      {!meetsMinimumOrder && (
-                        <Badge variant="destructive" className="mb-2">
-                          Minimum{" "}
-                          {restaurantInfo?.minimumOrder?.toLocaleString()} XOF
-                        </Badge>
-                      )}
-                      <p className="text-sm text-gray-600">Sous-total</p>
-                      <p className="text-xl font-bold text-primary">
-                        {restaurantSubtotal.toLocaleString()} XOF
+                {/* Restaurant meta bar */}
+                <div style={{ background: "var(--surface)", padding: "12px 16px", borderBottom: "1.5px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                  <button
+                    onClick={() => navigate(`/restaurant/${group.id}`)}
+                    style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
+                  >
+                    <span style={{ width: 36, height: 36, borderRadius: 4, background: "var(--p)", color: "var(--p-fg)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <ChefHat size={16} />
+                    </span>
+                    <div style={{ textAlign: "left" }}>
+                      <p style={{ fontWeight: 700, fontSize: 14, color: "var(--ink)" }}>{group.restaurantName}</p>
+                      <p style={{ fontSize: 12, color: "var(--ink-2)" }}>
+                        <Truck size={11} className="inline mr-1" />
+                        Livraison {fmt(group.deliveryFee)} XOF
+                        {group.items[0]?.deliveryTime && ` · ${group.items[0].deliveryTime}`}
                       </p>
                     </div>
-                  </div>
-
-                  {/* Frais de livraison du restaurant */}
-                  <div className="flex items-center justify-between pt-4 mt-4 border-t">
-                    <div className="text-sm text-gray-600">
-                      <Truck className="inline w-4 h-4 mr-2" />
-                      Frais de livraison :{" "}
-                      <span className="font-medium">
-                        {group.deliveryFee.toLocaleString()} XOF
-                      </span>
-                    </div>
-                    {!meetsMinimumOrder && (
-                      <p className="text-sm text-red-500">
-                        Ajoutez{" "}
-                        {(
-                          (restaurantInfo?.minimumOrder || 0) -
-                          restaurantSubtotal
-                        ).toLocaleString()}{" "}
-                        XOF pour commander
-                      </p>
-                    )}
+                  </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    {ready
+                      ? <span className="pill-ok"><CheckCircle size={12} /> Prêt</span>
+                      : <span className="pill-warn"><AlertCircle size={12} /> Min. {fmt(r?.minimumOrder || 0)} XOF</span>
+                    }
+                    <span className="price-primary" style={{ fontSize: 15 }}>{fmt(sub)} XOF</span>
                   </div>
                 </div>
 
-                {/* Liste des plats */}
-                <div className="divide-y">
-                  {group.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-6 transition-colors hover:bg-gray-50"
-                    >
-                      <div className="flex gap-4">
-                        {/* Image du plat */}
-                        <div className="flex-shrink-0 w-24 h-24 overflow-hidden rounded-lg">
-                          <img
-                            src={item.image}
-                            alt={item.title}
-                            className="object-cover w-full h-full"
-                          />
-                        </div>
-
-                        {/* Détails du plat */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h4 className="font-bold text-gray-900">
-                                {item.title}
-                              </h4>
-                              <div className="flex items-center gap-2 mt-1">
-                                {item.tags.map((tag, i) => (
-                                  <Badge
-                                    key={i}
-                                    variant="outline"
-                                    className="text-xs"
-                                  >
-                                    {tag}
-                                  </Badge>
-                                ))}
+                {/* Table */}
+                <div style={{ overflowX: "auto" }}>
+                  <table className="cart-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 48 }}></th>
+                        <th>Plat</th>
+                        <th className="center" style={{ width: 120 }}>Qté</th>
+                        <th style={{ width: 110, textAlign: "right" }}>Prix unit.</th>
+                        <th style={{ width: 120, textAlign: "right" }}>Sous-total</th>
+                        <th style={{ width: 44 }}></th>
+                      </tr>
+                    </thead>
+                    <AnimatePresence>
+                      <tbody>
+                        {group.items.map((item) => (
+                          <motion.tr
+                            key={item.id}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {/* Thumbnail */}
+                            <td style={{ paddingRight: 0 }}>
+                              <div style={{ width: 40, height: 40, borderRadius: 4, overflow: "hidden", flexShrink: 0 }}>
+                                <img src={item.image} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-primary">
-                                {(item.price * item.quantity).toLocaleString()}{" "}
-                                XOF
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {item.price.toLocaleString()} XOF l'unité
-                              </p>
-                            </div>
-                          </div>
+                            </td>
 
-                          {/* Description */}
-                          <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                            {item.description}
-                          </p>
+                            {/* Name + tags */}
+                            <td>
+                              <p style={{ fontWeight: 600, fontSize: 14, color: "var(--ink)", marginBottom: 3 }}>{item.title}</p>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 0, marginBottom: item.specialInstructions ? 2 : 0 }}>
+                                {item.tags.map((t, i) => <span key={i} className="tag-chip">{t}</span>)}
+                              </div>
+                              {item.specialInstructions && (
+                                <p className="note-chip">
+                                  <Tag size={10} /> {item.specialInstructions}
+                                </p>
+                              )}
+                            </td>
 
-                          {/* Instructions spéciales */}
-                          {item.specialInstructions && (
-                            <div className="mt-2">
-                              <p className="text-xs font-medium text-gray-700">
-                                Instructions :
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {item.specialInstructions}
-                              </p>
-                            </div>
-                          )}
+                            {/* Qty control */}
+                            <td className="center">
+                              <div className="qty-ctrl">
+                                <button className="qty-btn" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                                  <Minus size={12} />
+                                </button>
+                                <span className="qty-num">{item.quantity}</span>
+                                <button className="qty-btn" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                                  <Plus size={12} />
+                                </button>
+                              </div>
+                            </td>
 
-                          {/* Contrôle quantité */}
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="w-8 h-8"
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity - 1)
-                                }
-                              >
-                                <Minus className="w-3 h-3" />
-                              </Button>
-                              <span className="w-8 font-medium text-center">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="w-8 h-8"
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
-                                }
-                              >
-                                <Plus className="w-3 h-3" />
-                              </Button>
-                            </div>
+                            {/* Unit price */}
+                            <td className="right">
+                              <span className="price" style={{ fontSize: 13, color: "var(--ink-2)" }}>{fmt(item.price)}</span>
+                            </td>
 
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                              onClick={() => removeItem(item.id)}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Retirer
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                            {/* Subtotal */}
+                            <td className="right">
+                              <span className="price-primary" style={{ fontSize: 14 }}>{fmt(item.price * item.quantity)}</span>
+                            </td>
+
+                            {/* Delete */}
+                            <td className="center">
+                              <button className="del-btn" onClick={() => removeItem(item.id)}>
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </AnimatePresence>
+                    {/* Footer row: restaurant total */}
+                    <tfoot>
+                      <tr style={{ background: "var(--p-10)", borderTop: "1.5px solid var(--p-20)" }}>
+                        <td colSpan={4} style={{ padding: "10px 16px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", color: "var(--ink-2)" }}>
+                          Total {group.restaurantName}
+                        </td>
+                        <td colSpan={2} style={{ padding: "10px 16px", textAlign: "right" }}>
+                          <span className="price-primary" style={{ fontSize: 15 }}>
+                            {fmt(sub + group.deliveryFee)} XOF
+                          </span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
 
-                {/* Total par restaurant */}
-                <div className="p-6 border-t bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        Total {group.restaurant}
-                      </p>
-                      <p className="text-lg font-bold">
-                        {(
-                          restaurantSubtotal + group.deliveryFee
-                        ).toLocaleString()}{" "}
-                        XOF
-                      </p>
-                    </div>
-
-                    {meetsMinimumOrder ? (
-                      <Badge className="px-3 py-1 bg-green-500">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Prêt à commander
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="outline"
-                        className="px-3 py-1 text-red-500 border-red-300"
-                      >
-                        Minimum non atteint
-                      </Badge>
-                    )}
+                {/* Min. order warning */}
+                {!ready && (
+                  <div style={{ padding: "10px 16px", background: "#fffbeb", borderTop: "1.5px solid #fde68a", fontSize: 12, color: "#92400e", display: "flex", gap: 6, alignItems: "center" }}>
+                    <AlertCircle size={13} />
+                    Il manque <strong style={{ fontFamily: "DM Mono, monospace" }}>&nbsp;{fmt((r?.minimumOrder || 0) - sub)} XOF&nbsp;</strong> pour atteindre le minimum de commande.
                   </div>
-                </div>
+                )}
               </motion.div>
             );
           })}
+
+          {/* ── Récapitulatif global (inline, sous les tables) ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <div style={{ border: "1.5px solid var(--line)", borderRadius: 6, overflow: "hidden" }}>
+              <div style={{ padding: "10px 16px", background: "var(--surface)", borderBottom: "1.5px solid var(--line)", fontWeight: 700, fontSize: 13, letterSpacing: ".04em", textTransform: "uppercase", color: "var(--ink-2)" }}>
+                Récapitulatif
+              </div>
+              <table className="cart-table">
+                <tbody>
+                  {Object.values(groupedByRestaurant).map((g) => (
+                    <tr key={g.id}>
+                      <td style={{ color: "var(--ink-2)", fontSize: 13 }}>{g.restaurantName}</td>
+                      <td style={{ textAlign: "right", fontSize: 13 }}>
+                        <span className="price">{fmt(getSubtotal(g.id))} XOF</span>
+                      </td>
+                      <td style={{ textAlign: "right", fontSize: 12, color: "var(--ink-3)", paddingLeft: 0 }}>
+                        + {fmt(g.deliveryFee)} livraison
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+
+          {/* ── Promo bar ── */}
+          {subtotal < 10000 && (
+            <div className="promo-bar">
+              <p style={{ fontSize: 13, color: "var(--ink)" }}>
+                <strong>🚚 Livraison offerte</strong> — plus que{" "}
+                <span className="price" style={{ color: "var(--p)", fontWeight: 700 }}>
+                  {fmt(10000 - subtotal)} XOF
+                </span>{" "}
+                pour en bénéficier.
+              </p>
+              <Link to="/menu" style={{ background: "var(--p)", color: "var(--p-fg)", borderRadius: 4, padding: "7px 14px", fontSize: 13, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
+                + Ajouter
+              </Link>
+            </div>
+          )}
         </div>
 
-        {/* Récapitulatif global */}
+        {/* ── RIGHT: Sidebar ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-12"
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.15 }}
+          className="space-y-0"
         >
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Panier résumé */}
-            <div className="lg:col-span-2">
-              <div className="bg-white border border-gray-200 shadow-sm rounded-xl">
-                <div className="p-6 border-b">
-                  <h3 className="text-xl font-bold">
-                    Récapitulatif de la commande
-                  </h3>
-                  <p className="text-gray-600">Détails de votre panier</p>
-                </div>
-
-                <div className="p-6">
-                  <div className="space-y-4">
-                    {/* Détails des restaurants */}
-                    {Object.values(groupedByRestaurant).map((group) => {
-                      const restaurantSubtotal = getRestaurantSubtotal(
-                        group.restaurantId,
-                      );
-                      const restaurantInfo = getRestaurantInfo(
-                        group.restaurantId,
-                      );
-
-                      return (
-                        <div
-                          key={group.restaurantId}
-                          className="p-4 transition-colors rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`w-3 h-3 rounded-full ${group.logoColor}`}
-                              ></div>
-                              <span className="font-medium">
-                                {group.restaurant}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {group.items.length} plat
-                                {group.items.length > 1 ? "s" : ""}
-                              </Badge>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm text-gray-600">
-                                Plats : {restaurantSubtotal.toLocaleString()}{" "}
-                                XOF
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                Livraison : {group.deliveryFee.toLocaleString()}{" "}
-                                XOF
-                              </p>
-                              <p className="font-semibold">
-                                {(
-                                  restaurantSubtotal + group.deliveryFee
-                                ).toLocaleString()}{" "}
-                                XOF
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    <Separator />
-
-                    {/* Totaux */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span>Sous-total des plats</span>
-                        <span className="font-medium">
-                          {subtotal.toLocaleString()} XOF
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Frais de livraison</span>
-                        <span>{deliveryFee.toLocaleString()} XOF</span>
-                      </div>
-                      <Separator />
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total à payer</span>
-                        <span className="text-primary">
-                          {total.toLocaleString()} XOF
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Totaux */}
+          <div className="summary-card" style={{ marginBottom: 16 }}>
+            <div style={{ padding: "12px 18px", background: "var(--surface)", borderBottom: "1px solid var(--line)", fontWeight: 700, fontSize: 13, letterSpacing: ".04em", textTransform: "uppercase", color: "var(--ink-2)" }}>
+              Montant à payer
             </div>
-
-            {/* Actions et informations */}
-            <div className="space-y-6">
-              {/* CTA Paiement */}
-              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                <h4 className="mb-4 text-lg font-bold">Passer commande</h4>
-
-                {/* Vérification des minimums de commande */}
-                {Object.keys(groupedByRestaurant).some(
-                  (restaurantId) => !checkMinimumOrder(restaurantId),
-                ) ? (
-                  <div className="p-3 mb-4 border border-red-200 rounded-lg bg-red-50">
-                    <p className="text-sm font-medium text-red-600">
-                      Certains restaurants n'ont pas atteint le minimum de
-                      commande
-                    </p>
-                  </div>
-                ) : (
-                  <div className="p-3 mb-4 border border-green-200 rounded-lg bg-green-50">
-                    <p className="text-sm font-medium text-green-600">
-                      ✅ Toutes les conditions sont remplies
-                    </p>
-                  </div>
-                )}
-
-                <Button
-                  className="w-full gap-2"
-                  size="lg"
-                  onClick={checkout}
-                  disabled={Object.keys(groupedByRestaurant).some(
-                    (restaurantId) => !checkMinimumOrder(restaurantId),
-                  )}
-                >
-                  <CreditCard className="w-5 h-5" />
-                  Procéder au paiement
-                </Button>
-
-                <p className="mt-3 text-xs text-center text-gray-500">
-                  Paiement sécurisé • Livraison rapide
-                </p>
-              </div>
-
-              {/* Avantages */}
-              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                <h4 className="mb-4 text-lg font-bold">
-                  Avantages de LivrerNourriture
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
-                      <Truck className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-semibold">
-                        Livraison rapide
-                      </h5>
-                      <p className="text-xs text-gray-600">
-                        30-45 minutes en moyenne
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
-                      <Shield className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-semibold">
-                        Paiement sécurisé
-                      </h5>
-                      <p className="text-xs text-gray-600">
-                        Cryptage SSL 256-bit
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full">
-                      <Sparkles className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-semibold">Plats frais</h5>
-                      <p className="text-xs text-gray-600">
-                        Préparés à la commande
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions rapides */}
-              <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                <h4 className="mb-4 text-lg font-bold">Besoin d'aide ?</h4>
-                <div className="space-y-3">
-                  <Button
-                    variant="outline"
-                    className="justify-start w-full gap-2"
-                    asChild
-                  >
-                    <Link to="/contact">
-                      <MessageSquare className="w-4 h-4" />
-                      Support client
-                    </Link>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    className="justify-start w-full gap-2"
-                    asChild
-                  >
-                    <Link to="/restaurants">
-                      <MapPin className="w-4 h-4" />
-                      Plus de restaurants
-                    </Link>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    className="justify-start w-full gap-2"
-                    asChild
-                  >
-                    <Link to="/menu">
-                      <ChefHat className="w-4 h-4" />
-                      Continuer mes achats
-                    </Link>
-                  </Button>
-                </div>
-              </div>
+            <div className="summary-row sub">
+              <span>Sous-total plats</span>
+              <span className="price">{fmt(subtotal)} XOF</span>
+            </div>
+            <div className="summary-row sub">
+              <span>Frais de livraison</span>
+              <span className="price">{fmt(deliveryFee)} XOF</span>
+            </div>
+            <div className="summary-row total">
+              <span>Total</span>
+              <span className="price">{fmt(total)} XOF</span>
             </div>
           </div>
-        </motion.div>
 
-        {/* Promotion */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8"
-        >
-          <div className="p-6 border border-gray-200 rounded-xl bg-gradient-to-r from-primary/5 via-white to-primary/5">
-            <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
-              <div className="text-center md:text-left">
-                <h4 className="text-lg font-bold">🚚 Livraison gratuite !</h4>
-                <p className="text-gray-600">
-                  Commandez pour plus de 10 000 XOF et bénéficiez de la
-                  livraison gratuite
-                </p>
+          {/* Status + CTA */}
+          <div className="sidebar-section" style={{ marginBottom: 16 }}>
+            <div className="sidebar-section-header">Passer commande</div>
+            <div style={{ padding: 16 }}>
+              <div style={{ padding: "9px 12px", borderRadius: 4, marginBottom: 14, fontSize: 12, display: "flex", gap: 7, alignItems: "center", background: allReady ? "#dcfce7" : "#fef9c3", color: allReady ? "#16a34a" : "#92400e" }}>
+                {allReady ? <CheckCircle size={13} /> : <AlertCircle size={13} />}
+                {allReady ? "Toutes les conditions sont remplies" : "Certains minimums non atteints"}
               </div>
-              <Button variant="outline" asChild>
-                <Link to="/promotions">Voir les promotions</Link>
+              <Button
+                className="w-full gap-2"
+                size="default"
+                onClick={checkout}
+                disabled={!allReady}
+              >
+                <CreditCard size={15} /> Procéder au paiement
               </Button>
+              <p style={{ fontSize: 11, color: "var(--ink-3)", textAlign: "center", marginTop: 8 }}>
+                <Shield size={10} className="inline mr-1" /> Paiement sécurisé
+              </p>
+            </div>
+          </div>
+
+          {/* Avantages */}
+          <div className="sidebar-section" style={{ marginBottom: 16 }}>
+            <div className="sidebar-section-header">Nos garanties</div>
+            {[
+              { icon: <Truck size={15} />,     label: "Livraison rapide",  sub: "30-45 min en moyenne" },
+              { icon: <Shield size={15} />,    label: "Paiement sécurisé", sub: "Cryptage SSL 256-bit" },
+              { icon: <Sparkles size={15} />,  label: "Plats frais",       sub: "Préparés à la commande" },
+            ].map(({ icon, label, sub }) => (
+              <div className="sidebar-row" key={label}>
+                <span className="sidebar-icon">{icon}</span>
+                <div>
+                  <p style={{ fontWeight: 600, color: "var(--ink)", fontSize: 13 }}>{label}</p>
+                  <p style={{ fontSize: 11, marginTop: 1 }}>{sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Actions rapides */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-header">Actions</div>
+            <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { to: "/contact",     icon: <MessageSquare size={14} />, label: "Support client" },
+                { to: "/restaurants", icon: <MapPin size={14} />,        label: "Plus de restaurants" },
+                { to: "/menu",        icon: <ChefHat size={14} />,       label: "Continuer mes achats" },
+              ].map(({ to, icon, label }) => (
+                <Link key={to} to={to} className="outline-btn">
+                  {icon} {label}
+                </Link>
+              ))}
             </div>
           </div>
         </motion.div>
