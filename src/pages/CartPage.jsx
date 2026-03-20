@@ -25,6 +25,7 @@ import {
 import Plat1 from "@/assets/hero.avif";
 import Plat2 from "@/assets/hero.avif";
 import Plat3 from "@/assets/hero.avif";
+import { useCurrency } from "@/context/CurrencyContext";
 
 /* ─── Palette & tokens ──────────────────────────────────────── */
 const css = `
@@ -258,6 +259,7 @@ const css = `
 /* ─── Component ─────────────────────────────────────────────── */
 const CartPage = () => {
   const navigate = useNavigate();
+  const { formatPrice, formatPriceFrom, freeDeliveryThreshold } = useCurrency();
 
   const [cartItems, setCartItems] = useState([
     {
@@ -339,7 +341,9 @@ const CartPage = () => {
   const total       = subtotal + deliveryFee;
   const totalQty    = cartItems.reduce((s, i) => s + i.quantity, 0);
   const allReady    = Object.keys(groupedByRestaurant).every(rid => meetsMin(rid));
-  const fmt         = (n) => n.toLocaleString("fr-FR");
+
+  // Seuil livraison gratuite (défini dans le contexte, ex: 10000 XOF / 10 EUR…)
+  const promoThreshold = freeDeliveryThreshold ?? 10000;
 
   /* ─ Empty state ─ */
   if (cartItems.length === 0) {
@@ -433,7 +437,7 @@ const CartPage = () => {
                       <p style={{ fontWeight: 700, fontSize: 14, color: "var(--ink)" }}>{group.restaurantName}</p>
                       <p style={{ fontSize: 12, color: "var(--ink-2)" }}>
                         <Truck size={11} className="inline mr-1" />
-                        Livraison {fmt(group.deliveryFee)} XOF
+                        Livraison {formatPrice(group.deliveryFee)}
                         {group.items[0]?.deliveryTime && ` · ${group.items[0].deliveryTime}`}
                       </p>
                     </div>
@@ -441,9 +445,9 @@ const CartPage = () => {
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     {ready
                       ? <span className="pill-ok"><CheckCircle size={12} /> Prêt</span>
-                      : <span className="pill-warn"><AlertCircle size={12} /> Min. {fmt(r?.minimumOrder || 0)} XOF</span>
+                      : <span className="pill-warn"><AlertCircle size={12} /> Min. {formatPrice(r?.minimumOrder || 0)}</span>
                     }
-                    <span className="price-primary" style={{ fontSize: 15 }}>{fmt(sub)} XOF</span>
+                    <span className="price-primary" style={{ fontSize: 15 }}>{formatPrice(sub)}</span>
                   </div>
                 </div>
 
@@ -503,12 +507,12 @@ const CartPage = () => {
 
                             {/* Unit price */}
                             <td className="right">
-                              <span className="price" style={{ fontSize: 13, color: "var(--ink-2)" }}>{fmt(item.price)}</span>
+                              <span className="price" style={{ fontSize: 13, color: "var(--ink-2)" }}>{formatPrice(item.price)}</span>
                             </td>
 
                             {/* Subtotal */}
                             <td className="right">
-                              <span className="price-primary" style={{ fontSize: 14 }}>{fmt(item.price * item.quantity)}</span>
+                              <span className="price-primary" style={{ fontSize: 14 }}>{formatPrice(item.price * item.quantity)}</span>
                             </td>
 
                             {/* Delete */}
@@ -529,7 +533,7 @@ const CartPage = () => {
                         </td>
                         <td colSpan={2} style={{ padding: "10px 16px", textAlign: "right" }}>
                           <span className="price-primary" style={{ fontSize: 15 }}>
-                            {fmt(sub + group.deliveryFee)} XOF
+                            {formatPrice(sub + group.deliveryFee)}
                           </span>
                         </td>
                       </tr>
@@ -541,7 +545,7 @@ const CartPage = () => {
                 {!ready && (
                   <div style={{ padding: "10px 16px", background: "#fffbeb", borderTop: "1.5px solid #fde68a", fontSize: 12, color: "#92400e", display: "flex", gap: 6, alignItems: "center" }}>
                     <AlertCircle size={13} />
-                    Il manque <strong style={{ fontFamily: "DM Mono, monospace" }}>&nbsp;{fmt((r?.minimumOrder || 0) - sub)} XOF&nbsp;</strong> pour atteindre le minimum de commande.
+                    Il manque <strong style={{ fontFamily: "DM Mono, monospace" }}>&nbsp;{formatPrice((r?.minimumOrder || 0) - sub)}&nbsp;</strong> pour atteindre le minimum de commande.
                   </div>
                 )}
               </motion.div>
@@ -564,10 +568,10 @@ const CartPage = () => {
                     <tr key={g.id}>
                       <td style={{ color: "var(--ink-2)", fontSize: 13 }}>{g.restaurantName}</td>
                       <td style={{ textAlign: "right", fontSize: 13 }}>
-                        <span className="price">{fmt(getSubtotal(g.id))} XOF</span>
+                        <span className="price">{formatPrice(getSubtotal(g.id))}</span>
                       </td>
                       <td style={{ textAlign: "right", fontSize: 12, color: "var(--ink-3)", paddingLeft: 0 }}>
-                        + {fmt(g.deliveryFee)} livraison
+                        + {formatPrice(g.deliveryFee)} livraison
                       </td>
                     </tr>
                   ))}
@@ -577,12 +581,12 @@ const CartPage = () => {
           </motion.div>
 
           {/* ── Promo bar ── */}
-          {subtotal < 10000 && (
+          {subtotal < promoThreshold && (
             <div className="promo-bar">
               <p style={{ fontSize: 13, color: "var(--ink)" }}>
                 <strong>🚚 Livraison offerte</strong> — plus que{" "}
                 <span className="price" style={{ color: "var(--p)", fontWeight: 700 }}>
-                  {fmt(10000 - subtotal)} XOF
+                  {formatPrice(promoThreshold - subtotal)}
                 </span>{" "}
                 pour en bénéficier.
               </p>
@@ -607,15 +611,15 @@ const CartPage = () => {
             </div>
             <div className="summary-row sub">
               <span>Sous-total plats</span>
-              <span className="price">{fmt(subtotal)} XOF</span>
+              <span className="price">{formatPrice(subtotal)}</span>
             </div>
             <div className="summary-row sub">
               <span>Frais de livraison</span>
-              <span className="price">{fmt(deliveryFee)} XOF</span>
+              <span className="price">{formatPrice(deliveryFee)}</span>
             </div>
             <div className="summary-row total">
               <span>Total</span>
-              <span className="price">{fmt(total)} XOF</span>
+              <span className="price">{formatPrice(total)}</span>
             </div>
           </div>
 

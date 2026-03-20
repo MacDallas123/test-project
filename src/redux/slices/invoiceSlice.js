@@ -60,7 +60,38 @@ export const createInvoice = createAsyncThunk(
   "invoice/createInvoice",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/invoices", data);
+      let sendData = data;
+      let config = {};
+
+      // If already a FormData instance, use directly
+      if (typeof FormData !== "undefined" && data instanceof FormData) {
+        sendData = data;
+        config.headers = { "Content-Type": "multipart/form-data" };
+      } else {
+        // If data is a plain object, convert to FormData
+        const formData = new FormData();
+        Object.entries(data || {}).forEach(([key, value]) => {
+          if (
+            typeof value === "object" &&
+            value &&
+            (value instanceof File || value instanceof Blob)
+          ) {
+            formData.append(key, value);
+          } else if (
+            typeof value === "object" &&
+            value !== null
+          ) {
+            // For objects (except File/Blob), serialize as JSON
+            formData.append(key, JSON.stringify(value));
+          } else if (value !== undefined) {
+            formData.append(key, value);
+          }
+        });
+        sendData = formData;
+        config.headers = { "Content-Type": "multipart/form-data" };
+      }
+
+      const response = await axios.post("/invoices", sendData, config);
       return response.data;
     } catch (error) {
       console.log("CREATE INVOICE ERROR", error);
@@ -74,7 +105,40 @@ export const updateInvoiceById = createAsyncThunk(
   "invoice/updateInvoiceById",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`/invoices/${id}`, data);
+      // Send data via FormData, including handling of file fields if present
+      let sendData = data;
+      let config = {};
+
+      // If already a FormData instance, use directly
+      if (typeof FormData !== "undefined" && data instanceof FormData) {
+        sendData = data;
+        config.headers = { "Content-Type": "multipart/form-data" };
+      } else {
+        // If data is a plain object, convert to FormData
+        const formData = new FormData();
+        Object.entries(data || {}).forEach(([key, value]) => {
+          // If value is an object and is a File, append as is
+          if (
+            typeof value === "object" &&
+            value &&
+            (value instanceof File || value instanceof Blob)
+          ) {
+            formData.append(key, value);
+          } else if (
+            typeof value === "object" &&
+            value !== null
+          ) {
+            // For objects (except File/Blob), serialize as JSON
+            formData.append(key, JSON.stringify(value));
+          } else if (value !== undefined) {
+            formData.append(key, value);
+          }
+        });
+        sendData = formData;
+        config.headers = { "Content-Type": "multipart/form-data" };
+      }
+
+      const response = await axios.patch(`/invoices/${id}`, sendData, config);
       return response.data;
     } catch (error) {
       console.log("UPDATE INVOICE ERROR", error);

@@ -302,7 +302,7 @@ const RegisterPage = () => {
       value: "INDIVIDUAL",
       label: "Particulier",
       icon: UserCircle,
-      description: "Pour les utilisateurs individuels",
+      description: "Pour les utilisateurs individuels, les employeurs,...",
     },
     {
       value: "CANDIDATE",
@@ -320,16 +320,8 @@ const RegisterPage = () => {
       value: "PARTNER",
       label: "Partenaire",
       icon: Handshake,
-      description: "Entreprises et prestataires",
+      description: "Grand Compte et interim",
     },
-    
-    {
-      value: "PROJECT_MASTER",
-      label: "Chef de projet",
-      icon: UserCircle,
-      description: "Acces en tant que chef de projet",
-    },
-
     {
       value: "ADMIN",
       label: "Administrateur",

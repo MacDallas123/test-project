@@ -32,6 +32,7 @@ import {
 } from "@/redux/slices/invoiceSlice";
 import { useCurrency } from "@/context/CurrencyContext";
 import InvoiceHistoryDialog from "@/components/dialog/InvoiceHistoryDialog";
+import QuoteSelectionDialog from "@/components/dialog/QuoteSelectionDialog";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD
@@ -168,18 +169,34 @@ const InvoicePage = () => {
 
   const { symbol } = useCurrency();
 
-  // ── Génération du numéro de facture ─────────
-  const generateInvoiceNumber = () => {
-    const d   = new Date();
-    const yr  = d.getFullYear();
-    const mo  = String(d.getMonth() + 1).padStart(2, "0");
-    const rnd = Math.floor(Math.random() * 9999).toString().padStart(4, "0");
-    return `INV-${yr}${mo}-${rnd}`;
-  };
+  const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState(null);
+
+  const quotes = [
+    {
+      id: "1",
+      numero: "DEV-202603-001",
+      date: "15/03/2026",
+      bis: 1,
+      clientName: "Entreprise ABC",
+      montant: 150000,
+      estTransforme: false,
+    },
+    {
+      id: "2", 
+      numero: "DEV-202603-001-v2",
+      date: "18/03/2026",
+      bis: 2,
+      clientName: "Entreprise ABC",
+      montant: 175000,
+      estTransforme: true,
+    },
+  ];
 
   // ── Formulaire ──────────────────────────────
   const [formData, setFormData] = useState({
-    invoiceNumber:      generateInvoiceNumber(),
+    invoiceNumber:      "",
+    quoteNumber:        "",
     invoiceDate:        new Date().toISOString().split("T")[0],
     dueDate:            "",
     purchaseOrder:      "",
@@ -213,6 +230,8 @@ const InvoicePage = () => {
     { id: 2, description: "Maintenance",                   quantity: 2,  unitPrice: 50, discount: 0,  taxRate: 18, total: 0 },
     { id: 3, description: "Hébergement annuel",            quantity: 1,  unitPrice: 20, discount: 0,  taxRate: 18, total: 0 },
   ]);
+
+  const [logoPreview, setLogoPreview] = useState("");
 
   // ── Chargement si édition ───────────────────
   useEffect(() => {
@@ -336,7 +355,7 @@ const InvoicePage = () => {
 
   // ── Validation ──────────────────────────────
   const isFormValid = () => {
-    const ok = ["invoiceNumber", "invoiceDate", "companyName", "clientName"]
+    const ok = ["invoiceDate", "companyName", "clientName"]
       .every(f => formData[f]?.toString().trim() !== "");
     const itemsOk = invoiceItems.every(i => i.description?.trim() && i.unitPrice > 0);
     return ok && itemsOk;
@@ -421,7 +440,7 @@ const InvoicePage = () => {
   const resetForm = () => {
     dispatch(clearInvoice());
     setFormData({
-      invoiceNumber: generateInvoiceNumber(), invoiceDate: new Date().toISOString().split("T")[0],
+      invoiceNumber: "FA-XXXX", invoiceDate: new Date().toISOString().split("T")[0],
       dueDate: "", purchaseOrder: "", companyName: "", companyAddress: "", companyCity: "",
       companyPostalCode: "", companyPhone: "", companyEmail: "", companyTaxId: "", companyLogo: "",
       clientName: "", clientCompany: "", clientEmail: "", clientPhone: "", clientAddress: "",
@@ -465,11 +484,20 @@ const InvoicePage = () => {
               "Le bon de commande (PO) est facultatif mais recommandé pour les entreprises.",
             ]} />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="invoiceNumber">Numéro de facture *</Label>
                 <div className="relative">
                   <Input id="invoiceNumber" name="invoiceNumber" value={formData.invoiceNumber} onChange={handleInputChange} className="pr-10 font-mono" required />
                   <Hash className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 right-3 top-1/2" />
+                </div>
+              </div> */}
+              <div className="space-y-2">
+                <Label htmlFor="quoteNumber">Choix du devis *</Label>
+                <div className="relative">
+                  <Button onClick={() => setIsQuoteDialogOpen(true)}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Choisir un devis
+                  </Button>
                 </div>
               </div>
               <div className="space-y-2">
@@ -561,6 +589,41 @@ const InvoicePage = () => {
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="companyTaxId">N° Identification Fiscale</Label>
                 <Input id="companyTaxId" name="companyTaxId" value={formData.companyTaxId} onChange={handleInputChange} placeholder="CM12345678901" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyLogo">Logo de l'entreprise</Label>
+                <Input
+                  id="companyLogo"
+                  name="companyLogo"
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      // Optionally, convert to base64 or keep File, adapt reducer as needed
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        // setFormData(f => ({ ...f, companyLogo: ev.target.result }));
+                        setFormData(f => ({ ...f, companyLogo: file }));
+                        setLogoPreview(ev.target.result);
+                      };
+                      reader.readAsDataURL(file);
+                    } else {
+                      setFormData(f => ({ ...f, companyLogo: "" }));
+                      setLogoPreview("");
+                    }
+                  }}
+                />
+                <div className="mt-1">
+                  {logoPreview && (
+                    <img
+                      src={logoPreview}
+                      alt="Logo de l'entreprise"
+                      className="border rounded max-h-16"
+                      style={{ objectFit: "contain", background: "#f9f9f9", padding: 2 }}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -1034,6 +1097,20 @@ const InvoicePage = () => {
         onDeleteInvoice={(inv)   => { /* delete logic  */ }}
         onDuplicateInvoice={(inv) => { /* duplicate logic */ }}
       />
+
+      {/** Dialog selection de devis */}
+      <QuoteSelectionDialog
+         isOpen={isQuoteDialogOpen}
+         onClose={() => setIsQuoteDialogOpen(false)}
+         onConfirm={(quote) => {
+           setSelectedQuote(quote);
+           // Transformer en facture...
+         }}
+         quotes={quotes}
+         title="Sélectionner un devis à facturer"
+         description="Choisissez la version du devis que vous souhaitez transformer en facture"
+         allowVersionSelection={true}
+        />
     </div>
   );
 };
