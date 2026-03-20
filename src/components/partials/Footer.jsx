@@ -347,8 +347,9 @@ const Footer = () => {
                       type="button"
                       className="flex items-center gap-2 px-3 py-1 text-sm font-medium transition-colors bg-white border rounded hover:bg-gray-100 text-primary border-border whitespace-nowrap"
                       onClick={() =>
+                        //"https://maps.google.com/?q=Rue 7 Corniche x 6, Médina, Dakar",
                         window.open(
-                          "https://maps.google.com/?q=Rue 7 Corniche x 6, Médina, Dakar",
+                          "https://maps.google.com/?q=Rue 7, Médina, Dakar",
                           "_blank",
                         )
                       }

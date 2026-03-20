@@ -304,10 +304,14 @@ const css = `
   }
 
   /* ── responsive ── */
+  .job-right-mobile {
+    display: none;
+  }
+
   @media (max-width: 600px) {
     .job-card { grid-template-columns: 36px 1fr; }
     .job-right { display: none; }
-    .job-card .job-right-mobile {
+    .job-right-mobile {
       grid-column: 1 / -1;
       display: flex; justify-content: space-between; align-items: center;
       padding-top: 10px; border-top: 1px solid var(--line); margin-top: 4px;
@@ -606,7 +610,7 @@ const JobsPage = () => {
                     </div>
                   </div>
 
-                  {/* Right col */}
+                  {/* Right col — desktop */}
                   <div className="job-right">
                     <div>
                       <div className="job-salary">{displaySalary(job)}</div>
@@ -628,6 +632,27 @@ const JobsPage = () => {
                       </Link>
                     </div>
                   </div>
+
+                  {/* Bottom row — mobile only */}
+                  <div className="job-right-mobile">
+                    <div>
+                      <div className="job-salary">{displaySalary(job)}</div>
+                      <div className="job-date" style={{ marginTop: 2 }}>{job.postedDate}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <button
+                        className={`save-btn ${saved ? "saved" : ""}`}
+                        onClick={() => toggleSave(job.id)}
+                        title={saved ? "Retirer des favoris" : "Sauvegarder"}
+                      >
+                        <Bookmark size={15} fill={saved ? "currentColor" : "none"} />
+                      </button>
+                      <Link to={`/apply/job/${job.id}`} className="apply-btn">
+                        Postuler <ArrowRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+
                 </div>
               );
             })}
