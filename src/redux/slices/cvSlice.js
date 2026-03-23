@@ -3,10 +3,44 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from '@/api/axios';
 
 const initialState = {
+    cvs: null,
     currentCV: null,
     loading: false,
     error: null,
+
+    cvsFilter: {
+      search: "",
+      page: 1,
+      limit: 10,
+      type: "all",
+      generated: "all",
+      sortBy: "createdAt",
+      sortOrder: "DESC"
+    },
+
+    cvsPagination: {
+      total: 3,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false
+    }
 };
+
+// GET fetch CVs by user
+export const fetchCVsByUser = createAsyncThunk(
+  "cv/fetchCVsByUser",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/cv/user/me`, { params });
+      return response.data;
+    } catch (error) {
+      console.log("GET USER CV ERROR", error);
+      return rejectWithValue(error.response?.data?.message || "Erreur lors de la recuperation des CVs");
+    }
+  }
+);
 
 // GET fetch CV
 export const fetchCVById = createAsyncThunk(
@@ -52,13 +86,33 @@ export const updateCVById = createAsyncThunk(
 
 export const generateCV = createAsyncThunk(
   "cv/generateCV",
-  async ({ id, format = 'pdf' }, { rejectWithValue }) => {
+  async ({ id, format = 'pdf', template = 'classic' }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`/cv/${id}/generate?format=${format}`);
+      const response = await axios.post(`/cv/${id}/generate?format=${format}&template=${template}`);
       return response.data;
     } catch (error) {
       console.log("GENERATE CV ERROR", error);
       return rejectWithValue(error.response?.data?.message || "Erreur lors de la génération du CV");
+    }
+  }
+);
+
+export const importCV = createAsyncThunk(
+  "cv/importCV",
+  async (cv, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('cv', cv);
+
+      const response = await axios.post(`/cv/import`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("IMPORT CV ERROR", error);
+      return rejectWithValue(error.response?.data?.message || "Erreur lors de l'import du CV");
     }
   }
 );
@@ -82,10 +136,41 @@ const cvSlice = createSlice({
 
         clearCV: (state) => {
             state.currentCV = null;
-        }
+        },
+
+        setCVsFilter: (state, action) => {
+          state.cvsFilter = action.payload;
+        },
+
+        resetCVsFilter: (state) => {
+            state.cvsFilter = initialState.usersFilter;
+        },
+
+        setCVsPagination: (state, action) => {
+            state.cvsPagination = action.payload;
+        },
+
+        resetCVsPagination: (state) => {
+            state.cvsPagination = initialState.initialState;
+        },
     },
     extraReducers: (builder) => {
-        // fetchCVById
+        // fetchCVsByUser
+        builder
+        .addCase(fetchCVsByUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(fetchCVsByUser.fulfilled, (state, action) => {
+            state.loading = false;
+            state.cvs = action.payload.content.data;
+            state.error = null;
+        })
+        .addCase(fetchCVsByUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload || "Erreur lors de la récupération des cvs";
+        });
+
         builder
         .addCase(fetchCVById.pending, (state) => {
             state.loading = true;
@@ -141,12 +226,27 @@ const cvSlice = createSlice({
         })
         .addCase(generateCV.fulfilled, (state, action) => {
           state.loading = false;
-          state.generatedCV = action.payload.content;
+          state.currentCV = action.payload.content;
           state.error = null;
         })
         .addCase(generateCV.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload || "Erreur lors de la génération du CV";
+        });
+
+        builder
+        .addCase(importCV.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(importCV.fulfilled, (state, action) => {
+          state.loading = false;
+          state.currentCV = action.payload.content;
+          state.error = null;
+        })
+        .addCase(importCV.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || "Erreur lors de l'import du CV";
         });
     }
 });
@@ -155,11 +255,18 @@ export const {
   clearError,
   setPersoError,
   setCurrentCV,
-  clearCV } = cvSlice.actions;
+  clearCV,
+  setCVsFilter,
+  resetCVsFilter,
+  setCVsPagination,
+  resetCVsPagination } = cvSlice.actions;
 
 export default cvSlice.reducer;
 
 export const selectCurrentCV = (state) => state.cv.currentCV;
+export const selectCVs = (state) => state.cv.cvs;
+export const selectCVsFilter = (state) => state.cv.cvsFilter;
+export const selectCVsPagination = (state) => state.cv.cvsPagination;
 export const selectCVLoading = (state) => state.cv.loading;
 export const selectCVError = (state) => state.cv.error;
 // export const selectUserStats = (state) => state.cv.stats;

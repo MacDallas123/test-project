@@ -48,7 +48,7 @@ import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 import { availableLanguages } from "@/i18n/translations";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "@/redux/slices/AppSlice";
-import { registerUser, selectAuthError, selectAuthLoading } from "@/redux/slices/authSlice";
+import { activateAccount, registerUser, selectAuthError, selectAuthLoading } from "@/redux/slices/authSlice";
 import { thunkSucceed } from "@/lib/tools";
 import { Indicator } from "@radix-ui/react-progress";
 import ReactCountryFlag from "react-country-flag";
@@ -57,7 +57,12 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  //const [isLoading, setIsLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
+  const [verificationError, setVerificationError] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [pendingFormData, setPendingFormData] = useState(null);
   const { t } = useLanguage();
 
   const location = useLocation();
@@ -73,137 +78,75 @@ const RegisterPage = () => {
       firstName: z
         .string()
         .min(2, {
-          message: t(
-            "register.firstName.tooShort",
-            "Le nom de compte doit contenir au moins 2 caractères",
-          ),
+          message: t("register.firstName.tooShort"),
         })
         .max(50, {
-          message: t(
-            "register.firstName.tooLong",
-            "Le nom de compte est trop long",
-          ),
+          message: t("register.firstName.tooLong"),
         }),
-        /*.regex(/^[a-zA-Z ]+$/, {
-          message: t(
-            "register.firstName.invalid",
-            "Caractères spéciaux non autorisés (sauf espace)",
-          ),
-        }),*/
 
       lastName: z
         .string()
         .min(2, {
-          message: t(
-            "register.lastName.tooShort",
-            "Le prenom de compte doit contenir au moins 2 caractères",
-          ),
+          message: t("register.lastName.tooShort"),
         })
         .max(50, {
-          message: t(
-            "register.lastName.tooLong",
-            "Le prenom de compte est trop long",
-          ),
+          message: t("register.lastName.tooLong"),
         }),
-        /*.regex(/^[a-zA-Z ]+$/, {
-          message: t(
-            "register.lastName.invalid",
-            "Caractères spéciaux non autorisés (sauf espace)",
-          ),
-        }),*/
 
       phone: z
         .string()
         .min(7, {
-          message: t(
-            "register.phone.tooShort",
-            "Le numéro de téléphone est trop court",
-          ),
+          message: t("register.phone.tooShort"),
         })
         .max(20, {
-          message: t(
-            "register.phone.tooLong",
-            "Le numéro de téléphone est trop long",
-          ),
+          message: t("register.phone.tooLong"),
         }),
-        /*.regex(/^\+?[0-9\s\-()]{7,20}$/, {
-          message: t(
-            "register.phone.invalid",
-            "Format invalide (ex: +012 34 56 78)",
-          ),
-        }),*/
-      Indicator: z
-        .string(),
       
       email: z
         .string()
-        .min(1, { message: t("register.email.required", "L'email est requis") })
+        .min(1, { message: t("register.email.required") })
         .email({
-          message: t("register.email.invalid", "Format d'email invalide"),
+          message: t("register.email.invalid"),
         }),
 
       accountType: z
         .string()
         .min(1, {
-          message: t(
-            "register.accountType.required",
-            "Le type de compte est requis",
-          ),
+          message: t("register.accountType.required"),
         }),
 
       language: z
         .string()
         .min(1, {
-          message: t(
-            "register.language.required",
-            "La langue préférée est requise",
-          ),
+          message: t("register.language.required"),
         }),
 
       password: z
         .string()
         .min(8, {
-          message: t(
-            "register.password.tooShort",
-            "Le mot de passe doit contenir au moins 8 caractères",
-          ),
+          message: t("register.password.tooShort"),
         })
         .max(50, {
-          message: t(
-            "register.password.tooLong",
-            "Le mot de passe est trop long",
-          ),
+          message: t("register.password.tooLong"),
         })
         .regex(/[A-Z]/, {
-          message: t("register.password.uppercase", "Au moins une majuscule"),
+          message: t("register.password.uppercase"),
         })
         .regex(/[a-z]/, {
-          message: t("register.password.lowercase", "Au moins une minuscule"),
+          message: t("register.password.lowercase"),
         })
         .regex(/[0-9]/, {
-          message: t("register.password.number", "Au moins un chiffre"),
+          message: t("register.password.number"),
         }),
-        /*.regex(/[^A-Za-z0-9]/, {
-          message: t(
-            "register.password.special",
-            "Au moins un caractère spécial",
-          ),
-        }),*/
 
       confirmPassword: z
         .string()
         .min(1, {
-          message: t(
-            "register.confirmPassword.required",
-            "La confirmation du mot de passe est requise",
-          ),
+          message: t("register.confirmPassword.required"),
         }),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: t(
-        "register.passwords.mismatch",
-        "Les mots de passe ne correspondent pas",
-      ),
+      message: t("register.passwords.mismatch"),
       path: ["confirmPassword"],
     });
 
@@ -223,7 +166,7 @@ const RegisterPage = () => {
       phone: "",
       email: "",
       accountType: "",
-      language: "FRENCH",
+      language: "fr",
       password: "",
       confirmPassword: "",
     },
@@ -233,7 +176,7 @@ const RegisterPage = () => {
 
   // Vérification de la force du mot de passe
   const getPasswordStrength = (password) => {
-    if (!password) return { score: 0, label: "Vide" };
+    if (!password) return { score: 0, label: t("register.passwordStrength.empty") };
 
     let score = 0;
     if (password.length >= 8) score++;
@@ -243,12 +186,12 @@ const RegisterPage = () => {
     if (/[^A-Za-z0-9]/.test(password)) score++;
 
     const labels = [
-      "Très faible",
-      "Faible",
-      "Moyen",
-      "Bon",
-      "Très bon",
-      "Excellent",
+      t("register.passwordStrength.veryWeak"),
+      t("register.passwordStrength.weak"),
+      t("register.passwordStrength.medium"),
+      t("register.passwordStrength.good"),
+      t("register.passwordStrength.veryGood"),
+      t("register.passwordStrength.excellent"),
     ];
     return { score, label: labels[Math.min(score, 5)] };
   };
@@ -271,62 +214,114 @@ const RegisterPage = () => {
   }, []);
   
 
-  // Soumission du formulaire
+  // Soumission du formulaire → passe à l'étape de vérification email
   const onSubmit = async (data) => {
-    // setIsLoading(true);
-
     try {
-      // console.log("Inscription avec:", {
-      //   ...data,
-      //   // Ne pas logger le mot de passe en production
-      //   password: "***",
-      //   confirmPassword: "***",
-      // });
-
       const response = await dispatch(registerUser(data));
+      if (thunkSucceed(response)) {
+        setPendingFormData(data);
+        setCurrentStep(2);
+        startResendCooldown();
+      }
+    } catch (error) {
+      console.error("Erreur d'enregistrement:", error);
+    }
+  };
 
-      if(thunkSucceed(response)) {
-        navigate("/auth/login");
+  // Lance le compte à rebours de renvoi (60s)
+  const startResendCooldown = () => {
+    setResendCooldown(60);
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Gestion de la saisie du code OTP (6 chiffres)
+  const handleCodeChange = (index, value) => {
+    if (!/^\d?$/.test(value)) return;
+    const newCode = [...verificationCode];
+    newCode[index] = value;
+    setVerificationCode(newCode);
+    setVerificationError("");
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`)?.focus();
+    }
+  };
+
+  const handleCodeKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
+
+  const handleCodePaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...verificationCode];
+    pasted.split("").forEach((char, i) => { if (i < 6) newCode[i] = char; });
+    setVerificationCode(newCode);
+    const lastFilled = Math.min(pasted.length, 5);
+    document.getElementById(`otp-${lastFilled}`)?.focus();
+  };
+
+  // Vérification du code et inscription définitive
+  const handleVerifyAndRegister = async () => {
+    const code = verificationCode.join("");
+    if (code.length < 6) {
+      setVerificationError(t("verification.codeError"));
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      const verifyResponse = await dispatch(activateAccount({ email: pendingFormData.email, code }));
+      if (!thunkSucceed(verifyResponse)) { 
+        setVerificationError(t("verification.codeIncorrect")); 
+        return; 
       }
 
+      navigate("/auth/login");
     } catch (error) {
-      console.error("Erreur d'inscription:", error);
-    } /*finally {
-      setIsLoading(false);
-    }*/
+      console.error("Erreur de vérification:", error);
+      setVerificationError(t("verification.errorOccurred"));
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   // Types de compte disponibles
   const accountTypes = [
     {
       value: "INDIVIDUAL",
-      label: "Particulier",
+      label: t("register.accountTypes.individual.label"),
       icon: UserCircle,
-      description: "Pour les utilisateurs individuels, les employeurs,...",
+      description: t("register.accountTypes.individual.description"),
     },
     {
       value: "CANDIDATE",
-      label: "Candidat",
+      label: t("register.accountTypes.candidate.label"),
       icon: User,
-      description: "Recherche d'emploi ou de missions (candidats, stagiaires, apprenti)",
+      description: t("register.accountTypes.candidate.description"),
     },
     {
       value: "PROFESSIONAL",
-      label: "Professionnel",
+      label: t("register.accountTypes.professional.label"),
       icon: UserCircle,
-      description: "Entreprise, Freelances,...",
+      description: t("register.accountTypes.professional.description"),
     },
     {
       value: "PARTNER",
-      label: "Partenaire",
+      label: t("register.accountTypes.partner.label"),
       icon: Handshake,
-      description: "Grand Compte et interim",
+      description: t("register.accountTypes.partner.description"),
     },
     {
       value: "ADMIN",
-      label: "Administrateur",
+      label: t("register.accountTypes.admin.label"),
       icon: Settings,
-      description: "Acces plus approfondi a la plaforme ( Commerciaux,... )",
+      description: t("register.accountTypes.admin.description"),
     },
   ];
 
@@ -338,39 +333,60 @@ const RegisterPage = () => {
           <div className="mb-8 text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                <img src={Logo} alt="Logo FIBEM" className="w-12 h-8" />
+                <img src={Logo} alt={t("common.logoAlt", "Logo FIBEM")} className="w-12 h-8" />
               </div>
               <SiteTileForm1 />
             </div>
             <p className="text-primary-foreground">
-              Rejoignez notre plateforme de livraison des repas
+              {t("register.subtitle", "Rejoignez notre plateforme de livraison des repas")}
             </p>
           </div>
 
           {/* Carte d'inscription */}
           <Card className="border">
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Créer un compte</CardTitle>
-                {isRedirected ? (
-                  <CardDescription className="text-lg">
-                    Merci de nous contacter,
-                    Veuillez terminer la creation de votre compte pour pouvoir nous envoyer un message
-                  </CardDescription>
+              <CardTitle className="text-xl">
+                {currentStep === 1 ? t("register.title") : t("verification.title")}
+              </CardTitle>
+                {currentStep === 1 ? (
+                  isRedirected ? (
+                    <CardDescription className="text-lg">
+                      {t("register.redirectMessage", "Merci de nous contacter, Veuillez terminer la creation de votre compte pour pouvoir nous envoyer un message")}
+                    </CardDescription>
+                  ) : (
+                    <CardDescription>
+                      {t("register.description")}
+                    </CardDescription>
+                  )
                 ) : (
                   <CardDescription>
-                    Remplissez les informations pour créer votre compte
+                    {t("verification.description")}{" "}
+                    <span className="font-medium text-foreground">{pendingFormData?.email}</span>
                   </CardDescription>
                 )}
+
+              {/* Indicateur d'étapes */}
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all ${currentStep === 1 ? "bg-primary text-primary-foreground" : "bg-green-500 text-white"}`}>
+                  {currentStep > 1 ? <Check className="w-4 h-4" /> : "1"}
+                </div>
+                <div className={`h-0.5 w-10 transition-all ${currentStep > 1 ? "bg-green-500" : "bg-muted"}`} />
+                <div className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all ${currentStep === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  2
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent>
+              {/* ───────────── ÉTAPE 1 : Formulaire ───────────── */}
+              {currentStep === 1 && (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Informations de base */}
                 <div className="grid gap-6 md:grid-cols-2">
                   {/* Nom */}
                   <div className="space-y-2">
                     <Label htmlFor="lastName">
-                      Nom <span className="text-red-500">*</span>
+                      {t("register.lastName.label")} <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -379,7 +395,7 @@ const RegisterPage = () => {
                       <Input
                         id="lastName"
                         type="text"
-                        placeholder="Votre nom"
+                        placeholder={t("register.lastName.placeholder")}
                         className="pl-10"
                         {...register("lastName")}
                         aria-invalid={!!errors.lastName}
@@ -401,7 +417,7 @@ const RegisterPage = () => {
                   {/* Prénom */}
                   <div className="space-y-2">
                     <Label htmlFor="firstName">
-                      Prénom <span className="text-red-500">*</span>
+                      {t("register.firstName.label")} <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -410,7 +426,7 @@ const RegisterPage = () => {
                       <Input
                         id="firstName"
                         type="text"
-                        placeholder="Votre prénom"
+                        placeholder={t("register.firstName.placeholder")}
                         className="pl-10"
                         {...register("firstName")}
                         aria-invalid={!!errors.firstName}
@@ -435,8 +451,7 @@ const RegisterPage = () => {
                   {/* Téléphone */}
                   <div className="space-y-2">
                     <Label htmlFor="phone">
-                      Téléphone (format international){" "}
-                      <span className="text-red-500">*</span>
+                      {t("register.phone.label")} <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -445,7 +460,7 @@ const RegisterPage = () => {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+33 1 23 45 67 89"
+                        placeholder={t("register.phone.placeholder")}
                         className="pl-10"
                         {...register("phone")}
                         aria-invalid={!!errors.phone}
@@ -467,7 +482,7 @@ const RegisterPage = () => {
                   {/* Email */}
                   <div className="space-y-2">
                     <Label htmlFor="email">
-                      Adresse email <span className="text-red-500">*</span>
+                      {t("register.email.label")} <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -476,7 +491,7 @@ const RegisterPage = () => {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="votre@email.com"
+                        placeholder={t("register.email.placeholder")}
                         className="pl-10"
                         {...register("email")}
                         aria-invalid={!!errors.email}
@@ -500,7 +515,7 @@ const RegisterPage = () => {
                 {/* Type de compte */}
                 <div className="space-y-2">
                   <Label htmlFor="accountType">
-                    Type de compte <span className="text-red-500">*</span>
+                    {t("register.accountType.label")} <span className="text-red-500">*</span>
                   </Label>
                   <div className="grid gap-3 md:grid-cols-3">
                     {accountTypes.map((type) => {
@@ -522,11 +537,10 @@ const RegisterPage = () => {
                             trigger("accountType");
                           }}
                         >
-                          {/* <Icon className={`w-6 h-6 mb-2 ${isSelected ? "text-primary" : "text-muted-foreground"}`} /> */}
-                          <Icon className={`w-6 h-6 mb-2`} />
-                          {/* <span className={`font-medium ${isSelected ? "text-primary" : ""}`}> */}
-                          <span className={`font-medium`}>{type.label}</span>
-                          {/* <span className="mt-1 text-xs text-center text-muted-foreground"> */}
+                          <div className="flex flex-row gap-2">
+                            <Icon className={`w-6 h-6 mb-2`} />
+                            <span className={`font-medium`}>{type.label}</span>
+                          </div>
                           <span className="mt-1 text-xs text-center">
                             {type.description}
                           </span>
@@ -551,7 +565,7 @@ const RegisterPage = () => {
                 {/* Langue préférée */}
                 <div className="space-y-2">
                   <Label htmlFor="language">
-                    Langue préférée <span className="text-red-500">*</span>
+                    {t("register.language.label")} <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <div className="absolute z-10 transform -translate-y-1/2 left-3 top-1/2">
@@ -565,14 +579,13 @@ const RegisterPage = () => {
                       defaultValue={watchedFields.language}
                     >
                       <SelectTrigger className="pl-10">
-                        <SelectValue placeholder="Sélectionnez une langue" />
+                        <SelectValue placeholder={t("register.language.placeholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {availableLanguages.map((lang) => (
                           <SelectItem key={lang.value} value={lang.value}>
                             <div className="flex items-center gap-2">
                               <ReactCountryFlag svg countryCode={lang.reactFlag} className="w-4 h-4" />
-                              {/* <span>{lang.flag}</span> */}
                               <span>{lang.name}</span>
                             </div>
                           </SelectItem>
@@ -592,7 +605,7 @@ const RegisterPage = () => {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="password">
-                      Mot de passe <span className="text-red-500">*</span>
+                      {t("register.password.label")} <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
                       <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -601,7 +614,7 @@ const RegisterPage = () => {
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Votre mot de passe"
+                        placeholder={t("register.password.placeholder")}
                         className="pl-10 pr-10"
                         {...register("password")}
                         aria-invalid={!!errors.password}
@@ -612,8 +625,8 @@ const RegisterPage = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={
                           showPassword
-                            ? "Cacher le mot de passe"
-                            : "Afficher le mot de passe"
+                            ? t("common.hidePassword")
+                            : t("common.showPassword")
                         }
                       >
                         {showPassword ? (
@@ -629,7 +642,7 @@ const RegisterPage = () => {
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">
-                            Force du mot de passe:{" "}
+                            {t("register.passwordStrength.label")}{" "}
                             <span
                               className={`font-medium ${
                                 passwordStrength.score <= 1
@@ -666,23 +679,23 @@ const RegisterPage = () => {
                         <div className="grid grid-cols-2 gap-1 mt-2">
                           {[
                             {
-                              label: "8 caractères min",
+                              label: t("register.passwordCriteria.minChars"),
                               valid: watchedFields.password.length >= 8,
                             },
                             {
-                              label: "1 majuscule",
+                              label: t("register.passwordCriteria.uppercase"),
                               valid: /[A-Z]/.test(watchedFields.password),
                             },
                             {
-                              label: "1 minuscule",
+                              label: t("register.passwordCriteria.lowercase"),
                               valid: /[a-z]/.test(watchedFields.password),
                             },
                             {
-                              label: "1 chiffre",
+                              label: t("register.passwordCriteria.number"),
                               valid: /[0-9]/.test(watchedFields.password),
                             },
                             {
-                              label: "1 caractère spécial",
+                              label: t("register.passwordCriteria.specialChar"),
                               valid: /[^A-Za-z0-9]/.test(
                                 watchedFields.password,
                               ),
@@ -723,7 +736,7 @@ const RegisterPage = () => {
                   {/* Confirmation du mot de passe */}
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">
-                      Confirmer le mot de passe{" "}
+                      {t("register.confirmPassword.label")}{" "}
                       <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative">
@@ -733,7 +746,7 @@ const RegisterPage = () => {
                       <Input
                         id="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirmez votre mot de passe"
+                        placeholder={t("register.confirmPassword.placeholder")}
                         className="pl-10 pr-10"
                         {...register("confirmPassword")}
                         aria-invalid={!!errors.confirmPassword}
@@ -746,8 +759,8 @@ const RegisterPage = () => {
                         }
                         aria-label={
                           showConfirmPassword
-                            ? "Cacher le mot de passe"
-                            : "Afficher le mot de passe"
+                            ? t("common.hidePassword")
+                            : t("common.showPassword")
                         }
                       >
                         {showConfirmPassword ? (
@@ -763,7 +776,7 @@ const RegisterPage = () => {
                         watchedFields.confirmPassword && (
                         <div className="flex items-center gap-2 text-sm text-green-500">
                           <CheckCircle className="w-4 h-4" />
-                          <span>Les mots de passe correspondent</span>
+                          <span>{t("register.passwords.match")}</span>
                         </div>
                       )}
                     {errors.confirmPassword && (
@@ -791,29 +804,115 @@ const RegisterPage = () => {
                   {isLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
-                      Création du compte...
+                      {t("register.creatingAccount")}
                     </>
                   ) : (
                     <>
-                      Créer mon compte
+                      {t("register.createButton")}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </Button>
               </form>
+              )}
+
+              {/* ───────────── ÉTAPE 2 : Vérification email ───────────── */}
+              {currentStep === 2 && (
+                <div className="space-y-6">
+                  <div className="flex flex-col items-center gap-3 py-2">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                      <Mail className="w-8 h-8 text-primary" />
+                    </div>
+                    <p className="max-w-xs text-sm text-center text-muted-foreground">
+                      {t("verification.instruction")}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t("verification.codeLabel")}</Label>
+                    <div className="flex justify-center gap-2" onPaste={handleCodePaste}>
+                      {verificationCode.map((digit, index) => (
+                        <input
+                          key={index}
+                          id={`otp-${index}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleCodeChange(index, e.target.value)}
+                          onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                          className={`w-11 h-13 text-center text-xl font-bold border-2 rounded-lg outline-none transition-all focus:border-primary bg-background ${
+                            verificationError ? "border-red-400" : digit ? "border-primary" : "border-input"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {verificationError && (
+                      <div className="flex items-center justify-center gap-2 text-sm text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{verificationError}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    type="button"
+                    className="w-full gap-2"
+                    disabled={isVerifying || verificationCode.join("").length < 6}
+                    onClick={handleVerifyAndRegister}
+                  >
+                    {isVerifying ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
+                        {t("verification.verifying")}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        {t("verification.verifyButton")}
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="text-sm text-center text-muted-foreground">
+                    {t("verification.codeNotReceived")}{" "}
+                    {resendCooldown > 0 ? (
+                      <span className="text-muted-foreground">
+                        {t("verification.resendIn")} {resendCooldown}s
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="font-medium text-primary hover:underline"
+                        onClick={startResendCooldown}
+                      >
+                        {t("verification.resend")}
+                      </button>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 mx-auto text-sm transition-colors text-muted-foreground hover:text-foreground"
+                    onClick={() => { setCurrentStep(1); setVerificationCode(["","","","","",""]); setVerificationError(""); }}
+                  >
+                    ← {t("verification.backToForm")}
+                  </button>
+                </div>
+              )}
             </CardContent>
 
             <CardFooter className="flex-col space-y-4">
               <Separator />
               <div className="text-sm text-center">
                 <span className="text-muted-foreground">
-                  Vous avez déjà un compte ?{" "}
+                  {t("register.alreadyHaveAccount")}{" "}
                 </span>
                 <Link
                   to="/auth/login"
                   className="font-medium text-primary hover:underline"
                 >
-                  Se connecter
+                  {t("register.loginLink")}
                 </Link>
               </div>
             </CardFooter>

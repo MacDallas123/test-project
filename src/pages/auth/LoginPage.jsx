@@ -37,8 +37,9 @@ import { useLanguage } from "@/context/LanguageContext";
 import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAction, selectUser, setIsLoggedIn } from "@/redux/slices/AppSlice";
-import { clearError, loginUser, selectAuthError } from "@/redux/slices/authSlice";
+import { activateAccount, clearError, loginUser, selectAuthError } from "@/redux/slices/authSlice";
 import { thunkSucceed } from "@/lib/tools";
+import { translations } from "@/i18n/translations";
 
 //type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -47,17 +48,18 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState("email");
-
-  const [loginData, setLoginData] = useState({
-    identifier: "",
-    password: ""
-  });
+  const [currentStep, setCurrentStep] = useState(1); // 1 = formulaire, 2 = validation email
+  const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
+  const [verificationError, setVerificationError] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [inactiveUserEmail, setInactiveUserEmail] = useState("");
   
   const dispatch = useDispatch();
   const selectUserFS = useSelector(selectUser);
   const selectErrorFS = useSelector(selectAuthError);
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Schéma de validation avec Zod
   const loginSchema = z.object({
@@ -136,6 +138,11 @@ const LoginPage = () => {
       dispatch(clearError());
   }
 
+  /*useEffect(() => {
+    console.log("TRANSLATIONS : ", translations);
+    alert(`LANGUAGE : ${language}, LOGIN : ${t("login.title")}`);
+  }, [language]);*/
+
   // Soumission du formulaire
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -143,18 +150,80 @@ const LoginPage = () => {
     try {
       const response = await dispatch(loginUser(data));
 
-      // console.log("Connexion avec:", data);
-
-      if(thunkSucceed(response)) {
-        navigate("/");
+      if (thunkSucceed(response)) {
+        const payloadContent = response.payload.content;
+        if (payloadContent.user.status === "INACTIVE") {
+          // Compte inactif → demande de vérification email
+          setInactiveUserEmail(payloadContent.user.email);
+          setCurrentStep(2);
+          startResendCooldown();
+        } else {
+          navigate("/");
+        }
       }
-
-      // Redirection vers le dashboard
-      // navigate("/dashboard");
     } catch (error) {
       console.error("Erreur de connexion:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Compte à rebours pour le renvoi du code (60s)
+  const startResendCooldown = () => {
+    setResendCooldown(60);
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Gestion de la saisie des cases OTP
+  const handleCodeChange = (index, value) => {
+    if (!/^\d?$/.test(value)) return;
+    const newCode = [...verificationCode];
+    newCode[index] = value;
+    setVerificationCode(newCode);
+    setVerificationError("");
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`)?.focus();
+    }
+  };
+
+  const handleCodeKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
+
+  const handleCodePaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...verificationCode];
+    pasted.split("").forEach((char, i) => { if (i < 6) newCode[i] = char; });
+    setVerificationCode(newCode);
+    document.getElementById(`otp-${Math.min(pasted.length, 5)}`)?.focus();
+  };
+
+  // Vérification du code et activation du compte
+  const handleVerifyCode = async () => {
+    const code = verificationCode.join("");
+    if (code.length < 6) {
+      setVerificationError("Veuillez entrer les 6 chiffres du code.");
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      // TODO: dispatcher l'action de vérification du code
+      const verifyResponse = await dispatch(activateAccount({ email: inactiveUserEmail, code }));
+      if (!thunkSucceed(verifyResponse)) { setVerificationError("Code incorrect ou expiré."); return; }
+      navigate("/");
+    } catch (error) {
+      console.error("Erreur de vérification:", error);
+      setVerificationError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -179,18 +248,25 @@ const LoginPage = () => {
           {/* Carte de connexion */}
           <Card className="border">
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Connexion</CardTitle>
+              <CardTitle className="text-xl">
+                {currentStep === 1 ? t("login.title", "Connexion") : t("verification.title", "Vérifier votre email")}
+              </CardTitle>
               <CardDescription>
-                Utilisez votre email ou numéro de téléphone
+                {currentStep === 1
+                  ? t("login.description", "Utilisez votre email ou numéro de téléphone")
+                  : <>{t("verification.description", "Votre compte est inactif. Entrez le code envoyé à")} <span className="font-medium text-foreground">{inactiveUserEmail}</span></>
+                }
               </CardDescription>
             </CardHeader>
 
             <CardContent>
+              {/* ───── ÉTAPE 1 : Formulaire de connexion ───── */}
+              {currentStep === 1 && (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Champ identifiant */}
                 <div className="space-y-2">
                   <Label htmlFor="identifier">
-                    Email ou numéro de téléphone
+                    {t("common.emailOrPhone", "Email ou numéro de téléphone")}
                   </Label>
                   <div className="relative">
                     <div className="absolute transform -translate-y-1/2 left-3 top-1/2">
@@ -205,7 +281,7 @@ const LoginPage = () => {
                       type="text"
                       placeholder={t(
                         "login.identifier.placeholder",
-                        "Email ou numero de telephone",
+                        "Email ou numero de telephone"
                       )}
                       className="pl-10"
                       {...register("identifier", {
@@ -233,12 +309,9 @@ const LoginPage = () => {
                 {/* Champ mot de passe */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Link
-                      to="/auth/forgot-password"
-                      className="text-sm text-primary hover:underline"
-                    >
-                      Mot de passe oublié ?
+                  <Label htmlFor="password">{t("common.password", "Mot de passe")}</Label>
+                    <Link to="/auth/forgot-password" className="text-sm text-primary hover:underline">
+                      {t("login.forgotPassword", "Mot de passe oublié ?")}
                     </Link>
                   </div>
                   <div className="relative">
@@ -248,7 +321,7 @@ const LoginPage = () => {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Votre mot de passe"
+                      placeholder={t("common.yourPassword", "Votre mot de passe")}
                       className="pl-10 pr-10"
                       {...register("password", {
                         onChange: () => onFieldChange()
@@ -291,18 +364,15 @@ const LoginPage = () => {
                         onChange: () => onFieldChange()
                       })}
                     />
-                    <label
-                      htmlFor="rememberMe"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Se souvenir de moi
+                    <label htmlFor="rememberMe" className="text-sm font-medium leading-none">
+                      {t("login.rememberMe", "Se souvenir de moi")}
                     </label>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm">
                     <Shield className="w-4 h-4 text-green-500" />
                     <span className="text-muted-foreground">
-                      Connexion sécurisée
+                      {t("login.secureConnection", "Connexion sécurisée")}
                     </span>
                   </div>
                 </div>
@@ -323,41 +393,120 @@ const LoginPage = () => {
                   {isLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
-                      Connexion en cours...
+                      {t("login.loggingIn", "Connexion en cours...")}
                     </>
                   ) : (
                     <>
-                      Se connecter
+                      {t("login.loginButton", "Se connecter")}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </Button>
               </form>
+              )} {/* fin currentStep === 1 */}
+
+              {/* ───── ÉTAPE 2 : Validation email (compte inactif) ───── */}
+              {currentStep === 2 && (
+                <div className="space-y-6">
+                  {/* Icône */}
+                  <div className="flex flex-col items-center gap-3 py-2">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                      <Mail className="w-8 h-8 text-primary" />
+                    </div>
+                    <p className="max-w-xs text-sm text-center text-muted-foreground">
+                      {t("verification.instruction", "Pour activer votre compte, entrez le code à 6 chiffres envoyé à votre adresse email.")}
+                    </p>
+                  </div>
+
+                  {/* Saisie OTP */}
+                  <div className="space-y-2">
+                    <Label>{t("verification.codeLabel", "Code de vérification")}</Label>
+                    <div className="flex justify-center gap-2" onPaste={handleCodePaste}>
+                      {verificationCode.map((digit, index) => (
+                        <input
+                          key={index}
+                          id={`otp-${index}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleCodeChange(index, e.target.value)}
+                          onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                          className={`w-11 h-13 text-center text-xl font-bold border-2 rounded-lg outline-none transition-all focus:border-primary bg-background ${
+                            verificationError ? "border-red-400" : digit ? "border-primary" : "border-input"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {verificationError && (
+                      <div className="flex items-center justify-center gap-2 text-sm text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{verificationError}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bouton valider */}
+                  <Button
+                    type="button"
+                    className="w-full gap-2"
+                    disabled={isVerifying || verificationCode.join("").length < 6}
+                    onClick={handleVerifyCode}
+                  >
+                    {isVerifying ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current rounded-full border-t-transparent animate-spin" />
+                        {t("verification.verifying", "Vérification...")}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        {t("verification.verifyButton", "Valider et accéder à mon compte")}
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Renvoi du code */}
+                  <div className="text-sm text-center text-muted-foreground">
+                    {t("verification.codeNotReceived", "Code non reçu ?")}{" "}
+                    {resendCooldown > 0 ? (
+                      <span>{t("verification.resendIn", "Renvoyer dans")} {resendCooldown}s</span>
+                    ) : (
+                      <button type="button" className="font-medium text-primary hover:underline" onClick={startResendCooldown}>
+                        {t("verification.resend", "Renvoyer le code")}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Retour */}
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 mx-auto text-sm transition-colors text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      setCurrentStep(1);
+                      setVerificationCode(["", "", "", "", "", ""]);
+                      setVerificationError("");
+                    }}
+                  >
+                    ← {t("verification.backToLogin", "Retour à la connexion")}
+                  </button>
+                </div>
+              )} {/* fin currentStep === 2 */}
             </CardContent>
 
             <CardFooter className="flex-col space-y-4">
               <Separator />
               <div className="text-sm text-center">
                 <span className="text-muted-foreground">
-                  Pas encore de compte ?{" "}
+                  {t("login.noAccount", "Pas encore de compte ?")}{" "}
                 </span>
-                <Link
-                  to="/auth/register"
-                  className="font-medium text-primary hover:underline"
-                >
-                  S'inscrire gratuitement
+                <Link to="/auth/register" className="font-medium text-primary hover:underline">
+                  {t("login.signUp", "S'inscrire gratuitement")}
                 </Link>
               </div>
 
               <div className="text-xs text-center text-muted-foreground">
-                En vous connectant, vous acceptez nos{" "}
-                <Link to="/terms" className="text-primary hover:underline">
-                  conditions d'utilisation
-                </Link>{" "}
-                et notre{" "}
-                <Link to="/privacy" className="text-primary hover:underline">
-                  politique de confidentialité
-                </Link>
+                {t("login.termsAndPrivacy", "En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité")}
               </div>
             </CardFooter>
           </Card>

@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  FileText, Download, Eye, Trash2, Clock, Sparkles,
-  LayoutTemplate, Calendar, Search, Filter, AlertCircle,
-  CheckCircle2, XCircle, MoreHorizontal, RefreshCw,
+  FileText, Download, Eye, Trash2, Clock,
+  Sparkles, LayoutTemplate, Calendar, Search,
+  AlertCircle, MoreHorizontal, RefreshCw,
+  Upload, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -21,89 +21,130 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCVsByUser,
+  selectCVs,
+  selectCVsFilter,
+  selectCVsPagination,
+  setCVsFilter,
+} from "@/redux/slices/cvSlice";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-const CV_TYPE_META = {
-  fibem:    { label: "FIBEM",     icon: Sparkles,       bg: "bg-violet-100 text-violet-700 border-violet-200" },
-  classique:{ label: "Classique", icon: LayoutTemplate, bg: "bg-sky-100    text-sky-700    border-sky-200"    },
+/** Formate une date ISO en "12 mars 2026" */
+function formatDate(isoString) {
+  if (!isoString) return null;
+  return new Date(isoString).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+/** Construit un titre lisible depuis les champs du CV */
+function cvDisplayName(cv) {
+  if (cv.firstName || cv.lastName) {
+    return `${cv.firstName ?? ""} ${cv.lastName ?? ""}`.trim();
+  }
+  if (cv.title) return cv.title;
+  if (cv.type === "IMPORTED") return "CV importé";
+  return `CV #${cv.id}`;
+}
+
+// ── Méta par type ─────────────────────────────────────────────────────────────
+
+const TYPE_META = {
+  FIBEM: {
+    label: "FIBEM",
+    Icon: Sparkles,
+    pill: "bg-violet-50 text-violet-700 border border-violet-200",
+    dot: "bg-violet-500",
+  },
+  CLASSIC: {
+    label: "Classic",
+    Icon: LayoutTemplate,
+    pill: "bg-sky-50 text-sky-700 border border-sky-200",
+    dot: "bg-sky-500",
+  },
+  IMPORTED: {
+    label: "Importé",
+    Icon: Upload,
+    pill: "bg-amber-50 text-amber-700 border border-amber-200",
+    dot: "bg-amber-500",
+  },
 };
 
-const CV_STATUS_META = {
-  genere:    { label: "Généré",    icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  en_cours:  { label: "En cours", icon: RefreshCw,    color: "text-amber-500",   bg: "bg-amber-50   text-amber-700   border-amber-200"   },
-  echoue:    { label: "Échoué",   icon: XCircle,      color: "text-red-500",     bg: "bg-red-50     text-red-700     border-red-200"     },
-};
-
-function CvStatusBadge({ statut }) {
-  const meta = CV_STATUS_META[statut] || CV_STATUS_META.en_cours;
-  const Icon = meta.icon;
+function TypeBadge({ type }) {
+  const meta = TYPE_META[type] ?? TYPE_META.CLASSIC;
+  const { Icon, label, pill } = meta;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${meta.bg}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold tracking-wide ${pill}`}>
       <Icon className="w-3 h-3" />
-      {meta.label}
+      {label}
     </span>
   );
 }
 
-function CvTypeBadge({ type }) {
-  const meta = CV_TYPE_META[type] || CV_TYPE_META.classique;
-  const Icon = meta.icon;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${meta.bg}`}>
-      <Icon className="w-3 h-3" />
-      {meta.label}
-    </span>
-  );
-}
-
-// ── Ligne CV ─────────────────────────────────────────────────────────────────
+// ── Ligne CV ──────────────────────────────────────────────────────────────────
 
 function CvRow({ cv, onPreview, onDownload, onDelete, onDuplicate, index }) {
+  const name     = cvDisplayName(cv);
+  const created  = formatDate(cv.createdAt);
+  const updated  = formatDate(cv.updatedAt !== cv.createdAt ? cv.updatedAt : null);
+  const template = cv.settings?.template;
+  const isImported = cv.type === "IMPORTED";
+
   return (
     <div
-      className="group flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-primary/30 hover:bg-primary/[0.02] transition-all duration-200"
-      style={{ animationDelay: `${index * 40}ms` }}
+      className="flex items-center gap-3 px-4 py-3 transition-all duration-150 bg-white border border-gray-100 group rounded-xl hover:border-gray-300 hover:shadow-sm"
+      style={{ animationDelay: `${index * 35}ms` }}
     >
-      {/* Icône document */}
-      <div className="flex items-center justify-center flex-shrink-0 w-10 h-12 border rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border-primary/10">
-        <FileText className="w-5 h-5 text-primary/60" />
+      {/* Icône */}
+      <div className="flex items-center justify-center flex-shrink-0 border border-gray-100 rounded-lg w-9 h-11 bg-gray-50">
+        <FileText className="w-4 h-4 text-gray-400" />
       </div>
 
-      {/* Infos principales */}
+      {/* Infos */}
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-semibold text-gray-800 truncate">{cv.titre}</span>
-          <CvTypeBadge type={cv.type} />
-          <CvStatusBadge statut={cv.statut} />
-        </div>
-        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            Créé le {cv.dateCreation}
-          </span>
-          {cv.dateModification && (
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              Modifié le {cv.dateModification}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-sm font-semibold text-gray-800 truncate">{name}</span>
+          <TypeBadge type={cv.type} />
+          {cv.isMain && (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">
+              Principal
             </span>
           )}
-          {cv.template && (
-            <span className="text-gray-400">Modèle : {cv.template}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 mt-0.5 text-[11px] text-gray-400">
+          {created && (
+            <span className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" /> {created}
+            </span>
+          )}
+          {updated && (
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" /> modifié {updated}
+            </span>
+          )}
+          {template && !isImported && (
+            <span className="text-gray-300">·</span>
+          )}
+          {template && !isImported && (
+            <span className="capitalize">{template}</span>
           )}
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 transition-opacity opacity-0 group-hover:opacity-100">
-        {cv.statut === "genere" && (
+      {/* Actions desktop (hover) */}
+      <div className="items-center hidden gap-1 transition-opacity opacity-0 sm:flex group-hover:opacity-100">
+        {!isImported && (
           <>
             <Button
               variant="ghost"
               size="icon"
-              className="w-8 h-8 text-gray-500 hover:text-primary hover:bg-primary/10"
+              className="w-8 h-8 text-gray-400 hover:text-primary hover:bg-primary/10"
               onClick={() => onPreview(cv)}
               title="Aperçu"
             >
@@ -112,7 +153,7 @@ function CvRow({ cv, onPreview, onDownload, onDelete, onDuplicate, index }) {
             <Button
               variant="ghost"
               size="icon"
-              className="w-8 h-8 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50"
+              className="w-8 h-8 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
               onClick={() => onDownload(cv)}
               title="Télécharger"
             >
@@ -120,14 +161,25 @@ function CvRow({ cv, onPreview, onDownload, onDelete, onDuplicate, index }) {
             </Button>
           </>
         )}
+        {isImported && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-8 h-8 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
+            onClick={() => onDownload(cv)}
+            title="Télécharger le fichier"
+          >
+            <Download className="w-4 h-4" />
+          </Button>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="w-8 h-8 text-gray-400 hover:text-gray-700">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className=" z-2010">
-            {cv.statut === "genere" && (
+          <DropdownMenuContent align="end" className="z-[2010]">
+            {!isImported && (
               <>
                 <DropdownMenuItem onClick={() => onPreview(cv)} className="gap-2 text-sm">
                   <Eye className="w-4 h-4" /> Aperçu
@@ -137,9 +189,16 @@ function CvRow({ cv, onPreview, onDownload, onDelete, onDuplicate, index }) {
                 </DropdownMenuItem>
               </>
             )}
-            <DropdownMenuItem onClick={() => onDuplicate(cv)} className="gap-2 text-sm">
-              <RefreshCw className="w-4 h-4" /> Dupliquer
-            </DropdownMenuItem>
+            {isImported && (
+              <DropdownMenuItem onClick={() => onDownload(cv)} className="gap-2 text-sm">
+                <Download className="w-4 h-4" /> Télécharger le fichier
+              </DropdownMenuItem>
+            )}
+            {!isImported && (
+              <DropdownMenuItem onClick={() => onDuplicate(cv)} className="gap-2 text-sm">
+                <RefreshCw className="w-4 h-4" /> Dupliquer
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onDelete(cv)}
@@ -151,14 +210,22 @@ function CvRow({ cv, onPreview, onDownload, onDelete, onDuplicate, index }) {
         </DropdownMenu>
       </div>
 
-      {/* Actions toujours visibles sur mobile */}
+      {/* Actions mobile (toujours visibles) */}
       <div className="flex items-center gap-1 sm:hidden">
-        {cv.statut === "genere" && (
-          <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => onDownload(cv)}>
-            <Download className="w-4 h-4" />
-          </Button>
-        )}
-        <Button variant="ghost" size="icon" className="w-8 h-8 text-red-400" onClick={() => onDelete(cv)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-gray-400"
+          onClick={() => onDownload(cv)}
+        >
+          <Download className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-red-400"
+          onClick={() => onDelete(cv)}
+        >
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
@@ -166,129 +233,198 @@ function CvRow({ cv, onPreview, onDownload, onDelete, onDuplicate, index }) {
   );
 }
 
+// ── Pagination ────────────────────────────────────────────────────────────────
+
+function Pagination({ pagination, onPageChange }) {
+  if (!pagination || pagination.totalPages <= 1) return null;
+
+  const { page, totalPages, hasNext, hasPrev } = pagination;
+
+  // Génère les numéros de pages à afficher (window de 5)
+  const getPages = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(1, page - delta);
+      i <= Math.min(totalPages, page + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    if (range[0] > 1) {
+      range.unshift("...");
+      range.unshift(1);
+    }
+    if (range[range.length - 1] < totalPages) {
+      range.push("...");
+      range.push(totalPages);
+    }
+    return range;
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {hasPrev && (
+        <button
+          onClick={() => onPageChange(page - 1)}
+          className="flex items-center justify-center text-gray-500 transition-colors rounded-lg w-7 h-7 hover:bg-gray-100"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      )}
+
+      {getPages().map((p, i) =>
+        p === "..." ? (
+          <span key={`dots-${i}`} className="text-xs text-center text-gray-400 w-7">
+            …
+          </span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`flex items-center justify-center w-7 h-7 rounded-lg text-xs font-medium transition-colors
+              ${page === p
+                ? "bg-primary text-white shadow-sm"
+                : "text-gray-600 hover:bg-gray-100"
+              }`}
+          >
+            {p}
+          </button>
+        )
+      )}
+
+      {hasNext && (
+        <button
+          onClick={() => onPageChange(page + 1)}
+          className="flex items-center justify-center text-gray-500 transition-colors rounded-lg w-7 h-7 hover:bg-gray-100"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── Composant principal ───────────────────────────────────────────────────────
+
+const TYPE_FILTERS = [
+  { val: "ALL",      label: "Tous" },
+  { val: "FIBEM",    label: "FIBEM" },
+  { val: "CLASSIC",  label: "Classic" },
+  { val: "IMPORTED", label: "Importé" },
+];
 
 const CVHistoryDialog = ({
   isOpen,
   onClose,
   selectedUser,
-  cvHistory = [],          // tableau de CVs
-  onPreviewCV,             // (cv) => void
-  onDownloadCV,            // (cv) => void
-  onDeleteCV,              // (cv) => void
-  onDuplicateCV,           // (cv) => void
+  onPreviewCV,
+  onDownloadCV,
+  onDeleteCV,
+  onDuplicateCV,
   isLoading = false,
 }) => {
-  const [search, setSearch]       = useState("");
-  const [filterType, setFilterType] = useState("tous");   // "tous" | "fibem" | "classique"
-  const [filterStatus, setFilterStatus] = useState("tous"); // "tous" | "genere" | "en_cours" | "echoue"
+  const dispatch              = useDispatch();
+  const selectCVsFS           = useSelector(selectCVs);
+  const selectCVsFiltersFS    = useSelector(selectCVsFilter);
+  const selectCVsPaginationFS = useSelector(selectCVsPagination);
 
-  // Filtrage
-  const filtered = cvHistory.filter(cv => {
-    const matchSearch  = cv.titre.toLowerCase().includes(search.toLowerCase());
-    const matchType    = filterType   === "tous" || cv.type   === filterType;
-    const matchStatus  = filterStatus === "tous" || cv.statut === filterStatus;
-    return matchSearch && matchType && matchStatus;
-  });
+  const [search,         setSearch]         = useState("");
+  const [debounceSearch, setDebounceSearch] = useState("");
+  const [filterType,     setFilterType]     = useState("ALL");
 
-  // Compteurs résumés
-  const total   = cvHistory.length;
-  const generes = cvHistory.filter(c => c.statut === "genere").length;
-  const fibem   = cvHistory.filter(c => c.type   === "fibem").length;
+  // Debounce recherche
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounceSearch(search), 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Mise à jour des filtres → déclenche le fetch via l'autre useEffect
+  useEffect(() => {
+    dispatch(
+      setCVsFilter({
+        ...selectCVsFiltersFS,
+        search: debounceSearch,
+        type: filterType === "ALL" ? undefined : filterType,
+        page: 1, // reset page lors d'un changement de filtre
+      })
+    );
+  }, [debounceSearch, filterType]);
+
+  // Fetch à chaque changement de filtre (inclus changement de page)
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchCVsByUser(selectCVsFiltersFS));
+    }
+  }, [selectCVsFiltersFS, isOpen]);
+
+  const handlePageChange = (newPage) => {
+    dispatch(
+      setCVsFilter({
+        ...selectCVsFiltersFS,
+        page: newPage,
+      })
+    );
+  };
+
+  const { total, page, totalPages } = selectCVsPaginationFS ?? {};
+  const cvList = Array.isArray(selectCVsFS) ? selectCVsFS : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[780px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[800px] max-h-[92vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl">
 
-        {/* ── En-tête ─────────────────────────────── */}
-        <div className="px-6 pt-6 pb-4 border-b bg-gradient-to-br from-primary/5 to-transparent">
+        {/* ── En-tête ──────────────────────────────── */}
+        <div className="px-6 pt-5 pb-4 bg-white border-b">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary" />
+            <DialogTitle className="flex items-center gap-2 text-base font-bold text-gray-900">
+              <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-lg">
+                <FileText className="w-4 h-4 text-gray-600" />
+              </div>
               Historique des CVs
             </DialogTitle>
             {selectedUser && (
-              <DialogDescription className="flex items-center gap-2 mt-1">
+              <DialogDescription className="flex items-center gap-2 mt-1.5">
                 <Avatar className="w-5 h-5">
                   <AvatarImage src={selectedUser.avatar} />
-                  <AvatarFallback className="text-[9px]">
+                  <AvatarFallback className="text-[9px] bg-gray-200">
                     {selectedUser.prenom?.[0]}{selectedUser.nom?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <span>
-                  {selectedUser.prenom} {selectedUser.nom} — {selectedUser.email}
+                <span className="text-xs text-gray-500">
+                  {selectedUser.prenom} {selectedUser.nom}
+                  {selectedUser.email && ` · ${selectedUser.email}`}
                 </span>
               </DialogDescription>
             )}
           </DialogHeader>
-
-          {/* Résumé chiffré */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex items-center gap-1.5 text-sm">
-              <span className="font-bold text-gray-800">{total}</span>
-              <span className="text-muted-foreground">CV au total</span>
-            </div>
-            <div className="w-px h-4 bg-gray-200" />
-            <div className="flex items-center gap-1.5 text-sm">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="font-bold text-gray-800">{generes}</span>
-              <span className="text-muted-foreground">générés</span>
-            </div>
-            <div className="w-px h-4 bg-gray-200" />
-            <div className="flex items-center gap-1.5 text-sm">
-              <Sparkles className="w-3.5 h-3.5 text-violet-500" />
-              <span className="font-bold text-gray-800">{fibem}</span>
-              <span className="text-muted-foreground">FIBEM</span>
-            </div>
-          </div>
         </div>
 
-        {/* ── Filtres ──────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-2 px-6 py-3 bg-white border-b">
+        {/* ── Filtres ───────────────────────────────── */}
+        <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b bg-gray-50">
           {/* Recherche */}
-          <div className="relative flex-1 min-w-[160px]">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <div className="relative flex-1 min-w-[180px]">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
             <Input
-              className="h-8 pl-8 text-sm"
+              className="h-8 pl-8 pr-3 text-xs bg-white border-gray-200 rounded-lg focus-visible:ring-1 focus-visible:ring-primary/30"
               placeholder="Rechercher un CV…"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
           {/* Filtre type */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
-            {[
-              { val: "tous",     label: "Tous" },
-              { val: "classique",label: "Classique" },
-              { val: "fibem",    label: "FIBEM" },
-            ].map(opt => (
+          <div className="flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg p-0.5">
+            {TYPE_FILTERS.map((opt) => (
               <button
                 key={opt.val}
                 type="button"
                 onClick={() => setFilterType(opt.val)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all
-                  ${filterType === opt.val ? "bg-white shadow-sm text-primary" : "text-gray-500 hover:text-gray-700"}`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Filtre statut */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
-            {[
-              { val: "tous",    label: "Tous"       },
-              { val: "genere",  label: "Générés"    },
-              { val: "en_cours",label: "En cours"   },
-              { val: "echoue",  label: "Échoués"    },
-            ].map(opt => (
-              <button
-                key={opt.val}
-                type="button"
-                onClick={() => setFilterStatus(opt.val)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all
-                  ${filterStatus === opt.val ? "bg-white shadow-sm text-primary" : "text-gray-500 hover:text-gray-700"}`}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all
+                  ${filterType === opt.val
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                  }`}
               >
                 {opt.label}
               </button>
@@ -296,28 +432,26 @@ const CVHistoryDialog = ({
           </div>
         </div>
 
-        {/* ── Liste ────────────────────────────────── */}
-        <div className="flex-1 px-6 py-4 space-y-2 overflow-y-auto bg-gray-50/50">
+        {/* ── Liste ─────────────────────────────────── */}
+        <div className="flex-1 px-5 py-4 space-y-2 overflow-y-auto bg-gray-50/60">
           {isLoading ? (
-            // Squelette de chargement
             <div className="space-y-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-[68px] rounded-xl bg-gray-100 animate-pulse" />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-[60px] rounded-xl bg-gray-100 animate-pulse" />
               ))}
             </div>
-          ) : filtered.length === 0 ? (
-            // État vide
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex items-center justify-center mb-3 bg-gray-100 rounded-full w-14 h-14">
-                <AlertCircle className="w-6 h-6 text-gray-300" />
+          ) : cvList.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="flex items-center justify-center w-12 h-12 mb-3 bg-gray-100 rounded-full">
+                <AlertCircle className="w-5 h-5 text-gray-300" />
               </div>
               <p className="text-sm font-medium text-gray-500">
-                {cvHistory.length === 0 ? "Aucun CV généré pour cet utilisateur" : "Aucun résultat pour ces filtres"}
+                Aucun CV trouvé
               </p>
-              {cvHistory.length > 0 && (
+              {(search || filterType !== "ALL") && (
                 <button
                   type="button"
-                  onClick={() => { setSearch(""); setFilterType("tous"); setFilterStatus("tous"); }}
+                  onClick={() => { setSearch(""); setFilterType("ALL"); }}
                   className="mt-2 text-xs text-primary hover:underline"
                 >
                   Réinitialiser les filtres
@@ -325,7 +459,7 @@ const CVHistoryDialog = ({
               )}
             </div>
           ) : (
-            filtered.map((cv, i) => (
+            cvList.map((cv, i) => (
               <CvRow
                 key={cv.id}
                 cv={cv}
@@ -339,13 +473,27 @@ const CVHistoryDialog = ({
           )}
         </div>
 
-        {/* ── Pied ─────────────────────────────────── */}
-        <div className="flex items-center justify-between gap-2 px-6 py-4 bg-white border-t">
-          <p className="text-xs text-muted-foreground">
-            {filtered.length} résultat{filtered.length !== 1 ? "s" : ""}
-            {filtered.length !== total && ` sur ${total}`}
+        {/* ── Pied ──────────────────────────────────── */}
+        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-white border-t">
+          {/* Compteur */}
+          <p className="text-xs text-gray-400 shrink-0">
+            {total != null ? (
+              <>
+                <span className="font-semibold text-gray-700">{total}</span> CV{total !== 1 ? "s" : ""}
+                {totalPages > 1 && ` · page ${page} / ${totalPages}`}
+              </>
+            ) : (
+              `${cvList.length} résultat${cvList.length !== 1 ? "s" : ""}`
+            )}
           </p>
-          <Button variant="outline" size="sm" onClick={onClose}>
+
+          {/* Pagination */}
+          <Pagination
+            pagination={selectCVsPaginationFS}
+            onPageChange={handlePageChange}
+          />
+
+          <Button variant="outline" size="sm" className="text-xs rounded-lg shrink-0" onClick={onClose}>
             Fermer
           </Button>
         </div>
@@ -356,35 +504,3 @@ const CVHistoryDialog = ({
 };
 
 export default CVHistoryDialog;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// EXEMPLE D'UTILISATION dans UserDetailsDialog ou toute page admin :
-//
-// const [isCvHistoryOpen, setIsCvHistoryOpen] = useState(false);
-//
-// <Button variant="outline" onClick={() => setIsCvHistoryOpen(true)}>
-//   <FileText className="w-4 h-4 mr-2" /> Historique CVs
-// </Button>
-//
-// <CVHistoryDialog
-//   isOpen={isCvHistoryOpen}
-//   onClose={() => setIsCvHistoryOpen(false)}
-//   selectedUser={selectedUser}
-//   cvHistory={[
-//     {
-//       id: "1",
-//       titre: "CV Développeur Senior",
-//       type: "fibem",        // "fibem" | "classique"
-//       statut: "genere",     // "genere" | "en_cours" | "echoue"
-//       template: "moderne",
-//       dateCreation: "12/03/2025",
-//       dateModification: "15/03/2025",
-//       url: "https://...",
-//     },
-//   ]}
-//   onPreviewCV={(cv) => window.open(cv.url, "_blank")}
-//   onDownloadCV={(cv) => { /* download logic */ }}
-//   onDeleteCV={(cv)  => { /* delete logic  */ }}
-//   onDuplicateCV={(cv) => { /* duplicate logic */ }}
-// />
-// ─────────────────────────────────────────────────────────────────────────────

@@ -37,33 +37,28 @@ import {
 import { Card, CardContent } from "../ui/card";
 
 import Plat1 from "@/assets/hero.avif";
-// Using 9 web image URLs for Plat2 to Plat10.
-// Each "PlatX" is now a string of an image URL.
 
 const Plat2 = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80";
-// Changed to a food image (pizza)
-const Plat3 = "https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=600&q=80"; //-
+const Plat3 = "https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=600&q=80";
 const Plat4 = "https://images.unsplash.com/photo-1447078806655-40579c2520d6?auto=format&fit=crop&w=600&q=80"; 
-// Changed to a food image (ramen)
-const Plat5 = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80";//-
+const Plat5 = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80";
 const Plat6 = "https://images.unsplash.com/photo-1458642849426-cfb724f15ef7?auto=format&fit=crop&w=600&q=80";
 const Plat7 = "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=600&q=80";
 const Plat8 = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80";
-// Changed to a food image (dessert)
-const Plat9 = "https://images.unsplash.com/photo-1519864600243-96510cfc7489?auto=format&fit=crop&w=600&q=80"; //-
-const Plat10 = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80"; //-
+const Plat9 = "https://images.unsplash.com/photo-1519864600243-96510cfc7489?auto=format&fit=crop&w=600&q=80";
+const Plat10 = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80";
 import { useCurrency } from "@/context/CurrencyContext";
 import Autoplay from "embla-carousel-autoplay";
+import { useLanguage } from "@/context/LanguageContext";
 
 
 const ServicesSection = () => {
   const { formatPriceFrom } = useCurrency();
+  const { t } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // Carrousels refs
-  // Setup Embla carousel with auto-scroll (autoplay)
-
   const autoplayRef = useRef(
     Autoplay(
       { delay: 4500, stopOnMouseEnter: true, stopOnInteraction: false }
@@ -109,161 +104,161 @@ const ServicesSection = () => {
   const popularMeals = [
     {
       id: 1,
-      title: "Poulet Yassa",
-      restaurant: "Le Dakarois",
-      category: "Africain",
+      title: t("services.meals.yassa.title", "Poulet Yassa"),
+      restaurant: t("services.meals.yassa.restaurant", "Le Dakarois"),
+      category: t("services.meals.yassa.category", "Africain"),
       price: formatPriceFrom(9.90),
       rating: 4.8,
       reviews: 124,
       deliveryTime: "30-40 min",
-      description: "Poulet mariné au citron avec oignons caramélisés, accompagné de riz blanc",
+      description: t("services.meals.yassa.description", "Poulet mariné au citron avec oignons caramélisés, accompagné de riz blanc"),
       image: Plat1,
-      tags: ["Populaire", "Épicé"],
-      badge: "Coup de cœur",
+      tags: [t("services.tags.popular", "Populaire"), t("services.tags.spicy", "Épicé")],
+      badge: t("services.badges.favorite", "Coup de cœur"),
       badgeColor: "bg-amber-500",
       icon: <Flame className="w-3 h-3" />,
     },
     {
       id: 2,
-      title: "Burger Gourmet",
-      restaurant: "Burger House",
-      category: "Fast-food",
+      title: t("services.meals.burger.title", "Burger Gourmet"),
+      restaurant: t("services.meals.burger.restaurant", "Burger House"),
+      category: t("services.meals.burger.category", "Fast-food"),
       price: formatPriceFrom(12.50),
       rating: 4.7,
       reviews: 89,
       deliveryTime: "25-35 min",
-      description: "Steak haché 180g, cheddar fondu, bacon croustillant et sauce maison",
+      description: t("services.meals.burger.description", "Steak haché 180g, cheddar fondu, bacon croustillant et sauce maison"),
       image: Plat2,
-      tags: ["Nouveau"],
-      badge: "Nouveau",
+      tags: [t("services.tags.new", "Nouveau")],
+      badge: t("services.badges.new", "Nouveau"),
       badgeColor: "bg-blue-500",
       icon: <Sparkles className="w-3 h-3" />,
     },
     {
       id: 3,
-      title: "Pizza Margherita",
-      restaurant: "Pizzeria Roma",
-      category: "Italien",
+      title: t("services.meals.pizza.title", "Pizza Margherita"),
+      restaurant: t("services.meals.pizza.restaurant", "Pizzeria Roma"),
+      category: t("services.meals.pizza.category", "Italien"),
       price: formatPriceFrom(10.90),
       rating: 4.9,
       reviews: 256,
       deliveryTime: "35-45 min",
-      description: "Base tomate, mozzarella fraîche, basilic et huile d'olive",
+      description: t("services.meals.pizza.description", "Base tomate, mozzarella fraîche, basilic et huile d'olive"),
       image: Plat3,
-      tags: ["Végétarien"],
-      badge: "Top Chef",
+      tags: [t("services.tags.vegetarian", "Végétarien")],
+      badge: t("services.badges.topChef", "Top Chef"),
       badgeColor: "bg-purple-500",
       icon: <Crown className="w-3 h-3" />,
     },
     {
       id: 4,
-      title: "Salade César",
-      restaurant: "Green Life",
-      category: "Healthy",
+      title: t("services.meals.salad.title", "Salade César"),
+      restaurant: t("services.meals.salad.restaurant", "Green Life"),
+      category: t("services.meals.salad.category", "Healthy"),
       price: formatPriceFrom(8.80),
       rating: 4.6,
       reviews: 67,
       deliveryTime: "20-30 min",
-      description: "Poulet grillé, parmesan, croûtons et sauce césar maison",
+      description: t("services.meals.salad.description", "Poulet grillé, parmesan, croûtons et sauce césar maison"),
       image: Plat4,
-      tags: ["Healthy"],
-      badge: "Light",
+      tags: [t("services.tags.healthy", "Healthy")],
+      badge: t("services.badges.light", "Light"),
       badgeColor: "bg-emerald-500",
       icon: <Leaf className="w-3 h-3" />,
     },
     {
       id: 5,
-      title: "Pad Thaï",
-      restaurant: "Thai Orchidée",
-      category: "Asiatique",
+      title: t("services.meals.padthai.title", "Pad Thaï"),
+      restaurant: t("services.meals.padthai.restaurant", "Thai Orchidée"),
+      category: t("services.meals.padthai.category", "Asiatique"),
       price: formatPriceFrom(13.50),
       rating: 4.8,
       reviews: 145,
       deliveryTime: "35-45 min",
-      description: "Nouilles de riz sautées aux crevettes, cacahuètes et germes de soja",
+      description: t("services.meals.padthai.description", "Nouilles de riz sautées aux crevettes, cacahuètes et germes de soja"),
       image: Plat5,
-      tags: ["Populaire", "Épicé"],
-      badge: "Chef's special",
+      tags: [t("services.tags.popular", "Populaire"), t("services.tags.spicy", "Épicé")],
+      badge: t("services.badges.chefSpecial", "Chef's special"),
       badgeColor: "bg-orange-500",
       icon: <Crown className="w-3 h-3" />,
     },
     {
       id: 6,
-      title: "Bowl Poké",
-      restaurant: "Hawaii Bowl",
-      category: "Healthy",
+      title: t("services.meals.poke.title", "Bowl Poké"),
+      restaurant: t("services.meals.poke.restaurant", "Hawaii Bowl"),
+      category: t("services.meals.poke.category", "Healthy"),
       price: formatPriceFrom(14.90),
       rating: 4.9,
       reviews: 98,
       deliveryTime: "25-35 min",
-      description: "Saumon frais, riz vinaigré, avocat, algues et sauce soja",
+      description: t("services.meals.poke.description", "Saumon frais, riz vinaigré, avocat, algues et sauce soja"),
       image: Plat6,
-      tags: ["Nouveau", "Healthy"],
-      badge: "Nouveau",
+      tags: [t("services.tags.new", "Nouveau"), t("services.tags.healthy", "Healthy")],
+      badge: t("services.badges.new", "Nouveau"),
       badgeColor: "bg-blue-500",
       icon: <Sparkles className="w-3 h-3" />,
     },
     {
       id: 7,
-      title: "Tacos Al Pastor",
-      restaurant: "El Camino",
-      category: "Mexicain",
+      title: t("services.meals.tacos.title", "Tacos Al Pastor"),
+      restaurant: t("services.meals.tacos.restaurant", "El Camino"),
+      category: t("services.meals.tacos.category", "Mexicain"),
       price: formatPriceFrom(11.90),
       rating: 4.7,
       reviews: 156,
       deliveryTime: "30-40 min",
-      description: "Tortillas de maïs, porc mariné, ananas, oignons et coriandre",
+      description: t("services.meals.tacos.description", "Tortillas de maïs, porc mariné, ananas, oignons et coriandre"),
       image: Plat7,
-      tags: ["Épicé"],
-      badge: "Authentique",
+      tags: [t("services.tags.spicy", "Épicé")],
+      badge: t("services.badges.authentic", "Authentique"),
       badgeColor: "bg-red-500",
       icon: <Flame className="w-3 h-3" />,
     },
     {
       id: 8,
-      title: "Ramen Tonkotsu",
-      restaurant: "Izakaya San",
-      category: "Japonais",
+      title: t("services.meals.ramen.title", "Ramen Tonkotsu"),
+      restaurant: t("services.meals.ramen.restaurant", "Izakaya San"),
+      category: t("services.meals.ramen.category", "Japonais"),
       price: formatPriceFrom(15.90),
       rating: 4.9,
       reviews: 203,
       deliveryTime: "40-50 min",
-      description: "Bouillon de porc, nouilles, œuf mariné, nori et poitrine de porc",
+      description: t("services.meals.ramen.description", "Bouillon de porc, nouilles, œuf mariné, nori et poitrine de porc"),
       image: Plat8,
-      tags: ["Populaire"],
-      badge: "Incontournable",
+      tags: [t("services.tags.popular", "Populaire")],
+      badge: t("services.badges.mustHave", "Incontournable"),
       badgeColor: "bg-amber-500",
       icon: <Crown className="w-3 h-3" />,
     },
     {
       id: 9,
-      title: "Couscous Royal",
-      restaurant: "Le Marocain",
-      category: "Africain",
+      title: t("services.meals.couscous.title", "Couscous Royal"),
+      restaurant: t("services.meals.couscous.restaurant", "Le Marocain"),
+      category: t("services.meals.couscous.category", "Africain"),
       price: formatPriceFrom(16.50),
       rating: 4.8,
       reviews: 187,
       deliveryTime: "45-55 min",
-      description: "Semoule fine, légumes, merguez, poulet et mouton",
+      description: t("services.meals.couscous.description", "Semoule fine, légumes, merguez, poulet et mouton"),
       image: Plat9,
-      tags: ["Familial"],
-      badge: "Plat familial",
+      tags: [t("services.tags.family", "Familial")],
+      badge: t("services.badges.familyMeal", "Plat familial"),
       badgeColor: "bg-green-500",
       icon: <Users className="w-3 h-3" />,
     },
     {
       id: 10,
-      title: "Sushi Deluxe",
-      restaurant: "Sushi Master",
-      category: "Japonais",
+      title: t("services.meals.sushi.title", "Sushi Deluxe"),
+      restaurant: t("services.meals.sushi.restaurant", "Sushi Master"),
+      category: t("services.meals.sushi.category", "Japonais"),
       price: formatPriceFrom(22.90),
       rating: 5.0,
       reviews: 312,
       deliveryTime: "35-45 min",
-      description: "Assortiment de 20 pièces : saumon, thon, daurade, makis et californiens",
+      description: t("services.meals.sushi.description", "Assortiment de 20 pièces : saumon, thon, daurade, makis et californiens"),
       image: Plat10,
-      tags: ["Premium", "Nouveau"],
-      badge: "Premium",
+      tags: [t("services.tags.premium", "Premium"), t("services.tags.new", "Nouveau")],
+      badge: t("services.badges.premium", "Premium"),
       badgeColor: "bg-indigo-500",
       icon: <Crown className="w-3 h-3" />,
     },
@@ -273,130 +268,130 @@ const ServicesSection = () => {
   const jobOffers = [
     {
       id: 101,
-      title: "Chef de partie",
-      restaurant: "Le Grand Restaurant",
-      location: "Paris 8ème",
-      contract: "CDI",
+      title: t("services.jobs.chef.title", "Chef de partie"),
+      restaurant: t("services.jobs.chef.restaurant", "Le Grand Restaurant"),
+      location: t("services.jobs.chef.location", "Paris 8ème"),
+      contract: t("services.contracts.permanent", "CDI"),
       salary: formatPriceFrom(2800) + " - " + formatPriceFrom(3200),
-      experience: "2-5 ans",
-      postedAt: "Il y a 2 jours",
-      type: "Cuisine",
-      description: "Nous recherchons un chef de partie passionné pour rejoindre notre brigade.",
+      experience: t("services.experience.years", "2-5 ans", { years: "2-5" }),
+      postedAt: t("services.posted.daysAgo", "Il y a 2 jours", { days: 2 }),
+      type: t("services.jobTypes.kitchen", "Cuisine"),
+      description: t("services.jobs.chef.description", "Nous recherchons un chef de partie passionné pour rejoindre notre brigade."),
       image: Plat1,
-      tags: ["Expérimenté", "Temps plein"],
-      badge: "Urgent",
+      tags: [t("services.tags.experienced", "Expérimenté"), t("services.tags.fullTime", "Temps plein")],
+      badge: t("services.badges.urgent", "Urgent"),
       badgeColor: "bg-red-500",
     },
     {
       id: 102,
-      title: "Serveur / Serveuse",
-      restaurant: "Brasserie Moderne",
-      location: "Lyon 2ème",
-      contract: "CDD",
+      title: t("services.jobs.waiter.title", "Serveur / Serveuse"),
+      restaurant: t("services.jobs.waiter.restaurant", "Brasserie Moderne"),
+      location: t("services.jobs.waiter.location", "Lyon 2ème"),
+      contract: t("services.contracts.fixedTerm", "CDD"),
       salary: formatPriceFrom(2100) + " - " + formatPriceFrom(2400),
-      experience: "Débutant accepté",
-      postedAt: "Il y a 1 jour",
-      type: "Salle",
-      description: "Service en salle dynamique, travail en équipe, anglais souhaité.",
+      experience: t("services.experience.beginner", "Débutant accepté"),
+      postedAt: t("services.posted.daysAgo", "Il y a 1 jour", { days: 1 }),
+      type: t("services.jobTypes.dining", "Salle"),
+      description: t("services.jobs.waiter.description", "Service en salle dynamique, travail en équipe, anglais souhaité."),
       image: Plat2,
-      tags: ["Débutant", "Formation"],
-      badge: "Formation",
+      tags: [t("services.tags.beginner", "Débutant"), t("services.tags.training", "Formation")],
+      badge: t("services.badges.training", "Formation"),
       badgeColor: "bg-blue-500",
     },
     {
       id: 103,
-      title: "Second de cuisine",
-      restaurant: "Auberge du Soleil",
-      location: "Nice",
-      contract: "CDI",
+      title: t("services.jobs.sousChef.title", "Second de cuisine"),
+      restaurant: t("services.jobs.sousChef.restaurant", "Auberge du Soleil"),
+      location: t("services.jobs.sousChef.location", "Nice"),
+      contract: t("services.contracts.permanent", "CDI"),
       salary: formatPriceFrom(3000) + " - " + formatPriceFrom(3500),
-      experience: "5-8 ans",
-      postedAt: "Il y a 3 jours",
-      type: "Cuisine",
-      description: "Gestion de la brigade, création de menus, respect des normes HACCP.",
+      experience: t("services.experience.years", "5-8 ans", { years: "5-8" }),
+      postedAt: t("services.posted.daysAgo", "Il y a 3 jours", { days: 3 }),
+      type: t("services.jobTypes.kitchen", "Cuisine"),
+      description: t("services.jobs.sousChef.description", "Gestion de la brigade, création de menus, respect des normes HACCP."),
       image: Plat3,
-      tags: ["Expérimenté", "Management"],
-      badge: "Top salaire",
+      tags: [t("services.tags.experienced", "Expérimenté"), t("services.tags.management", "Management")],
+      badge: t("services.badges.topSalary", "Top salaire"),
       badgeColor: "bg-green-500",
     },
     {
       id: 104,
-      title: "Pizzaiolo",
-      restaurant: "Pizza Di Napoli",
-      location: "Marseille",
-      contract: "CDI",
+      title: t("services.jobs.pizzaiolo.title", "Pizzaiolo"),
+      restaurant: t("services.jobs.pizzaiolo.restaurant", "Pizza Di Napoli"),
+      location: t("services.jobs.pizzaiolo.location", "Marseille"),
+      contract: t("services.contracts.permanent", "CDI"),
       salary: formatPriceFrom(2500) + " - " + formatPriceFrom(3000),
-      experience: "2-4 ans",
-      postedAt: "Il y a 5 jours",
-      type: "Cuisine",
-      description: "Maîtrise de la pâte à pizza, cuisson au feu de bois, créativité.",
+      experience: t("services.experience.years", "2-4 ans", { years: "2-4" }),
+      postedAt: t("services.posted.daysAgo", "Il y a 5 jours", { days: 5 }),
+      type: t("services.jobTypes.kitchen", "Cuisine"),
+      description: t("services.jobs.pizzaiolo.description", "Maîtrise de la pâte à pizza, cuisson au feu de bois, créativité."),
       image: Plat4,
-      tags: ["Spécialisé", "Saisonnier"],
-      badge: "Saisonnier",
+      tags: [t("services.tags.specialized", "Spécialisé"), t("services.tags.seasonal", "Saisonnier")],
+      badge: t("services.badges.seasonal", "Saisonnier"),
       badgeColor: "bg-amber-500",
     },
     {
       id: 105,
-      title: "Barman / Barmaid",
-      restaurant: "Skybar Lounge",
-      location: "Bordeaux",
-      contract: "CDI",
+      title: t("services.jobs.bartender.title", "Barman / Barmaid"),
+      restaurant: t("services.jobs.bartender.restaurant", "Skybar Lounge"),
+      location: t("services.jobs.bartender.location", "Bordeaux"),
+      contract: t("services.contracts.permanent", "CDI"),
       salary: formatPriceFrom(2300) + " - " + formatPriceFrom(2700),
-      experience: "1-3 ans",
-      postedAt: "Il y a 1 semaine",
-      type: "Bar",
-      description: "Création de cocktails, service au bar, gestion des stocks.",
+      experience: t("services.experience.years", "1-3 ans", { years: "1-3" }),
+      postedAt: t("services.posted.daysAgo", "Il y a 1 semaine", { days: 7 }),
+      type: t("services.jobTypes.bar", "Bar"),
+      description: t("services.jobs.bartender.description", "Création de cocktails, service au bar, gestion des stocks."),
       image: Plat5,
-      tags: ["Créatif", "Soirée"],
-      badge: "Créatif",
+      tags: [t("services.tags.creative", "Créatif"), t("services.tags.evening", "Soirée")],
+      badge: t("services.badges.creative", "Créatif"),
       badgeColor: "bg-purple-500",
     },
     {
       id: 106,
-      title: "Plongeur",
-      restaurant: "Hôtel Palace",
-      location: "Cannes",
-      contract: "Saisonnier",
+      title: t("services.jobs.dishwasher.title", "Plongeur"),
+      restaurant: t("services.jobs.dishwasher.restaurant", "Hôtel Palace"),
+      location: t("services.jobs.dishwasher.location", "Cannes"),
+      contract: t("services.contracts.seasonal", "Saisonnier"),
       salary: formatPriceFrom(1900) + " - " + formatPriceFrom(2100),
-      experience: "Débutant accepté",
-      postedAt: "Il y a 3 jours",
-      type: "Nettoyage",
-      description: "Nettoyage de la vaisselle et des locaux, aide en cuisine.",
+      experience: t("services.experience.beginner", "Débutant accepté"),
+      postedAt: t("services.posted.daysAgo", "Il y a 3 jours", { days: 3 }),
+      type: t("services.jobTypes.cleaning", "Nettoyage"),
+      description: t("services.jobs.dishwasher.description", "Nettoyage de la vaisselle et des locaux, aide en cuisine."),
       image: Plat6,
-      tags: ["Saisonnier", "Flexible"],
-      badge: "Logement possible",
+      tags: [t("services.tags.seasonal", "Saisonnier"), t("services.tags.flexible", "Flexible")],
+      badge: t("services.badges.housingPossible", "Logement possible"),
       badgeColor: "bg-teal-500",
     },
     {
       id: 107,
-      title: "Gérant restaurant",
-      restaurant: "Fast Food Chain",
-      location: "Toulouse",
-      contract: "CDI",
+      title: t("services.jobs.manager.title", "Gérant restaurant"),
+      restaurant: t("services.jobs.manager.restaurant", "Fast Food Chain"),
+      location: t("services.jobs.manager.location", "Toulouse"),
+      contract: t("services.contracts.permanent", "CDI"),
       salary: formatPriceFrom(3500) + " - " + formatPriceFrom(4200),
-      experience: "5-10 ans",
-      postedAt: "Il y a 2 jours",
-      type: "Management",
-      description: "Gestion complète du restaurant, management d'équipe, objectifs commerciaux.",
+      experience: t("services.experience.years", "5-10 ans", { years: "5-10" }),
+      postedAt: t("services.posted.daysAgo", "Il y a 2 jours", { days: 2 }),
+      type: t("services.jobTypes.management", "Management"),
+      description: t("services.jobs.manager.description", "Gestion complète du restaurant, management d'équipe, objectifs commerciaux."),
       image: Plat7,
-      tags: ["Management", "Confirmé"],
-      badge: "Cadre",
+      tags: [t("services.tags.management", "Management"), t("services.tags.senior", "Confirmé")],
+      badge: t("services.badges.executive", "Cadre"),
       badgeColor: "bg-indigo-500",
     },
     {
       id: 108,
-      title: "Pâtissier",
-      restaurant: "Boulangerie Fine",
-      location: "Strasbourg",
-      contract: "CDI",
+      title: t("services.jobs.pastryChef.title", "Pâtissier"),
+      restaurant: t("services.jobs.pastryChef.restaurant", "Boulangerie Fine"),
+      location: t("services.jobs.pastryChef.location", "Strasbourg"),
+      contract: t("services.contracts.permanent", "CDI"),
       salary: formatPriceFrom(2600) + " - " + formatPriceFrom(3000),
-      experience: "3-5 ans",
-      postedAt: "Il y a 4 jours",
-      type: "Pâtisserie",
-      description: "Création de pâtisseries, entremets, viennoiseries. Créativité exigée.",
+      experience: t("services.experience.years", "3-5 ans", { years: "3-5" }),
+      postedAt: t("services.posted.daysAgo", "Il y a 4 jours", { days: 4 }),
+      type: t("services.jobTypes.pastry", "Pâtisserie"),
+      description: t("services.jobs.pastryChef.description", "Création de pâtisseries, entremets, viennoiseries. Créativité exigée."),
       image: Plat8,
-      tags: ["Créatif", "Spécialisé"],
-      badge: "Artisan",
+      tags: [t("services.tags.creative", "Créatif"), t("services.tags.specialized", "Spécialisé")],
+      badge: t("services.badges.artisan", "Artisan"),
       badgeColor: "bg-rose-500",
     },
   ];
@@ -409,10 +404,10 @@ const ServicesSection = () => {
       iconBg: "bg-blue-500",
       cardBg: "bg-gradient-to-br from-blue-50 to-white",
       accentText: "text-blue-600",
-      title: "Générateur de CV",
-      description: "Créez un CV professionnel pour la restauration en quelques minutes",
-      button: "Créer mon CV",
-      bottom: "Modèles exclusifs pour la restauration",
+      title: t("services.tools.cv.title", "Générateur de CV"),
+      description: t("services.tools.cv.description", "Créez un CV professionnel pour la restauration en quelques minutes"),
+      button: t("services.tools.cv.button", "Créer mon CV"),
+      bottom: t("services.tools.cv.bottom", "Modèles exclusifs pour la restauration"),
       border: "",
       delay: 0,
     },
@@ -422,10 +417,10 @@ const ServicesSection = () => {
       iconBg: "bg-amber-500",
       cardBg: "bg-gradient-to-br from-amber-50 to-white",
       accentText: "text-amber-600",
-      title: "Générateur de devis",
-      description: "Devis professionnels pour vos prestations et événements",
-      button: "Créer un devis",
-      bottom: "Personnalisable, conversion en facture",
+      title: t("services.tools.quote.title", "Générateur de devis"),
+      description: t("services.tools.quote.description", "Devis professionnels pour vos prestations et événements"),
+      button: t("services.tools.quote.button", "Créer un devis"),
+      bottom: t("services.tools.quote.bottom", "Personnalisable, conversion en facture"),
       border: "",
       delay: 0.2,
     },
@@ -435,10 +430,10 @@ const ServicesSection = () => {
       iconBg: "bg-green-500",
       cardBg: "bg-gradient-to-br from-green-50 to-white",
       accentText: "text-green-600",
-      title: "Générateur de factures",
-      description: "Factures personnalisées et conformes à la législation",
-      button: "Créer une facture",
-      bottom: "TVA incluse, numérotation automatique",
+      title: t("services.tools.invoice.title", "Générateur de factures"),
+      description: t("services.tools.invoice.description", "Factures personnalisées et conformes à la législation"),
+      button: t("services.tools.invoice.button", "Créer une facture"),
+      bottom: t("services.tools.invoice.bottom", "TVA incluse, numérotation automatique"),
       border: "",
       delay: 0.1,
     },
@@ -448,10 +443,10 @@ const ServicesSection = () => {
       iconBg: "bg-purple-500",
       cardBg: "bg-gradient-to-br from-purple-50 to-white",
       accentText: "text-purple-600",
-      title: "Générateur d'avoirs",
-      description: "Créez des avoirs et notes de crédit en quelques clics",
-      button: "Créer un avoir",
-      bottom: "Remboursements, annulations, corrections",
+      title: t("services.tools.creditNote.title", "Générateur d'avoirs"),
+      description: t("services.tools.creditNote.description", "Créez des avoirs et notes de crédit en quelques clics"),
+      button: t("services.tools.creditNote.button", "Créer un avoir"),
+      bottom: t("services.tools.creditNote.bottom", "Remboursements, annulations, corrections"),
       border: "",
       delay: 0.3,
     },
@@ -460,8 +455,8 @@ const ServicesSection = () => {
   // Cartes d'outils
   const cardTools = [
     {
-      title: "Gestion des employés",
-      description: "Planning, paie, contrats de travail",
+      title: t("services.tools.employeeManagement.title", "Gestion des employés"),
+      description: t("services.tools.employeeManagement.description", "Planning, paie, contrats de travail"),
       to: "/outils/gestion-employes",
       icon: <Users className="w-6 h-6" />,
       iconColor: "text-indigo-600",
@@ -469,8 +464,8 @@ const ServicesSection = () => {
       linkColor: "text-indigo-600"
     },
     {
-      title: "Gestion des stocks",
-      description: "Inventaire, alertes, commandes fournisseurs",
+      title: t("services.tools.inventoryManagement.title", "Gestion des stocks"),
+      description: t("services.tools.inventoryManagement.description", "Inventaire, alertes, commandes fournisseurs"),
       to: "/outils/gestion-stocks",
       icon: <Package className="w-6 h-6" />,
       iconColor: "text-pink-600",
@@ -478,8 +473,8 @@ const ServicesSection = () => {
       linkColor: "text-pink-600"
     },
     {
-      title: "Tableaux de bord",
-      description: "Analyses, chiffre d'affaires, performances",
+      title: t("services.tools.dashboard.title", "Tableaux de bord"),
+      description: t("services.tools.dashboard.description", "Analyses, chiffre d'affaires, performances"),
       to: "/outils/analytics",
       icon: <BarChart3 className="w-6 h-6" />,
       iconColor: "text-teal-600",
@@ -531,13 +526,13 @@ const ServicesSection = () => {
           >
             <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-6 text-sm font-medium rounded-full bg-primary/10 text-primary shadow-sm">
               <ChefHat className="w-4 h-4" />
-              <span>Découvrez nos services</span>
+              <span>{t("services.discoverBadge", "Découvrez nos services")}</span>
             </div>
             <h2 className="mb-4 text-3xl font-bold text-transparent md:text-4xl lg:text-5xl bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text">
-              Qu'est-ce qui vous ferait plaisir ?
+              {t("services.title", "Qu'est-ce qui vous ferait plaisir ?")}
             </h2>
             <p className="text-lg text-gray-600">
-              Des plats délicieux et des opportunités professionnelles pour une expérience culinaire complète
+              {t("services.subtitle", "Des plats délicieux et des opportunités professionnelles pour une expérience culinaire complète")}
             </p>
           </motion.div>
         </div>
@@ -547,13 +542,10 @@ const ServicesSection = () => {
           <div className="flex flex-wrap items-end justify-between mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-2xl font-bold md:text-3xl">Plats populaires</h3>
-                {/* <span className="px-3 py-1 text-xs font-medium text-white rounded-full bg-primary">
-                  10+ plats
-                </span> */}
+                <h3 className="text-2xl font-bold md:text-3xl">{t("services.popularMeals", "Plats populaires")}</h3>
               </div>
               <p className="text-gray-600">
-                Découvrez les préférés de notre communauté
+                {t("services.popularMealsDesc", "Découvrez les préférés de notre communauté")}
               </p>
             </div>
             
@@ -564,7 +556,7 @@ const ServicesSection = () => {
                 size="icon"
                 onClick={scrollPrev}
                 className="transition-all border-2 rounded-full hover:bg-primary hover:text-white hover:border-primary"
-                aria-label="Précédent"
+                aria-label={t("services.previous", "Précédent")}
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
@@ -573,7 +565,7 @@ const ServicesSection = () => {
                 size="icon"
                 onClick={scrollNext}
                 className="transition-all border-2 rounded-full hover:bg-primary hover:text-white hover:border-primary"
-                aria-label="Suivant"
+                aria-label={t("services.next", "Suivant")}
               >
                 <ChevronRight className="w-5 h-5" />
               </Button>
@@ -657,7 +649,7 @@ const ServicesSection = () => {
                           size="sm"
                         >
                           <ShoppingCart className="w-4 h-4" />
-                          Ajouter au panier
+                          {t("services.addToCart", "Ajouter au panier")}
                         </Button>
                       </CardContent>
                     </Card>
@@ -677,12 +669,12 @@ const ServicesSection = () => {
                         <div className="flex items-center justify-center w-20 h-20 mb-4 transition-all bg-white rounded-full shadow-md group-hover:shadow-lg">
                           <PlusCircle className="w-10 h-10 text-primary" />
                         </div>
-                        <h4 className="mb-2 text-xl font-bold">Voir plus de plats</h4>
+                        <h4 className="mb-2 text-xl font-bold">{t("services.seeMoreMeals", "Voir plus de plats")}</h4>
                         <p className="text-sm text-gray-500">
-                          Découvrez tous nos restaurants et leurs menus
+                          {t("services.seeMoreMealsDesc", "Découvrez tous nos restaurants et leurs menus")}
                         </p>
                         <Button variant="link" className="gap-2 mt-4 text-primary">
-                          Explorer
+                          {t("services.explore", "Explorer")}
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </CardContent>
@@ -707,13 +699,10 @@ const ServicesSection = () => {
           <div className="flex flex-wrap items-end justify-between mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-2xl font-bold md:text-3xl">Offres d'emploi en restauration</h3>
-                {/* <span className="px-3 py-1 text-xs font-medium text-white bg-green-500 rounded-full">
-                  8 offres
-                </span> */}
+                <h3 className="text-2xl font-bold md:text-3xl">{t("services.jobOffers", "Offres d'emploi en restauration")}</h3>
               </div>
               <p className="text-gray-600">
-                Rejoignez les meilleurs restaurants près de chez vous
+                {t("services.jobOffersDesc", "Rejoignez les meilleurs restaurants près de chez vous")}
               </p>
             </div>
             
@@ -724,7 +713,7 @@ const ServicesSection = () => {
                 size="icon"
                 onClick={scrollJobsPrev}
                 className="transition-all border-2 rounded-full hover:bg-green-500 hover:text-white hover:border-green-500"
-                aria-label="Précédent"
+                aria-label={t("services.previous", "Précédent")}
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
@@ -733,7 +722,7 @@ const ServicesSection = () => {
                 size="icon"
                 onClick={scrollJobsNext}
                 className="transition-all border-2 rounded-full hover:bg-green-500 hover:text-white hover:border-green-500"
-                aria-label="Suivant"
+                aria-label={t("services.next", "Suivant")}
               >
                 <ChevronRight className="w-5 h-5" />
               </Button>
@@ -791,19 +780,19 @@ const ServicesSection = () => {
                         {/* Job details grid */}
                         <div className="grid grid-cols-2 gap-3 p-3 mb-4 bg-gray-50 rounded-xl">
                           <div>
-                            <p className="text-xs text-gray-500">Contrat</p>
+                            <p className="text-xs text-gray-500">{t("services.contract", "Contrat")}</p>
                             <p className="text-sm font-medium">{job.contract}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-gray-500">Salaire</p>
+                            <p className="text-xs text-gray-500">{t("services.salary", "Salaire")}</p>
                             <p className="text-sm font-medium">{job.salary}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-gray-500">Expérience</p>
+                            <p className="text-xs text-gray-500">{t("services.experience", "Expérience")}</p>
                             <p className="text-sm font-medium">{job.experience}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-gray-500">Posté</p>
+                            <p className="text-xs text-gray-500">{t("services.posted", "Posté")}</p>
                             <p className="text-sm font-medium">{job.postedAt}</p>
                           </div>
                         </div>
@@ -818,7 +807,7 @@ const ServicesSection = () => {
                           className="w-full gap-2 text-white transition-all bg-secondary/80 rounded-xl hover:bg-secondary group-hover:shadow-lg"
                           size="sm"
                         >
-                          Voir l'offre
+                          {t("services.viewOffer", "Voir l'offre")}
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </CardContent>
@@ -839,12 +828,12 @@ const ServicesSection = () => {
                         <div className="flex items-center justify-center w-20 h-20 mb-4 transition-all bg-white rounded-full shadow-md group-hover:shadow-lg">
                           <Briefcase className="w-10 h-10 text-green-500" />
                         </div>
-                        <h4 className="mb-2 text-xl font-bold">Plus d'offres d'emploi</h4>
+                        <h4 className="mb-2 text-xl font-bold">{t("services.moreJobs", "Plus d'offres d'emploi")}</h4>
                         <p className="text-sm text-gray-500">
-                          Découvrez toutes les opportunités dans la restauration
+                          {t("services.moreJobsDesc", "Découvrez toutes les opportunités dans la restauration")}
                         </p>
                         <Button variant="link" className="gap-2 mt-4 text-green-500">
-                          Explorer les offres
+                          {t("services.exploreJobs", "Explorer les offres")}
                           <ArrowRight className="w-4 h-4" />
                         </Button>
                       </CardContent>
@@ -861,19 +850,18 @@ const ServicesSection = () => {
           <div className="max-w-2xl mx-auto mb-12 text-center">
             <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-4 text-sm font-medium rounded-full bg-purple-100 text-purple-700">
               <Building className="w-4 h-4" />
-              <span>Pour les professionnels</span>
+              <span>{t("services.forProfessionals", "Pour les professionnels")}</span>
             </div>
             <h3 className="mb-4 text-2xl font-bold md:text-3xl">
-              Des outils professionnels pour les restaurateurs
+              {t("services.toolsTitle", "Des outils professionnels pour les restaurateurs")}
             </h3>
             <p className="text-gray-600">
-              Gérez votre établissement efficacement avec notre suite d'outils professionnels gratuits
+              {t("services.toolsDesc", "Gérez votre établissement efficacement avec notre suite d'outils professionnels gratuits")}
             </p>
           </div>
 
           {/* Outils principaux en grille */}
           <div className="grid gap-6 mb-12 md:grid-cols-2 lg:grid-cols-4">
-            {/* Outil 1 - Générateur de CV */}
             {professionalTools.map((tool, i) => (
               <motion.div
                 key={tool.to}
@@ -904,104 +892,22 @@ const ServicesSection = () => {
             ))}
           </div>
 
-          {/* Section des fonctionnalités complémentaires */}
-          <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
-            {/* Carte outil supplémentaire 1 */}
-            {/* {cardTools.map((card, i) => (
-              <Card
-                key={card.to}
-                className="p-5 transition-all bg-white border border-gray-200 shadow-sm hover:shadow-md rounded-xl"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`flex items-center justify-center flex-shrink-0 w-12 h-12 ${card.iconColor} ${card.iconBg} rounded-xl`}
-                  >
-                    {card.icon}
-                  </div>
-                  <div>
-                    <h5 className="mb-1 font-bold">{card.title}</h5>
-                    <p className="mb-2 text-sm text-gray-600">{card.description}</p>
-                    <Link
-                      to={card.to}
-                      className={`flex items-center text-sm ${card.linkColor} hover:underline`}
-                    >
-                      Accéder <ArrowRight className="w-3 h-3 ml-1" />
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-            ))} */}
-          </div>
-
           {/* Statistiques et témoignages */}
           <div className="grid gap-6 mb-8 md:grid-cols-3">
             <div className="p-6 text-center bg-white shadow-sm rounded-2xl">
               <div className="mb-2 text-3xl font-bold text-primary">15k+</div>
-              <p className="text-gray-600">Documents générés par mois</p>
+              <p className="text-gray-600">{t("services.stats.documents", "Documents générés par mois")}</p>
             </div>
             <div className="p-6 text-center bg-white shadow-sm rounded-2xl">
               <div className="mb-2 text-3xl font-bold text-primary">4.8/5</div>
-              <p className="text-gray-600">Satisfaction utilisateurs</p>
+              <p className="text-gray-600">{t("services.stats.satisfaction", "Satisfaction utilisateurs")}</p>
             </div>
             <div className="p-6 text-center bg-white shadow-sm rounded-2xl">
               <div className="mb-2 text-3xl font-bold text-primary">100%</div>
-              <p className="text-gray-600">Outils gratuits</p>
+              <p className="text-gray-600">{t("services.stats.free", "Outils gratuits")}</p>
             </div>
           </div>
-
-          {/* Bouton principal */}
-          {/* <div className="flex justify-center mt-8">
-            <Button asChild size="lg" className="gap-2 px-8 py-6 text-base transition-all rounded-full shadow-lg hover:shadow-xl bg-gradient-to-r from-primary to-primary/80">
-              <Link to="/restaurateurs">
-                Découvrir tous les outils pour restaurateurs
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            </Button>
-          </div> */}
         </div>
-
-        {/* CTA Final */}
-        {/* <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative p-12 overflow-hidden text-center bg-gradient-to-r from-primary via-primary/80 to-primary rounded-3xl"
-        >
-          <div className="absolute top-0 right-0 w-64 h-64 translate-x-32 -translate-y-32 rounded-full bg-white/10" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 -translate-x-24 translate-y-24 rounded-full bg-white/10" />
-          
-          <div className="relative z-10">
-            <h3 className="mb-4 text-3xl font-bold text-white md:text-4xl">
-              Prêt à passer commande ?
-            </h3>
-            <p className="max-w-2xl mx-auto mb-8 text-lg text-white/90">
-              Rejoignez des milliers de clients satisfaits et découvrez une nouvelle façon de savourer vos plats préférés
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="gap-2 px-8 py-6 text-base rounded-full shadow-lg hover:shadow-xl"
-              >
-                <Link to="/register">
-                  Commencer maintenant
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="gap-2 px-8 py-6 text-base text-white border-white rounded-full hover:bg-white/10 hover:text-white hover:border-white/20"
-              >
-                <Link to="/download">
-                  Télécharger l'application
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </motion.div> */}
       </div>
     </section>
   );

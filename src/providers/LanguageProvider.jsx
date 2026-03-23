@@ -15,9 +15,19 @@ export const LanguageProvider = ({ children }) => {
 
   const t = (key, default_value = "") => {
     const value = default_value.trim() === "" ? key : default_value;
-    return translations[language] && translations[language][key]
-      ? translations[language][key]
-      : value;
+    const keys = key.split(".");
+    let result = translations[language];
+    for (let k of keys) {
+      if (result && Object.prototype.hasOwnProperty.call(result, k)) {
+        result = result[k];
+      } else {
+        return value;
+      }
+    }
+    if (typeof result === "string" && result.trim() !== "") {
+      return result;
+    }
+    return value;
   };
 
   return (

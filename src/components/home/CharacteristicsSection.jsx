@@ -45,26 +45,26 @@ const CharacteristicsSection = () => {
 
   const cards = [
     {
-      icon: ShieldCheck, // Use a suitable icon for "Securite Garantie"
-      title: t("characteristics.security", "Sécurité Garantie"),
+      icon: ShieldCheck,
+      title: t("characteristics.security.title", "Sécurité Garantie"),
       description: t(
-        "characteristics.security_desc",
+        "characteristics.security.description",
         "Des systèmes fiables pour protéger vos données et vos transactions.",
       ),
     },
     {
       icon: Euro,
-      title: t("characteristics.transparent_prices", "Prix Transparents"),
+      title: t("characteristics.transparent_prices.title", "Prix Transparents"),
       description: t(
-        "characteristics.transparent_prices_desc",
+        "characteristics.transparent_prices.description",
         "Pas de frais cachés, un devis clair dès le départ pour chaque prestation.",
       ),
     },
     {
       icon: Clock,
-      title: t("characteristics.fast_delivery", "Rapidité"),
+      title: t("characteristics.fast_delivery.title", "Rapidité"),
       description: t(
-        "characteristics.fast_delivery_desc",
+        "characteristics.fast_delivery.description",
         "Des délais respectés et des interventions rapides selon vos besoins.",
       ),
     },

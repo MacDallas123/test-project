@@ -35,6 +35,9 @@ import {
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
 import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
+import { useDispatch, useSelector } from "react-redux";
+import { resetPassword, selectAuthError, selectAuthLoading, sendResetCode, verifyCode } from "@/redux/slices/authSlice";
+import { thunkSucceed } from "@/lib/tools";
 
 // Énumération des étapes
 const RESET_STEPS = {
@@ -47,13 +50,19 @@ const PasswordResetPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState(RESET_STEPS.EMAIL);
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [resetEmail, setResetEmail] = useState("");
+  const [resetCode, setResetCode] = useState("");
   const { t } = useLanguage();
 
+  const dispatch = useDispatch();
+
+  const selectAuthErrorFS = useSelector(selectAuthError);
+  const isLoading = useSelector(selectAuthLoading);
+  
   // Gestion du compte à rebours pour le renvoi du code
   useEffect(() => {
     if (countdown > 0) {
@@ -151,36 +160,30 @@ const PasswordResetPage = () => {
 
   // Étape 1: Demande de code par email
   const handleEmailSubmit = async (data) => {
-    setIsLoading(true);
     setResetEmail(data.email);
 
     try {
-      // Simuler l'envoi du code par email
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const sendResetCodeResponse = await dispatch(sendResetCode(data.email));
 
-      console.log("Code envoyé à:", data.email);
-      setCurrentStep(RESET_STEPS.CODE);
-      setCountdown(60); // 60 secondes avant de pouvoir renvoyer le code
+      if(thunkSucceed(sendResetCodeResponse)) {
+        setCurrentStep(RESET_STEPS.CODE);
+        setCountdown(60); // 60 secondes avant de pouvoir renvoyer le code
+      }
     } catch (error) {
       console.error("Erreur lors de l'envoi du code:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Étape 2: Vérification du code
   const handleCodeSubmit = async (data) => {
-    setIsLoading(true);
-
     try {
-      // Simuler la vérification du code
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setResetCode(data.code);
+      const codeSubmitResponse = await dispatch(verifyCode({
+        email: resetEmail,
+        code: data.code
+      }));
 
-      // Code de démo (en production, vérifier avec l'API)
-      const DEMO_CODE = "123456";
-
-      if (data.code === DEMO_CODE) {
-        console.log("Code vérifié avec succès");
+      if(thunkSucceed(codeSubmitResponse)) {
         setCurrentStep(RESET_STEPS.PASSWORD);
       } else {
         codeForm.setError("code", {
@@ -193,30 +196,29 @@ const PasswordResetPage = () => {
       }
     } catch (error) {
       console.error("Erreur de vérification:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Étape 3: Réinitialisation du mot de passe
   const handlePasswordSubmit = async (data) => {
-    setIsLoading(true);
-
     try {
-      // Simuler la mise à jour du mot de passe
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Verifier mot de passe corrects
 
-      console.log("Mot de passe mis à jour pour:", resetEmail);
-      console.log("Nouveau mot de passe défini");
 
-      // Redirection vers la page de succès
-      navigate("/auth/login", {
-        state: { email: resetEmail },
-      });
+      const passwordSubmitResponse = await dispatch(resetPassword({
+        email: resetEmail,
+        code: resetCode,
+        newPassword: data.password,
+        confirmNewPassword: data.confirmPassword
+      }));
+
+      if(thunkSucceed(passwordSubmitResponse)) {
+        navigate("/auth/login", {
+          state: { email: resetEmail },
+        });
+      }
     } catch (error) {
       console.error("Erreur de mise à jour:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -224,16 +226,15 @@ const PasswordResetPage = () => {
   const handleResendCode = async () => {
     if (countdown > 0) return;
 
-    setIsLoading(true);
-
+    
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Code renvoyé à:", resetEmail);
-      setCountdown(60);
+      const sendResetCodeResponse = await dispatch(sendResetCode(resetEmail));
+  
+      if(thunkSucceed(sendResetCodeResponse)) {
+        setCountdown(60);
+      }
     } catch (error) {
       console.error("Erreur lors du renvoi:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -396,6 +397,7 @@ const PasswordResetPage = () => {
                         id="email"
                         type="email"
                         placeholder="votre@email.com"
+                        autoComplete
                         className="pl-10"
                         {...emailForm.register("email")}
                         aria-invalid={!!emailForm.formState.errors.email}
@@ -411,6 +413,12 @@ const PasswordResetPage = () => {
                       <div className="flex items-center gap-2 text-sm text-red-500">
                         <AlertCircle className="w-4 h-4" />
                         <span>{emailForm.formState.errors.email.message}</span>
+                      </div>
+                    )}
+                    {selectAuthErrorFS && (
+                      <div className="flex items-center gap-2 text-sm text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{selectAuthErrorFS}</span>
                       </div>
                     )}
                   </div>

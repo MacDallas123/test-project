@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     user: null,
+    tmpData: null,
     isLoggedIn: false,
     loading: false,
     error: null,
@@ -14,8 +15,8 @@ export const loginUser = createAsyncThunk(
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await axios.post('/auth/login', credentials);
-            localStorage.setItem("accessToken", response.data.content.accessToken);
-            localStorage.setItem("refreshToken", response.data.content.refreshToken);
+            // localStorage.setItem("accessToken", response.data.content.accessToken);
+            // localStorage.setItem("refreshToken", response.data.content.refreshToken);
             return response.data;
         } catch (error) {
             console.log("LOGIN ERROR     ", error);
@@ -38,6 +39,20 @@ export const registerUser = createAsyncThunk(
             return rejectWithValue(axiosError.response?.data?.message || 'Erreur d\'inscription au serveur');
         }
     }
+);
+
+export const activateAccount = createAsyncThunk(
+  'auth/activateAccount',
+  async ({ email, code }, { rejectWithValue }) => {
+      try {
+          const response = await axios.post('/auth/activate-account', { email, code });
+          return response.data;
+      } catch (error) {
+          console.log("ACTIVATE ACCOUNT ERROR     ", error);
+          const axiosError = error;
+          return rejectWithValue(axiosError.response?.data?.message || 'Erreur d\'inscription au serveur');
+      }
+  }
 );
 
 export const sendResetCode = createAsyncThunk(
@@ -73,7 +88,13 @@ export const resetPassword = createAsyncThunk(
     'auth/resetPassword',
     async (resetData, { rejectWithValue }) => {
         try {
-            await axios.post('/auth/reset-password', resetData);
+            const { confirmNewPassword, ...data } = resetData;
+            
+            if(confirmNewPassword !== data.newPassword) {
+              return rejectWithValue("Les mots de passes ne correspondent pas");
+            }
+
+            await axios.post('/auth/reset-password', data);
             return { success: true };
         } catch (error) {
             console.log("RESET PASSWORD ERROR ", error);
@@ -142,7 +163,23 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.content.user;
+        console.log("PAYLOAD", action.payload);
+        try {
+          const payloadContent = action.payload.content;
+          if(action.payload.content.user.status !== "INACTIVE") {
+            localStorage.setItem("accessToken", payloadContent.accessToken);
+            localStorage.setItem("refreshToken", payloadContent.refreshToken);
+            state.user = payloadContent.user;
+          } else {
+            state.tmpData = {
+              access: payloadContent.accessToken,
+              refreshToken: payloadContent.refreshToken,
+              user: payloadContent.user
+            };
+          }
+        } catch (err) {
+          console.log("ERROR DURING PROCESS ", err);
+        }
         state.isLoggedIn = true;
         state.error = null;
       })
@@ -151,6 +188,31 @@ const authSlice = createSlice({
         console.log("PAYLOAD ", action.payload);
         state.error = action.payload || 'Erreur de connexion';
         state.isLoggedIn = false;
+      });
+      
+    builder
+      .addCase(activateAccount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(activateAccount.fulfilled, (state, action) => {
+        state.loading = false;
+        // Possibly, the user is now fully activated, so update tmpData/user if needed
+        if (state.tmpData && state.tmpData.user && state.tmpData.user.status === "INACTIVE") {
+          // The account was inactive but should now be activated, move user to state.user and set isLoggedIn to true
+          state.user = { ...state.tmpData.user, status: "ACTIVE" };
+          state.isLoggedIn = true;
+          
+          localStorage.setItem("accessToken", state.tmpData.access);
+          localStorage.setItem("refreshToken", state.tmpData.refresh);
+
+          state.tmpData = null;
+        }
+        state.error = null;
+      })
+      .addCase(activateAccount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Erreur lors de l'activation du compte";
       });
 
     // registerUser

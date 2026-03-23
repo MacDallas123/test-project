@@ -13,10 +13,10 @@ export const translations = {
 };
 
 export const availableLanguages = [
-  { code: "fr", name: "Français", flag: "🇫🇷", reactFlag: "FR", value: "FRENCH", },
-  { code: "en", name: "English", flag: "🇬🇧", reactFlag: "GB", value: "ENGLISH", },
-  { code: "es", name: "Español", flag: "🇪🇸", reactFlag: "ES", value: "SPANISH", },
-  { code: "ch", name: "Chinese", flag: "🇨🇳", reactFlag: "CN", value: "CHINESE", },
-  { code: "de", name: "Deutsch", flag: "🇩🇪", reactFlag: "DE", value: "DEUSTCH", },
+  { code: "fr", name: "Français", flag: "🇫🇷", reactFlag: "FR", value: "fr", },
+  { code: "en", name: "English", flag: "🇬🇧", reactFlag: "GB", value: "en", },
+  { code: "es", name: "Español", flag: "🇪🇸", reactFlag: "ES", value: "es", },
+  { code: "ch", name: "Chinese", flag: "🇨🇳", reactFlag: "CN", value: "ch", },
+  { code: "de", name: "Deutsch", flag: "🇩🇪", reactFlag: "DE", value: "de", },
   // { code: "ch", name: "中文", flag: "🇨🇳" },
 ];

@@ -240,6 +240,10 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           label: t("mainMenu.service.formulaireAvoirs", "Avoirs"),
           href: "/avoirs",
         },
+        {
+          label: t("mainMenu.emploi.espaceAbonnement", "Espace abonnement"),
+          href: "/abonnements",
+        },
       ],
     },
     {
@@ -258,10 +262,6 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
           label: t("mainMenu.emploi.espaceStagiaire", "Espace stagiaire"),
           href: "/emploi/stagiaire",
         }, */
-        {
-          label: t("mainMenu.emploi.espaceAbonnement", "Espace abonnement"),
-          href: "/abonnements",
-        },
       ],
     },
     {

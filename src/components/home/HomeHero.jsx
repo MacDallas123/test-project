@@ -26,80 +26,80 @@ import { Link } from "react-router-dom";
 /* ─────────────────────────────────────────────────────────────
    Données des slides
 ───────────────────────────────────────────────────────────── */
-const slides = [
+const getSlides = (t) => [
   {
     id: 1,
     type: "step1",
-    badge: "Bienvenue",
+    badge: t("hero.slide1.badge", "Bienvenue"),
     icon: <Home className="w-5 h-5" />,
     title: (
       <>
-        Bienvenu sur{" "}
-        <span className="text-secondary">L</span>ivrer
-        <span className="text-secondary">N</span>ourriture
+        {t("hero.slide1.title.part1", "Bienvenu sur")}{" "}
+        <span className="text-secondary">L</span>{t("hero.slide1.title.part2", "ivrer")}
+        <span className="text-secondary">N</span>{t("hero.slide1.title.part3", "ourriture")}
       </>
     ),
-    subtitle: "Vos plats préférés, livrés en un clin d'œil",
-    tagline: "Commandez en 3 clics. Recevez en 30 min.",
-    cta: { label: "Commander maintenant", to: "/" },
+    subtitle: t("hero.slide1.subtitle", "Vos plats préférés, livrés en un clin d'œil"),
+    tagline: t("hero.slide1.tagline", "Commandez en 3 clics. Recevez en 30 min."),
+    cta: { label: t("hero.slide1.cta", "Commander maintenant"), to: "/" },
     stats: [
-      { icon: <Utensils className="w-5 h-5" />, value: "100+", label: "Restaurants" },
-      { icon: <Clock className="w-5 h-5" />, value: "30 min", label: "Livraison moy." },
-      { icon: <Users className="w-5 h-5" />, value: "10k+", label: "Clients satisfaits" },
-      { icon: <MapPin className="w-5 h-5" />, value: "5 km", label: "Rayon de livraison" },
+      { icon: <Utensils className="w-5 h-5" />, value: "100+", label: t("hero.slide1.stats.restaurants", "Restaurants") },
+      { icon: <Clock className="w-5 h-5" />, value: "30 min", label: t("hero.slide1.stats.deliveryTime", "Livraison moy.") },
+      { icon: <Users className="w-5 h-5" />, value: "10k+", label: t("hero.slide1.stats.satisfiedClients", "Clients satisfaits") },
+      { icon: <MapPin className="w-5 h-5" />, value: "5 km", label: t("hero.slide1.stats.deliveryRadius", "Rayon de livraison") },
     ],
-    visual: { emoji: "🍔", label: "Commande en cours…", sub: "Livraison dans 18 min" },
+    visual: { emoji: "🍔", label: t("hero.slide1.visual.label", "Commande en cours…"), sub: t("hero.slide1.visual.sub", "Livraison dans 18 min") },
   },
   {
     id: 2,
     type: "step2",
-    badge: "Express",
+    badge: t("hero.slide2.badge", "Express"),
     icon: <Zap className="w-5 h-5" />,
-    title: "Rapide. Simple. Sans prise de tête.",
-    subtitle: "En quelques clics, votre repas est en route.",
-    tagline: "Interface intuitive • Paiement 100 % sécurisé • Suivi GPS",
-    cta: { label: "Accéder à l'app", to: "/auth/login" },
+    title: t("hero.slide2.title", "Rapide. Simple. Sans prise de tête."),
+    subtitle: t("hero.slide2.subtitle", "En quelques clics, votre repas est en route."),
+    tagline: t("hero.slide2.tagline", "Interface intuitive • Paiement 100 % sécurisé • Suivi GPS"),
+    cta: { label: t("hero.slide2.cta", "Accéder à l'app"), to: "/auth/login" },
     stats: [
-      { icon: <ShieldCheck className="w-5 h-5" />, value: "100%", label: "Paiement sécurisé" },
-      { icon: <MapPin className="w-5 h-5" />, value: "GPS", label: "Suivi en direct" },
-      { icon: <Zap className="w-5 h-5" />, value: "3 clics", label: "Pour commander" },
-      { icon: <Clock className="w-5 h-5" />, value: "24/7", label: "Disponibilité" },
+      { icon: <ShieldCheck className="w-5 h-5" />, value: "100%", label: t("hero.slide2.stats.securePayment", "Paiement sécurisé") },
+      { icon: <MapPin className="w-5 h-5" />, value: "GPS", label: t("hero.slide2.stats.liveTracking", "Suivi en direct") },
+      { icon: <Zap className="w-5 h-5" />, value: "3 clics", label: t("hero.slide2.stats.clicks", "Pour commander") },
+      { icon: <Clock className="w-5 h-5" />, value: "24/7", label: t("hero.slide2.stats.availability", "Disponibilité") },
     ],
-    visual: { emoji: "⚡", label: "Suivi GPS actif", sub: "Livreur à 2 km de chez vous" },
+    visual: { emoji: "⚡", label: t("hero.slide2.visual.label", "Suivi GPS actif"), sub: t("hero.slide2.visual.sub", "Livreur à 2 km de chez vous") },
   },
   {
     id: 3,
     type: "step3",
-    badge: "Populaire",
+    badge: t("hero.slide3.badge", "Populaire"),
     icon: <Heart className="w-5 h-5" />,
-    title: "Un choix pour toutes vos envies",
-    subtitle: "Burgers, pizzas, plats locaux, options healthy…",
-    tagline: "100+ restaurants • Cuisines variées • Options végétariennes",
-    cta: { label: "Explorer les restaurants", to: "/auth/register" },
+    title: t("hero.slide3.title", "Un choix pour toutes vos envies"),
+    subtitle: t("hero.slide3.subtitle", "Burgers, pizzas, plats locaux, options healthy…"),
+    tagline: t("hero.slide3.tagline", "100+ restaurants • Cuisines variées • Options végétariennes"),
+    cta: { label: t("hero.slide3.cta", "Explorer les restaurants"), to: "/auth/register" },
     stats: [
-      { icon: <Utensils className="w-5 h-5" />, value: "20+", label: "Types de cuisine" },
-      { icon: <Heart className="w-5 h-5" />, value: "500+", label: "Plats au menu" },
-      { icon: <Star className="w-5 h-5" />, value: "4.8★", label: "Note moyenne" },
-      { icon: <TrendingUp className="w-5 h-5" />, value: "Nouveau", label: "Chaque semaine" },
+      { icon: <Utensils className="w-5 h-5" />, value: "20+", label: t("hero.slide3.stats.cuisineTypes", "Types de cuisine") },
+      { icon: <Heart className="w-5 h-5" />, value: "500+", label: t("hero.slide3.stats.dishes", "Plats au menu") },
+      { icon: <Star className="w-5 h-5" />, value: "4.8★", label: t("hero.slide3.stats.rating", "Note moyenne") },
+      { icon: <TrendingUp className="w-5 h-5" />, value: t("hero.slide3.stats.new", "Nouveau"), label: t("hero.slide3.stats.perWeek", "Chaque semaine") },
     ],
-    visual: { emoji: "🥗", label: "Suggestion du jour", sub: "Bowl healthy • 1 200 FCFA" },
+    visual: { emoji: "🥗", label: t("hero.slide3.visual.label", "Suggestion du jour"), sub: t("hero.slide3.visual.sub", "Bowl healthy • 1 200 FCFA") },
   },
   {
     id: 4,
     type: "step4",
-    badge: "Local",
+    badge: t("hero.slide4.badge", "Local"),
     icon: <Star className="w-5 h-5" />,
-    title: "Des restaurants d'ici, livrés avec soin",
-    subtitle: "Partenaires locaux • Produits frais • Engagement qualité",
-    tagline: "Nous soutenons les restaurateurs de votre ville.",
-    cta: { label: "Devenir partenaire", to: "/contact" },
+    title: t("hero.slide4.title", "Des restaurants d'ici, livrés avec soin"),
+    subtitle: t("hero.slide4.subtitle", "Partenaires locaux • Produits frais • Engagement qualité"),
+    tagline: t("hero.slide4.tagline", "Nous soutenons les restaurateurs de votre ville."),
+    cta: { label: t("hero.slide4.cta", "Devenir partenaire"), to: "/contact" },
     stats: [
-      { icon: <Package className="w-5 h-5" />, value: "Frais", label: "Produits locaux" },
-      { icon: <ShieldCheck className="w-5 h-5" />, value: "Certifié", label: "Qualité garantie" },
-      { icon: <Users className="w-5 h-5" />, value: "50+", label: "Partenaires" },
-      { icon: <TrendingUp className="w-5 h-5" />, value: "+30%", label: "Ventes restaurateurs" },
+      { icon: <Package className="w-5 h-5" />, value: t("hero.slide4.stats.fresh", "Frais"), label: t("hero.slide4.stats.localProducts", "Produits locaux") },
+      { icon: <ShieldCheck className="w-5 h-5" />, value: t("hero.slide4.stats.certified", "Certifié"), label: t("hero.slide4.stats.quality", "Qualité garantie") },
+      { icon: <Users className="w-5 h-5" />, value: "50+", label: t("hero.slide4.stats.partners", "Partenaires") },
+      { icon: <TrendingUp className="w-5 h-5" />, value: "+30%", label: t("hero.slide4.stats.sales", "Ventes restaurateurs") },
     ],
-    visual: { emoji: "🏪", label: "Partenaire certifié", sub: "Restaurant du quartier" },
+    visual: { emoji: "🏪", label: t("hero.slide4.visual.label", "Partenaire certifié"), sub: t("hero.slide4.visual.sub", "Restaurant du quartier") },
   },
 ];
 
@@ -108,6 +108,7 @@ const slides = [
 ───────────────────────────────────────────────────────────── */
 const HomeHero = () => {
   const { t } = useLanguage();
+  const slides = getSlides(t);
 
   const renderSlide = (slide) => (
     <div className="container px-4 py-16 mx-auto md:py-24">
