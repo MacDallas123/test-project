@@ -1,34 +1,19 @@
-FROM node:22.12.0
+FROM node:22-alpine AS builder
 
-RUN mkdir /app
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm ci
 
 COPY . .
-
 RUN npm run build
 
+
+FROM node:22-alpine
+
+WORKDIR /app
 RUN npm install -g serve
 
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 5173
-
-CMD ["serve", "-s", "dist", "-l", "3074"]
-
-# VOLUME /tmp
-
-# COPY package*.json ./
-
-# RUN npm install esbuild@0.25.4 --save-exact
-
-## RUN npm install --omit=dev --legacy-peer-deps
-# RUN npm install --legacy-peer-deps
-
-# COPY . .
-
-# RUN npm run build
-
-# EXPOSE 5173
-
-# CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["serve", "-s", "dist", "-l", "5173"]
