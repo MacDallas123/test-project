@@ -6,6 +6,7 @@ import cvReducer from "./slices/cvSlice";
 import contactReducer from "./slices/contactSlice";
 import invoiceReducer from "./slices/invoiceSlice";
 import quoteReducer from "./slices/quoteSlice";
+import creditNoteReducer from "./slices/creditNoteSlice";
 
 import {
   persistReducer,
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
   contact: contactReducer,
   invoice: invoiceReducer,
   quote: quoteReducer,
+  creditNote: creditNoteReducer,
 });
 
 

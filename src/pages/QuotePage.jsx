@@ -1,4 +1,12 @@
 // QuotePage.jsx — Générateur de devis par étapes
+// Corrections v2 :
+//   • Ajout étape "Émetteur" (companyName, companyLogo, companySiret, companyApe, companyTva, companyPort…)
+//   • formData initial inclut tous les champs société + logoPreview
+//   • Articles enrichis : tpsMO, unite, taxRate par ligne (fidèle aux colonnes du template)
+//   • payload handleGenerateQuote transmet tous les champs company* au backend
+//   • useEffect de chargement (mode édition) restaure tous les nouveaux champs
+//   • Étape preview restaurée (rendu propre du résumé)
+
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +25,7 @@ import {
   CreditCard, FileCheck, Receipt, Hash, Edit2, Eye,
   Printer, Loader2, ChevronDown, ChevronUp, ChevronLeft,
   ChevronRight, Copy, RefreshCw, DollarSign, Info, BookOpen,
-  Percent,
+  Percent, Image,
 } from "lucide-react";
 import {
   selectCurrentQuote, selectQuoteLoading, selectQuoteError,
@@ -29,15 +37,16 @@ import { useCurrency } from "@/context/CurrencyContext";
 import QuoteHistoryDialog from "@/components/dialog/QuoteHistoryDialog";
 
 // ─────────────────────────────────────────────
-// ÉTAPES DU WIZARD
+// ÉTAPES DU WIZARD  — "emetteur" ajouté
 // ─────────────────────────────────────────────
 const STEPS = [
-  { id: "client",  label: "Client",   icon: User       },
-  { id: "project", label: "Projet",   icon: Briefcase  },
-  { id: "items",   label: "Articles", icon: Package    },
-  { id: "payment", label: "Paiement", icon: CreditCard },
-  { id: "notes",   label: "Notes",    icon: FileCheck  },
-  { id: "preview", label: "Aperçu",   icon: Eye        },
+  { id: "client",   label: "Client",   icon: User       },
+  { id: "emetteur", label: "Émetteur", icon: Building2  },
+  { id: "project",  label: "Projet",   icon: Briefcase  },
+  { id: "items",    label: "Articles", icon: Package    },
+  { id: "payment",  label: "Paiement", icon: CreditCard },
+  { id: "notes",    label: "Notes",    icon: FileCheck  },
+  { id: "preview",  label: "Aperçu",  icon: Eye        },
 ];
 
 // ─────────────────────────────────────────────
@@ -118,18 +127,16 @@ const ProgressBar = ({ steps, currentStep, onNavigate }) => {
               type="button"
               onClick={() => onNavigate(i)}
               title={step.label}
-              className="flex flex-col items-center gap-1 transition-opacity group"
+              className={`flex flex-col items-center gap-1 transition-all ${
+                active ? "text-emerald-600" : done ? "text-emerald-400" : "text-gray-300"
+              }`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
-                ${active ? "border-emerald-500 bg-emerald-500 text-white scale-110 shadow-md shadow-emerald-200"
-                  : done  ? "border-emerald-400 bg-emerald-50 text-emerald-600"
-                  : "border-gray-300 bg-white text-gray-400 group-hover:border-emerald-300"}`}>
-                {done ? <CheckCircle className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
+                active ? "border-emerald-500 bg-emerald-50" : done ? "border-emerald-400 bg-emerald-50" : "border-gray-200"
+              }`}>
+                <Icon className="w-4 h-4" />
               </div>
-              <span className={`hidden sm:block text-[10px] font-medium leading-tight text-center
-                ${active ? "text-emerald-600" : done ? "text-emerald-500" : "text-gray-400"}`}>
-                {step.label}
-              </span>
+              <span className="hidden text-xs sm:block">{step.label}</span>
             </button>
           );
         })}
@@ -158,6 +165,7 @@ const QuotePage = () => {
   const [isSending,           setIsSending]          = useState(false);
   const [isQuoteHistoryOpen,  setIsQuoteHistoryOpen] = useState(false);
   const [quoteStatus,         setQuoteStatus]        = useState("draft");
+  const [logoPreview,         setLogoPreview]        = useState("");  // ← NOUVEAU
 
   const { symbol } = useCurrency();
 
@@ -172,7 +180,11 @@ const QuotePage = () => {
 
   // ── Formulaire ──────────────────────────────
   const [formData, setFormData] = useState({
+    // Identité devis
     quoteNumber:        generateQuoteNumber(),
+    bisNumber:          "",
+
+    // Client
     firstName:          "Samuel",
     lastName:           "Bikoko",
     company:            "Bikoko Génie Civil SARL",
@@ -181,27 +193,56 @@ const QuotePage = () => {
     address:            "123 Rue Paul Biya",
     city:               "Douala",
     postalCode:         "CM-237",
+
+    // Type
     quoteType:          "1",
+
+    // ── Champs société / émetteur ── (NOUVEAUX — identiques à la facture)
+    companyName:        "Sté SEN FIBEM France",
+    companyContact:     "Mr GOMIS",
+    companyAddress:     "51 Rue du Grevarin",
+    companyCity:        "27200 Vernon",
+    companyPhone:       "",
+    companyPort:        "07.52.49.75.46",
+    companyEmail:       "senfibem.paris@outlook.com",
+    companySiret:       "445 374 937 00032",
+    companyApe:         "4120B Travaux Bâtiment & Industrie",
+    companyTva:         "FR17378128441",
+    companyLogo:        "",   // chemin serveur après upload (ex: "uploads/logos/fibem.png")
+    contactBE:          "",   // Référence interne Contact B.E.
+
+    // Projet
     projectName:        "Construction Résidence Makepe",
     projectDescription: "Projet de construction d'une résidence moderne à Makepe, Douala.",
     startDate:          new Date().toISOString().split("T")[0],
     deadline:           "",
     budget:             "9500000",
     category:           "construction",
+
+    // Conditions financières
     taxRate:            19.25,
-    discountRate:       5,
-    deposit:            25,
+    discountRate:       0,
+    deposit:            0,
     depositType:        "percentage",
     validUntil:         (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().split("T")[0]; })(),
-    additionalNotes:    "Pour tout renseignement, contactez notre agence à Akwa, Douala.",
-    termsAndConditions: "Ce devis est valable 30 jours. Le paiement est exigible à la livraison.",
+
+    // Notes
+    additionalNotes:    "- 30 % à verser 1 semaine après le démarrage du Technicien\n- 70 % à la fin du 1er mois",
+    termsAndConditions: "Ce devis est valable 30 jours. Le paiement est exigible selon les conditions ci-dessus.",
+
+    // Paiement
+    paymentMethod:      "",
   });
 
-  // ── Articles ────────────────────────────────
+  // ── Articles enrichis : + tpsMO, unite, taxRate ─
   const [quoteItems, setQuoteItems] = useState([
-    { id: 1, description: "Fourniture et pose de fondations en béton armé", quantity: 10,  unitPrice: 75000, discount: 0, total: 750000 },
-    { id: 2, description: "Élévation des murs (parpaing de 20)",            quantity: 120, unitPrice: 10000, discount: 2, total: 1176000 },
-    { id: 3, description: "Charpente métallique et couverture bac acier",   quantity: 1,   unitPrice: 320000, discount: 0, total: 320000 },
+    {
+      id: 1,
+      description: "Fourniture et pose de fondations en béton armé",
+      quantity: 10,   unitPrice: 75000, discount: 0,
+      taxRate: 19.25, total: 750000,
+      tpsMO: "1,0h",  unite: "Ens",
+    },
   ]);
 
   // ── Options ─────────────────────────────────
@@ -230,6 +271,8 @@ const QuotePage = () => {
     { value: "10", label: "Autre"                       },
   ];
 
+  const unites = ["Ens", "h", "j", "m²", "m³", "ml", "u", "kg", "t", "forfait"];
+
   // ── Chargement édition ──────────────────────
   useEffect(() => {
     if (id) dispatch(fetchQuoteById(id));
@@ -239,6 +282,7 @@ const QuotePage = () => {
     if (currentQuote) {
       setFormData({
         quoteNumber:        currentQuote.quoteNumber        || generateQuoteNumber(),
+        bisNumber:          currentQuote.bisNumber          || "",
         firstName:          currentQuote.firstName          || "",
         lastName:           currentQuote.lastName           || "",
         company:            currentQuote.company            || "",
@@ -248,6 +292,20 @@ const QuotePage = () => {
         city:               currentQuote.city               || "",
         postalCode:         currentQuote.postalCode         || "",
         quoteType:          currentQuote.quoteType          || "",
+        // Société
+        companyName:        currentQuote.companyName        || "",
+        companyContact:     currentQuote.companyContact     || "",
+        companyAddress:     currentQuote.companyAddress     || "",
+        companyCity:        currentQuote.companyCity        || "",
+        companyPhone:       currentQuote.companyPhone       || "",
+        companyPort:        currentQuote.companyPort        || "",
+        companyEmail:       currentQuote.companyEmail       || "",
+        companySiret:       currentQuote.companySiret       || "",
+        companyApe:         currentQuote.companyApe         || "",
+        companyTva:         currentQuote.companyTva         || "",
+        companyLogo:        currentQuote.companyLogo        || "",
+        contactBE:          currentQuote.contactBE          || "",
+        // Projet
         projectName:        currentQuote.projectName        || "",
         projectDescription: currentQuote.projectDescription || "",
         startDate:          currentQuote.startDate          || "",
@@ -261,9 +319,15 @@ const QuotePage = () => {
         validUntil:         currentQuote.validUntil         || "",
         additionalNotes:    currentQuote.additionalNotes    || "",
         termsAndConditions: currentQuote.termsAndConditions || "",
+        paymentMethod:      currentQuote.paymentMethod      || "",
       });
-      if (currentQuote.quoteItems) setQuoteItems(currentQuote.quoteItems);
+      if (currentQuote.quoteItems)  setQuoteItems(currentQuote.quoteItems);
       if (currentQuote.quoteStatus) setQuoteStatus(currentQuote.quoteStatus);
+      if (currentQuote.companyLogo) setLogoPreview(
+        currentQuote.companyLogo.startsWith("http")
+          ? currentQuote.companyLogo
+          : `${window.location.origin}/${currentQuote.companyLogo.replace(/^\/+/, "")}`
+      );
     }
   }, [currentQuote]);
 
@@ -283,7 +347,10 @@ const QuotePage = () => {
   // ── Articles handlers ───────────────────────
   const addQuoteItem = () => {
     const newId = Math.max(...quoteItems.map(i => i.id), 0) + 1;
-    setQuoteItems([...quoteItems, { id: newId, description: "", quantity: 1, unitPrice: 0, discount: 0, total: 0 }]);
+    setQuoteItems([...quoteItems, {
+      id: newId, description: "", quantity: 1, unitPrice: 0,
+      discount: 0, taxRate: 19.25, total: 0, tpsMO: "1,0h", unite: "Ens",
+    }]);
   };
 
   const updateQuoteItem = (id, field, value) => {
@@ -328,22 +395,22 @@ const QuotePage = () => {
 
   // ── Validation ──────────────────────────────
   const isFormValid = () => {
-    const ok = ["firstName", "lastName", "email", "phone", "projectName"]
+    const ok = ["firstName", "lastName", "email", "phone", "projectName", "companyName"]
       .every(f => formData[f]?.toString().trim() !== "");
     const itemsOk = quoteItems.every(i => i.description?.trim() && i.unitPrice > 0);
     return ok && itemsOk;
   };
 
-  // ── Validation par étape ────────────────────
   const canGoNext = () => {
     switch (STEPS[currentStep].id) {
-      case "client":  return formData.firstName && formData.lastName && formData.email && formData.phone;
-      case "project": return formData.projectName?.trim() !== "";
-      case "items":   return quoteItems.length > 0 && quoteItems.every(i => i.description?.trim() && i.unitPrice > 0);
-      case "payment": return true;
-      case "notes":   return true;
-      case "preview": return true;
-      default:        return true;
+      case "client":   return formData.firstName && formData.lastName && formData.email && formData.phone;
+      case "emetteur": return formData.companyName?.trim() !== "";
+      case "project":  return formData.projectName?.trim() !== "";
+      case "items":    return quoteItems.length > 0 && quoteItems.every(i => i.description?.trim() && i.unitPrice > 0);
+      case "payment":  return true;
+      case "notes":    return true;
+      case "preview":  return true;
+      default:         return true;
     }
   };
 
@@ -356,10 +423,12 @@ const QuotePage = () => {
   const handleGenerateQuote = async () => {
     setIsGenerating(true);
     try {
+      // Payload complet — tous les champs company* sont inclus
       const payload = {
         ...formData,
         quoteItems: quoteItems.map(({ id, ...i }) => i),
-        quoteStatus, subtotal, taxAmount, discountAmount, total, depositAmount, remainingAmount,
+        quoteStatus,
+        subtotal, taxAmount, discountAmount, total, depositAmount, remainingAmount,
       };
       let quoteId;
       if (currentQuote?.id) {
@@ -401,7 +470,10 @@ const QuotePage = () => {
     if (!formData.email)   { alert("Veuillez renseigner l'email du client"); return; }
     setIsSending(true);
     try {
-      await dispatch(sendQuoteByEmail({ id: currentQuote.id, email: formData.email, message: `Veuillez trouver ci-joint le devis ${formData.quoteNumber}` })).unwrap();
+      await dispatch(sendQuoteByEmail({
+        id: currentQuote.id, email: formData.email,
+        message: `Veuillez trouver ci-joint le devis ${formData.quoteNumber}`,
+      })).unwrap();
       alert("Devis envoyé avec succès");
       setQuoteStatus("sent");
     } catch { alert("Erreur lors de l'envoi du devis"); }
@@ -415,16 +487,19 @@ const QuotePage = () => {
 
   const resetForm = () => {
     dispatch(clearQuote());
-    setFormData({
+    setFormData(prev => ({
+      ...prev,
       quoteNumber: generateQuoteNumber(), firstName: "", lastName: "", company: "",
       email: "", phone: "", address: "", city: "", postalCode: "", quoteType: "",
-      projectName: "", projectDescription: "", startDate: new Date().toISOString().split("T")[0],
+      projectName: "", projectDescription: "",
+      startDate: new Date().toISOString().split("T")[0],
       deadline: "", budget: "", category: "", taxRate: 19.25, discountRate: 0,
       deposit: 0, depositType: "percentage",
       validUntil: (() => { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().split("T")[0]; })(),
       additionalNotes: "", termsAndConditions: "",
-    });
-    setQuoteItems([{ id: 1, description: "", quantity: 1, unitPrice: 0, discount: 0, total: 0 }]);
+      // Note : on conserve les champs société pour ne pas avoir à les ressaisir
+    }));
+    setQuoteItems([{ id: 1, description: "", quantity: 1, unitPrice: 0, discount: 0, taxRate: 19.25, total: 0, tpsMO: "1,0h", unite: "Ens" }]);
     setQuoteStatus("draft");
     setCurrentStep(0);
   };
@@ -432,11 +507,11 @@ const QuotePage = () => {
   // ── Badge statut ────────────────────────────
   const getStatusBadge = () => {
     const cfg = {
-      draft:    { label: "Brouillon", className: "bg-gray-100 text-gray-700"     },
-      sent:     { label: "Envoyé",    className: "bg-blue-100 text-blue-700"     },
+      draft:    { label: "Brouillon", className: "bg-gray-100 text-gray-700"       },
+      sent:     { label: "Envoyé",    className: "bg-blue-100 text-blue-700"       },
       accepted: { label: "Accepté",   className: "bg-emerald-100 text-emerald-700" },
-      rejected: { label: "Refusé",    className: "bg-red-100 text-red-700"       },
-      expired:  { label: "Expiré",    className: "bg-orange-100 text-orange-700" },
+      rejected: { label: "Refusé",    className: "bg-red-100 text-red-700"         },
+      expired:  { label: "Expiré",    className: "bg-orange-100 text-orange-700"   },
     };
     const c = cfg[quoteStatus] || cfg.draft;
     return <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.className}`}>{c.label}</span>;
@@ -491,9 +566,9 @@ const QuotePage = () => {
                 </div>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="company">Entreprise</Label>
+                <Label htmlFor="company">Entreprise cliente</Label>
                 <div className="relative">
-                  <Input id="company" name="company" value={formData.company} onChange={handleInputChange} placeholder="Nom de l'entreprise" />
+                  <Input id="company" name="company" value={formData.company} onChange={handleInputChange} placeholder="Nom de l'entreprise cliente" />
                   <Building2 className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 right-3 top-1/2" />
                 </div>
               </div>
@@ -524,7 +599,130 @@ const QuotePage = () => {
           </div>
         );
 
-      // ── Étape 2 : Projet ─────────────────────
+      // ── Étape 2 : Émetteur (NOUVEAU) ─────────
+      case "emetteur":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold">Votre entreprise (émetteur)</h2>
+              <p className="mt-1 text-sm text-gray-500">Ces informations apparaîtront dans le bloc prestataire du devis.</p>
+            </div>
+            <HelpNotice variant="info" title="Conseils" tips={[
+              "Le nom de l'entreprise est obligatoire.",
+              "Le logo sera affiché en haut à gauche du devis PDF.",
+              "SIRET, APE et N° TVA apparaissent dans le bloc prestataire, fidèle au PDF FIBEM.",
+              "Port = numéro de portable (champ séparé du téléphone fixe).",
+            ]} />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyName">Nom de l'entreprise *</Label>
+                <Input id="companyName" name="companyName" value={formData.companyName}
+                  onChange={handleInputChange} placeholder="Sté SEN FIBEM France" required />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyContact">Contact / Interlocuteur</Label>
+                <Input id="companyContact" name="companyContact" value={formData.companyContact}
+                  onChange={handleInputChange} placeholder="Mr GOMIS" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyAddress">Adresse</Label>
+                <Input id="companyAddress" name="companyAddress" value={formData.companyAddress}
+                  onChange={handleInputChange} placeholder="51 Rue du Grevarin" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyCity">Ville (avec code postal)</Label>
+                <Input id="companyCity" name="companyCity" value={formData.companyCity}
+                  onChange={handleInputChange} placeholder="27200 Vernon" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyPhone">Téléphone fixe</Label>
+                <div className="relative">
+                  <Input id="companyPhone" name="companyPhone" value={formData.companyPhone}
+                    onChange={handleInputChange} placeholder="+33 1 XX XX XX XX" />
+                  <Phone className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 right-3 top-1/2" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyPort">Portable</Label>
+                <div className="relative">
+                  <Input id="companyPort" name="companyPort" value={formData.companyPort}
+                    onChange={handleInputChange} placeholder="07.52.49.75.46" />
+                  <Phone className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 right-3 top-1/2" />
+                </div>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyEmail">Email</Label>
+                <div className="relative">
+                  <Input id="companyEmail" name="companyEmail" type="email" value={formData.companyEmail}
+                    onChange={handleInputChange} placeholder="contact@votreentreprise.com" />
+                  <Mail className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 right-3 top-1/2" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companySiret">SIRET</Label>
+                <Input id="companySiret" name="companySiret" value={formData.companySiret}
+                  onChange={handleInputChange} placeholder="445 374 937 00032" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyApe">Code APE</Label>
+                <Input id="companyApe" name="companyApe" value={formData.companyApe}
+                  onChange={handleInputChange} placeholder="4120B Travaux Bâtiment & Industrie" />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyTva">N° TVA intracommunautaire</Label>
+                <Input id="companyTva" name="companyTva" value={formData.companyTva}
+                  onChange={handleInputChange} placeholder="FR17378128441" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contactBE">Contact B.E. (référence interne)</Label>
+                <Input id="contactBE" name="contactBE" value={formData.contactBE}
+                  onChange={handleInputChange} placeholder="Réf. bureau d'études" />
+              </div>
+              {/* <div className="space-y-2">
+                <Label htmlFor="bisNumber">Indice / BIS</Label>
+                <Input id="bisNumber" name="bisNumber" value={formData.bisNumber}
+                  onChange={handleInputChange} placeholder="Bis2" />
+              </div> */}
+
+              {/* ── Upload logo — identique à InvoicePage ── */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="companyLogo">Logo de l'entreprise</Label>
+                <Input
+                  id="companyLogo"
+                  name="companyLogo"
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        setFormData(f => ({ ...f, companyLogo: file }));
+                        setLogoPreview(ev.target.result);
+                      };
+                      reader.readAsDataURL(file);
+                    } else {
+                      setFormData(f => ({ ...f, companyLogo: "" }));
+                      setLogoPreview("");
+                    }
+                  }}
+                />
+                {logoPreview && (
+                  <div className="mt-2">
+                    <img
+                      src={logoPreview}
+                      alt="Aperçu logo"
+                      className="border rounded max-h-16"
+                      style={{ objectFit: "contain", background: "#f9f9f9", padding: 2 }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      // ── Étape 3 : Projet ─────────────────────
       case "project":
         return (
           <div className="space-y-6">
@@ -590,7 +788,7 @@ const QuotePage = () => {
           </div>
         );
 
-      // ── Étape 3 : Articles ───────────────────
+      // ── Étape 4 : Articles ─────────────────── (enrichi : tpsMO, unite, taxRate)
       case "items":
         return (
           <div className="space-y-6">
@@ -603,8 +801,9 @@ const QuotePage = () => {
             </div>
             <HelpNotice variant="info" title="Conseils" tips={[
               "Chaque article doit avoir une description et un prix unitaire.",
+              "Temps M.O. : durée main d'œuvre (ex: 1,0h). Unité : Ens, h, m², etc.",
+              "La remise par ligne est en pourcentage.",
               "Utilisez les flèches ↑↓ pour réordonner les articles.",
-              "La remise par ligne est en pourcentage. La remise globale se règle à l'étape suivante.",
             ]} />
             <div className="space-y-4">
               {quoteItems.map((item, index) => (
@@ -634,13 +833,27 @@ const QuotePage = () => {
                     </div>
                   </div>
 
+                  {/* Description */}
                   <div className="space-y-2">
                     <Label>Description *</Label>
                     <Input value={item.description} onChange={e => updateQuoteItem(item.id, "description", e.target.value)}
                       placeholder="Ex : Fourniture et pose de carrelage" />
                   </div>
 
+                  {/* Ligne 1 : Temps MO + Unité + Qté + Prix U */}
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="space-y-2">
+                      <Label>Temps M.O.</Label>
+                      <Input value={item.tpsMO} placeholder="1,0h"
+                        onChange={e => updateQuoteItem(item.id, "tpsMO", e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Unité</Label>
+                      <select value={item.unite} onChange={e => updateQuoteItem(item.id, "unite", e.target.value)}
+                        className="w-full px-3 py-2 text-sm border rounded-md h-10">
+                        {unites.map(u => <option key={u} value={u}>{u}</option>)}
+                      </select>
+                    </div>
                     <div className="space-y-2">
                       <Label>Quantité</Label>
                       <div className="flex items-center gap-1">
@@ -661,6 +874,10 @@ const QuotePage = () => {
                       <Input type="number" value={item.unitPrice} min="0" step="100"
                         onChange={e => updateQuoteItem(item.id, "unitPrice", Math.max(0, parseFloat(e.target.value) || 0))} />
                     </div>
+                  </div>
+
+                  {/* Ligne 2 : Remise + TVA + Total */}
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-2">
                       <Label>Remise %</Label>
                       <div className="relative">
@@ -670,7 +887,15 @@ const QuotePage = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Total</Label>
+                      <Label>TVA %</Label>
+                      <div className="relative">
+                        <Input type="number" value={item.taxRate} min="0" step="0.01"
+                          onChange={e => updateQuoteItem(item.id, "taxRate", Math.max(0, parseFloat(e.target.value) || 0))} />
+                        <Percent className="absolute w-3 h-3 text-gray-400 -translate-y-1/2 pointer-events-none right-2 top-1/2" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Total HT</Label>
                       <div className="flex items-center h-10 px-3 py-2 text-sm font-semibold bg-white border rounded-lg text-emerald-600">
                         {item.total.toLocaleString()} {symbol}
                       </div>
@@ -687,29 +912,35 @@ const QuotePage = () => {
             {/* Mini récap */}
             <div className="p-4 space-y-2 border rounded-xl bg-emerald-50/50">
               <h4 className="text-sm font-semibold text-emerald-700">Récapitulatif articles</h4>
-              <div className="flex justify-between text-sm"><span className="text-gray-600">Sous-total HT</span><span>{subtotal.toLocaleString()} {symbol}</span></div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Sous-total HT</span>
+                <span>{subtotal.toLocaleString()} {symbol}</span>
+              </div>
               <Separator />
-              <div className="flex justify-between text-sm font-bold"><span>Sous-total avant remise globale</span><span className="text-emerald-600">{subtotal.toLocaleString()} {symbol}</span></div>
+              <div className="flex justify-between text-sm font-bold">
+                <span>Total avant remise globale</span>
+                <span className="text-emerald-600">{subtotal.toLocaleString()} {symbol}</span>
+              </div>
             </div>
           </div>
         );
 
-      // ── Étape 4 : Paiement ───────────────────
+      // ── Étape 5 : Paiement ───────────────────
       case "payment":
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold">Paramètres de paiement</h2>
-              <p className="mt-1 text-sm text-gray-500">Configurez la TVA, la remise globale et l'acompte.</p>
+              <p className="mt-1 text-sm text-gray-500">Configurez la TVA globale, la remise et l'acompte.</p>
             </div>
             <HelpNotice variant="info" title="Conseils" tips={[
-              "La TVA au Cameroun est de 19,25% (taux officiel).",
+              "La TVA au Cameroun est de 19,25% (taux officiel). En France : 20%.",
               "La remise globale s'applique sur le sous-total de tous les articles.",
               "L'acompte peut être un montant fixe ou un pourcentage du total TTC.",
             ]} />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="taxRate">TVA (%)</Label>
+                <Label htmlFor="taxRate">TVA globale (%)</Label>
                 <div className="relative">
                   <Input id="taxRate" name="taxRate" type="number" value={formData.taxRate}
                     onChange={handleInputChange} min="0" max="100" step="0.01" />
@@ -740,36 +971,65 @@ const QuotePage = () => {
               <div className="space-y-2">
                 <Label>Récapitulatif financier</Label>
                 <div className="p-3 space-y-1.5 rounded-lg bg-gray-50 text-sm">
-                  <div className="flex justify-between"><span className="text-gray-600">Sous-total HT</span><span className="font-medium">{subtotal.toLocaleString()} {symbol}</span></div>
-                  {discountAmount > 0 && <div className="flex justify-between"><span className="text-gray-600">Remise ({formData.discountRate}%)</span><span className="font-medium text-green-600">-{discountAmount.toLocaleString()} {symbol}</span></div>}
-                  <div className="flex justify-between"><span className="text-gray-600">Total HT</span><span className="font-medium">{subtotalAfterDiscount.toLocaleString()} {symbol}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-600">TVA ({formData.taxRate}%)</span><span className="font-medium">{taxAmount.toLocaleString()} {symbol}</span></div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Sous-total HT</span>
+                    <span className="font-medium">{subtotal.toLocaleString()} {symbol}</span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Remise ({formData.discountRate}%)</span>
+                      <span className="font-medium text-green-600">-{discountAmount.toLocaleString()} {symbol}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total HT</span>
+                    <span className="font-medium">{subtotalAfterDiscount.toLocaleString()} {symbol}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">TVA ({formData.taxRate}%)</span>
+                    <span className="font-medium">{taxAmount.toLocaleString()} {symbol}</span>
+                  </div>
                   <Separator />
-                  <div className="flex justify-between font-bold text-emerald-600"><span>Total TTC</span><span>{total.toLocaleString()} {symbol}</span></div>
-                  {depositAmount > 0 && <>
-                    <div className="flex justify-between"><span className="text-gray-600">Acompte</span><span>{depositAmount.toLocaleString()} {symbol}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-600">Reste à payer</span><span>{remainingAmount.toLocaleString()} {symbol}</span></div>
-                  </>}
+                  <div className="flex justify-between font-bold text-emerald-600">
+                    <span>Total TTC</span>
+                    <span>{total.toLocaleString()} {symbol}</span>
+                  </div>
+                  {depositAmount > 0 && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Acompte</span>
+                        <span>{depositAmount.toLocaleString()} {symbol}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Reste à payer</span>
+                        <span>{remainingAmount.toLocaleString()} {symbol}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         );
 
-      // ── Étape 5 : Notes ──────────────────────
+      // ── Étape 6 : Notes ──────────────────────
       case "notes":
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-bold">Notes et conditions</h2>
-              <p className="mt-1 text-sm text-gray-500">Ajoutez un message personnalisé et vos conditions générales.</p>
+              <p className="mt-1 text-sm text-gray-500">Ces textes apparaîtront dans la section "Conditions de règlement" du devis.</p>
             </div>
+            <HelpNotice variant="info" title="Conseils" tips={[
+              "Les notes additionnelles sont affichées dans 'Conditions de règlement'.",
+              "Indiquez les conditions d'acompte (ex : 30% au démarrage, 70% à la fin).",
+            ]} />
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="additionalNotes">Notes additionnelles</Label>
+                <Label htmlFor="additionalNotes">Conditions de règlement / Notes</Label>
                 <Textarea id="additionalNotes" name="additionalNotes" value={formData.additionalNotes}
-                  onChange={handleInputChange} rows={3}
-                  placeholder="Délais de livraison, garanties, remarques particulières..." />
+                  onChange={handleInputChange} rows={4}
+                  placeholder="- 30 % à verser 1 semaine après le démarrage&#10;- 70 % à la fin du 1er mois" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="termsAndConditions">Conditions générales</Label>
@@ -781,7 +1041,7 @@ const QuotePage = () => {
           </div>
         );
 
-      // ── Étape 6 : Aperçu ─────────────────────
+      // ── Étape 7 : Aperçu ─────────────────────
       case "preview": {
         const fullName = `${formData.firstName} ${formData.lastName}`.trim();
         return (
@@ -798,7 +1058,8 @@ const QuotePage = () => {
                 <Button type="button" variant="outline" size="sm" onClick={handlePrint} className="gap-2">
                   <Printer className="w-4 h-4" /> Imprimer
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={handleSendEmail} disabled={isSending || !formData.email} className="gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={handleSendEmail}
+                  disabled={isSending || !formData.email} className="gap-2">
                   {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Envoyer
                 </Button>
@@ -810,96 +1071,115 @@ const QuotePage = () => {
               </div>
             </div>
 
-            {/* Document preview */}
-            {/* <div className="overflow-hidden border shadow-sm rounded-xl">
-              <div ref={quoteRef} className="max-w-4xl p-8 mx-auto bg-white">
-                <div className="mb-8">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h1 className="text-2xl font-bold text-emerald-600">DEVIS</h1>
-                      <p className="font-mono text-sm text-gray-500">N° {formData.quoteNumber}</p>
-                    </div>
-                    <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-emerald-100">
-                      <FileText className="w-8 h-8 text-emerald-600" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-8 mt-8">
-                    <div>
-                      <h3 className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">Client</h3>
-                      <p className="font-bold">{fullName || "Client"}</p>
-                      {formData.company && <p className="text-sm">{formData.company}</p>}
-                      {formData.address && <p className="text-sm text-gray-600">{formData.address}</p>}
-                      {(formData.postalCode || formData.city) && <p className="text-sm text-gray-600">{formData.postalCode} {formData.city}</p>}
-                      {formData.phone && <p className="text-sm text-gray-600">Tél : {formData.phone}</p>}
-                      {formData.email && <p className="text-sm text-gray-600">{formData.email}</p>}
-                    </div>
-                    <div className="space-y-1 text-sm text-right">
-                      <p><span className="text-gray-500">Date d'émission : </span><span className="font-medium">{new Date().toLocaleDateString("fr-FR")}</span></p>
-                      {formData.validUntil && <p><span className="text-gray-500">Valable jusqu'au : </span><span className="font-medium">{new Date(formData.validUntil).toLocaleDateString("fr-FR")}</span></p>}
-                      {formData.startDate  && <p><span className="text-gray-500">Début prévu : </span><span className="font-medium">{new Date(formData.startDate).toLocaleDateString("fr-FR")}</span></p>}
-                      {formData.deadline   && <p><span className="text-gray-500">Date limite : </span><span className="font-medium">{new Date(formData.deadline).toLocaleDateString("fr-FR")}</span></p>}
-                    </div>
-                  </div>
-
-                  {formData.projectName && (
-                    <div className="p-4 mt-6 rounded-lg bg-emerald-50/60">
-                      <h3 className="mb-1 text-sm font-semibold text-emerald-800">Projet : {formData.projectName}</h3>
-                      {formData.projectDescription && <p className="text-sm text-gray-600">{formData.projectDescription}</p>}
-                    </div>
-                  )}
+            {/* ── Résumé structuré ── */}
+            <div ref={quoteRef} className="space-y-4">
+              {/* En-tête */}
+              <div className="flex items-start justify-between p-4 border rounded-xl bg-gray-50">
+                <div>
+                  {logoPreview
+                    ? <img src={logoPreview} alt="Logo" className="mb-2 max-h-12" style={{ objectFit: "contain" }} />
+                    : <p className="text-lg font-bold text-blue-800">{formData.companyName}</p>
+                  }
+                  <p className="text-xs text-gray-500">{formData.companyAddress} – {formData.companyCity}</p>
+                  {formData.companyEmail && <p className="text-xs text-gray-500">{formData.companyEmail}</p>}
                 </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold">Devis en EURO</p>
+                  <p className="font-mono text-sm text-gray-600">
+                    N° {formData.quoteNumber}{formData.bisNumber ? ` ${formData.bisNumber}` : ""}
+                  </p>
+                  {getStatusBadge()}
+                </div>
+              </div>
 
-                <table className="w-full mb-8 text-sm">
+              {/* Parties */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 border rounded-lg text-sm space-y-0.5">
+                  <p className="font-semibold text-gray-700 mb-1">Prestataire</p>
+                  <p className="font-bold">{formData.companyName}</p>
+                  {formData.companyContact && <p>{formData.companyContact}</p>}
+                  {formData.companyAddress && <p className="text-gray-600">{formData.companyAddress}</p>}
+                  {formData.companyCity    && <p className="text-gray-600">{formData.companyCity}</p>}
+                  {formData.companyPort    && <p className="text-gray-600">Port : {formData.companyPort}</p>}
+                  {formData.companySiret   && <p className="text-gray-600">SIRET : {formData.companySiret}</p>}
+                </div>
+                <div className="p-3 border rounded-lg text-sm space-y-0.5">
+                  <p className="font-semibold text-gray-700 mb-1">Client</p>
+                  <p className="font-bold">{formData.company || fullName}</p>
+                  {formData.company && fullName && <p>{fullName}</p>}
+                  {formData.address    && <p className="text-gray-600">{formData.address}</p>}
+                  {(formData.postalCode || formData.city) && <p className="text-gray-600">{formData.postalCode} {formData.city}</p>}
+                  {formData.phone      && <p className="text-gray-600">Tél : {formData.phone}</p>}
+                  {formData.email      && <p className="text-gray-600">{formData.email}</p>}
+                </div>
+              </div>
+
+              {/* Projet */}
+              {formData.projectName && (
+                <div className="p-3 border rounded-lg bg-emerald-50/60 text-sm">
+                  <p className="font-semibold text-emerald-800">Projet : {formData.projectName}</p>
+                  {formData.projectDescription && <p className="text-gray-600 mt-1">{formData.projectDescription}</p>}
+                  <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                    {formData.startDate  && <span>Début : {new Date(formData.startDate).toLocaleDateString("fr-FR")}</span>}
+                    {formData.validUntil && <span>Valable jusqu'au : {new Date(formData.validUntil).toLocaleDateString("fr-FR")}</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Tableau articles */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-emerald-50">
-                      <th className="p-3 font-semibold text-left">Description</th>
-                      <th className="p-3 font-semibold text-right">Qté</th>
-                      <th className="p-3 font-semibold text-right">Prix U. ({symbol})</th>
-                      <th className="p-3 font-semibold text-right">Remise</th>
-                      <th className="p-3 font-semibold text-right">Total</th>
+                    <tr className="bg-gray-100">
+                      <th className="p-2 text-left border">Tps M.O.</th>
+                      <th className="p-2 text-left border">Description</th>
+                      <th className="p-2 text-center border">U</th>
+                      <th className="p-2 text-right border">Prix U. HT</th>
+                      <th className="p-2 text-center border">Qté</th>
+                      <th className="p-2 text-right border">Montant HT</th>
                     </tr>
                   </thead>
                   <tbody>
                     {quoteItems.map((item, i) => (
-                      <tr key={i} className="border-b">
-                        <td className="p-3">{item.description || "-"}</td>
-                        <td className="p-3 text-right">{item.quantity}</td>
-                        <td className="p-3 text-right">{item.unitPrice.toLocaleString()} {symbol}</td>
-                        <td className="p-3 text-right">{item.discount > 0 ? `${item.discount}%` : "-"}</td>
-                        <td className="p-3 font-medium text-right">{item.total.toLocaleString()} {symbol}</td>
+                      <tr key={i} className={i % 2 === 1 ? "bg-gray-50" : ""}>
+                        <td className="p-2 text-center border text-xs">{item.tpsMO}</td>
+                        <td className="p-2 border">{item.description || "-"}</td>
+                        <td className="p-2 text-center border text-xs">{item.unite}</td>
+                        <td className="p-2 text-right border">{item.unitPrice.toLocaleString()} {symbol}</td>
+                        <td className="p-2 text-center border">{item.quantity}</td>
+                        <td className="p-2 font-medium text-right border">{item.total.toLocaleString()} {symbol}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
 
-                <div className="flex justify-end mb-8">
-                  <div className="w-64 space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-gray-600">Sous-total HT</span><span className="font-medium">{subtotal.toLocaleString()} {symbol}</span></div>
-                    {discountAmount > 0 && <div className="flex justify-between"><span className="text-gray-600">Remise ({formData.discountRate}%)</span><span className="font-medium text-green-600">-{discountAmount.toLocaleString()} {symbol}</span></div>}
-                    <div className="flex justify-between"><span className="text-gray-600">Total HT</span><span className="font-medium">{subtotalAfterDiscount.toLocaleString()} {symbol}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-600">TVA ({formData.taxRate}%)</span><span className="font-medium">{taxAmount.toLocaleString()} {symbol}</span></div>
-                    <div className="pt-2 mt-2 border-t-2 border-emerald-500">
-                      <div className="flex justify-between text-base font-bold"><span>TOTAL TTC</span><span className="text-emerald-600">{total.toLocaleString()} {symbol}</span></div>
-                    </div>
-                    {depositAmount > 0 && (
-                      <div className="pt-2 mt-1 space-y-1 border-t border-gray-200">
-                        <div className="flex justify-between"><span className="text-gray-600">Acompte</span><span>{depositAmount.toLocaleString()} {symbol}</span></div>
-                        <div className="flex justify-between"><span className="text-gray-600">Reste à payer</span><span>{remainingAmount.toLocaleString()} {symbol}</span></div>
-                      </div>
-                    )}
+              {/* Totaux */}
+              <div className="flex justify-end">
+                <div className="w-64 space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Montant Total H.T.</span>
+                    <span className="font-medium">{subtotalAfterDiscount.toLocaleString()} {symbol}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">TVA ({formData.taxRate}%)</span>
+                    <span className="font-medium">{taxAmount.toLocaleString()} {symbol}</span>
+                  </div>
+                  <div className="flex justify-between font-bold pt-1 border-t-2 border-emerald-500">
+                    <span>Montant Total T.T.C.</span>
+                    <span className="text-emerald-600">{total.toLocaleString()} {symbol}</span>
                   </div>
                 </div>
-
-                {formData.additionalNotes    && <div className="mb-4"><h4 className="mb-1 text-sm font-semibold">Notes :</h4><p className="text-sm text-gray-600">{formData.additionalNotes}</p></div>}
-                {formData.termsAndConditions && <div><h4 className="mb-1 text-sm font-semibold">Conditions :</h4><p className="text-xs text-gray-500">{formData.termsAndConditions}</p></div>}
-
-                <div className="pt-4 mt-8 text-xs text-center text-gray-400 border-t">
-                  Devis généré le {new Date().toLocaleDateString("fr-FR")}
-                  {formData.validUntil && ` — Valable jusqu'au ${new Date(formData.validUntil).toLocaleDateString("fr-FR")}`}
-                </div>
               </div>
-            </div> */}
+
+              {/* Conditions */}
+              {formData.additionalNotes && (
+                <div className="p-3 border rounded-lg text-sm">
+                  <p className="font-semibold mb-1">Conditions de règlement :</p>
+                  {formData.additionalNotes.split("\n").map((l, i) => <p key={i}>{l}</p>)}
+                </div>
+              )}
+            </div>
           </div>
         );
       }
@@ -946,7 +1226,7 @@ const QuotePage = () => {
           <ProgressBar steps={STEPS} currentStep={currentStep} onNavigate={goTo} />
         </motion.div>
 
-        {/* Navigation */}
+        {/* Navigation haut */}
         <div className="flex flex-row items-center justify-between gap-3 mb-6">
           <div className="flex flex-col gap-2">
             <Button type="button" variant="outline" onClick={() => setIsQuoteHistoryOpen(true)} className="gap-2">
@@ -956,11 +1236,9 @@ const QuotePage = () => {
               <ChevronLeft className="w-4 h-4" /> Précédent
             </Button>
           </div>
-
           <div className="hidden text-xs text-muted-foreground sm:block">
             {currentStep + 1} / {STEPS.length}
           </div>
-
           <div className="flex flex-col gap-2">
             <Button type="button" onClick={handleGenerateQuote} disabled={isGenerating || !isFormValid()}
               className="gap-2 bg-emerald-600 hover:bg-emerald-700">
@@ -973,7 +1251,6 @@ const QuotePage = () => {
                 Suivant <ChevronRight className="w-4 h-4" />
               </Button>
             )}
-            
           </div>
         </div>
 
@@ -990,26 +1267,20 @@ const QuotePage = () => {
             {renderStep()}
           </motion.div>
         </AnimatePresence>
-        
-        <div className="flex flex-row items-center justify-between gap-3 mb-6">
-          <div className="flex flex-col gap-2">
-            <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2">
-              <ChevronLeft className="w-4 h-4" /> Précédent
-            </Button>
-          </div>
 
+        {/* Navigation bas */}
+        <div className="flex flex-row items-center justify-between gap-3 mb-6">
+          <Button type="button" variant="outline" onClick={goPrev} disabled={currentStep === 0} className="gap-2">
+            <ChevronLeft className="w-4 h-4" /> Précédent
+          </Button>
           <div className="hidden text-xs text-muted-foreground sm:block">
             {currentStep + 1} / {STEPS.length}
           </div>
-
-          <div className="flex flex-col gap-2">
-            {currentStep < STEPS.length - 1 && (
-              <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
-                Suivant <ChevronRight className="w-4 h-4" />
-              </Button>
-            )}
-            
-          </div>
+          {currentStep < STEPS.length - 1 && (
+            <Button type="button" variant="outline" onClick={goNext} disabled={!canGoNext()} className="gap-2">
+              Suivant <ChevronRight className="w-4 h-4" />
+            </Button>
+          )}
         </div>
 
         {/* Conseils généraux */}
@@ -1032,7 +1303,7 @@ const QuotePage = () => {
           </motion.div>
         )}
 
-        {/* Bouton Nouvelle devis */}
+        {/* Bouton Nouveau devis */}
         {STEPS[currentStep]?.id === "preview" && (
           <div className="flex justify-center mt-6">
             <Button type="button" variant="outline" onClick={resetForm} className="gap-2">
@@ -1055,7 +1326,7 @@ const QuotePage = () => {
             clientCompany:"Bikoko Génie Civil SARL",
             projectName:  "Construction Résidence Makepe",
             total:        2500000,
-            statut:       "accepted",  // "draft" | "sent" | "accepted" | "rejected" | "expired"
+            statut:       "accepted",
             dateCreation: "12/03/2026",
             validUntil:   "11/04/2026",
             url:          "https://...",
