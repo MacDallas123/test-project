@@ -23,6 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
+.env
 #
 src/index.old.css
 src/pages/CVGeneratorPage.old.jsx
