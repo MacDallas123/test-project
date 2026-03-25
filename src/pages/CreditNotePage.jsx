@@ -166,7 +166,7 @@ const CreditNotePage = () => {
   const [currentStep,    setCurrentStep]    = useState(0);
   const [isGenerating,   setIsGenerating]   = useState(false);
   const [isSending,      setIsSending]      = useState(false);
-  const [creditStatus,   setCreditStatus]   = useState("draft");
+  const [creditStatus,   setCreditStatus]   = useState("DRAFT");
   const [logoPreview,    setLogoPreview]    = useState("");
 
   const { symbol } = useCurrency();
@@ -440,12 +440,12 @@ const CreditNotePage = () => {
   // ── Badge statut ────────────────────────────
   const getStatusBadge = () => {
     const cfg = {
-      draft:     { label: "Brouillon", className: "bg-gray-100 text-gray-700"         },
-      issued:    { label: "Émis",      className: "bg-orange-100 text-orange-700"      },
-      processed: { label: "Traité",    className: "bg-emerald-100 text-emerald-700"    },
-      cancelled: { label: "Annulé",    className: "bg-red-100 text-red-700"            },
+      DRAFT:     { label: "Brouillon", className: "bg-gray-100 text-gray-700"         },
+      ISSUED:    { label: "Émis",      className: "bg-orange-100 text-orange-700"      },
+      PROCESSED: { label: "Traité",    className: "bg-emerald-100 text-emerald-700"    },
+      CANCELLED: { label: "Annulé",    className: "bg-red-100 text-red-700"            },
     };
-    const c = cfg[creditStatus] || cfg.draft;
+    const c = cfg[creditStatus] || cfg.DRAFT;
     return <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.className}`}>{c.label}</span>;
   };
 

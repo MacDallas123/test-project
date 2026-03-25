@@ -165,7 +165,7 @@ const InvoicePage = () => {
   const [isGenerating,         setIsGenerating]        = useState(false);
   const [isSending,            setIsSending]           = useState(false);
   const [isInvoiceHistoryOpen, setIsInvoiceHistoryOpen] = useState(false);
-  const [invoiceStatus,        setInvoiceStatus]       = useState("draft");
+  const [invoiceStatus,        setInvoiceStatus]       = useState("DRAFT");
 
   const { symbol } = useCurrency();
 
@@ -217,7 +217,7 @@ const InvoicePage = () => {
     clientPostalCode:   "BP xxx - Yaounde",
     clientTaxId:        "",
     paymentTerms:       "30",
-    paymentMethod:      "",
+    paymentMethod:      "OTHER",
     bankName:           "",
     bankAccount:        "",
     notes:              "",
@@ -262,7 +262,7 @@ const InvoicePage = () => {
         clientPostalCode:   currentInvoice.clientPostalCode   || "",
         clientTaxId:        currentInvoice.clientTaxId        || "",
         paymentTerms:       currentInvoice.paymentTerms       || "30",
-        paymentMethod:      currentInvoice.paymentMethod      || "",
+        paymentMethod:      currentInvoice.paymentMethod      || "OTHER",
         bankName:           currentInvoice.bankName           || "",
         bankAccount:        currentInvoice.bankAccount        || "",
         notes:              currentInvoice.notes              || "",
@@ -282,11 +282,18 @@ const InvoicePage = () => {
 
   // ── Options paiement ────────────────────────
   const paymentMethods = [
-    { value: "bank_transfer", label: "Virement Bancaire", icon: "🏦" },
-    { value: "mobile_money",  label: "Mobile Money",      icon: "📱" },
-    { value: "cash",          label: "Espèces",           icon: "💵" },
-    { value: "check",         label: "Chèque",            icon: "📝" },
-    { value: "card",          label: "Carte Bancaire",    icon: "💳" },
+    { value: "BANK_TRANSFER", label: "Virement Bancaire", icon: "🏦" },
+    { value: "CREDIT_CARD",   label: "Carte Bancaire",    icon: "💳" },
+    { value: "CASH",          label: "Espèces",           icon: "💵" },
+    { value: "PAYPAL",        label: "PayPal",            icon: "🅿️" },
+    { value: "CHECK",         label: "Chèque",            icon: "📝" },
+    { value: "STRIPE",        label: "Stripe",            icon: "💠" },
+    { value: "DIRECT_DEBIT",  label: "Prélèvement",       icon: "🏛️" },
+    { value: "BITCOIN",       label: "Bitcoin",           icon: "₿" },
+    { value: "APPLE_PAY",     label: "Apple Pay",         icon: "🍏" },
+    { value: "GOOGLE_PAY",    label: "Google Pay",        icon: "🅶" },
+    { value: "WIRE_TRANSFER", label: "Virement International", icon: "💱" },
+    { value: "OTHER",         label: "Autre",             icon: "❓" },
   ];
 
   // ── Formulaire handlers ─────────────────────
@@ -383,7 +390,7 @@ const InvoicePage = () => {
   // ── Actions ─────────────────────────────────
   const handleGenerateInvoice = async () => {
     setIsGenerating(true);
-    try {
+    try {6
       const payload = { ...formData, invoiceItems: invoiceItems.map(({ id, ...i }) => i), invoiceStatus, total };
       let invoiceId;
       if (currentInvoice?.id) {
@@ -427,7 +434,7 @@ const InvoicePage = () => {
     try {
       await dispatch(sendInvoiceByEmail({ id: currentInvoice.id, email: formData.clientEmail, message: `Veuillez trouver ci-joint la facture ${formData.invoiceNumber}` })).unwrap();
       alert("Facture envoyée avec succès");
-      setInvoiceStatus("sent");
+      setInvoiceStatus("SENT");
     } catch (err) { alert("Erreur lors de l'envoi de la facture"); }
     finally { setIsSending(false); }
   };
@@ -444,21 +451,21 @@ const InvoicePage = () => {
       dueDate: "", purchaseOrder: "", companyName: "", companyAddress: "", companyCity: "",
       companyPostalCode: "", companyPhone: "", companyEmail: "", companyTaxId: "", companyLogo: "",
       clientName: "", clientCompany: "", clientEmail: "", clientPhone: "", clientAddress: "",
-      clientCity: "", clientPostalCode: "", clientTaxId: "", paymentTerms: "30", paymentMethod: "",
+      clientCity: "", clientPostalCode: "", clientTaxId: "", paymentTerms: "30", paymentMethod: "OTHER",
       bankName: "", bankAccount: "", notes: "", termsAndConditions: "",
     });
     setInvoiceItems([{ id: 1, description: "", quantity: 1, unitPrice: 0, discount: 0, taxRate: 18, total: 0 }]);
-    setInvoiceStatus("draft");
+    setInvoiceStatus("DRAFT");
     setCurrentStep(0);
   };
 
   // ── Badge statut ────────────────────────────
   const getStatusBadge = () => {
     const cfg = {
-      draft:   { label: "Brouillon", className: "bg-gray-100 text-gray-700" },
-      sent:    { label: "Envoyée",   className: "bg-blue-100 text-blue-700" },
-      paid:    { label: "Payée",     className: "bg-green-100 text-green-700" },
-      overdue: { label: "En retard", className: "bg-red-100 text-red-700" },
+      DRAFT:   { label: "Brouillon", className: "bg-gray-100 text-gray-700" },
+      SENT:    { label: "Envoyée",   className: "bg-blue-100 text-blue-700" },
+      PAID:    { label: "Payée",     className: "bg-green-100 text-green-700" },
+      OVERDUE: { label: "En retard", className: "bg-red-100 text-red-700" },
     };
     const c = cfg[invoiceStatus] || cfg.draft;
     return <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.className}`}>{c.label}</span>;

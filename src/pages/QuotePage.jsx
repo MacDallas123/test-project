@@ -164,7 +164,7 @@ const QuotePage = () => {
   const [isGenerating,        setIsGenerating]       = useState(false);
   const [isSending,           setIsSending]          = useState(false);
   const [isQuoteHistoryOpen,  setIsQuoteHistoryOpen] = useState(false);
-  const [quoteStatus,         setQuoteStatus]        = useState("draft");
+  const [quoteStatus,         setQuoteStatus]        = useState("DRAFT");
   const [logoPreview,         setLogoPreview]        = useState("");  // ← NOUVEAU
 
   const { symbol } = useCurrency();
@@ -500,20 +500,20 @@ const QuotePage = () => {
       // Note : on conserve les champs société pour ne pas avoir à les ressaisir
     }));
     setQuoteItems([{ id: 1, description: "", quantity: 1, unitPrice: 0, discount: 0, taxRate: 19.25, total: 0, tpsMO: "1,0h", unite: "Ens" }]);
-    setQuoteStatus("draft");
+    setQuoteStatus("DRAFT");
     setCurrentStep(0);
   };
 
   // ── Badge statut ────────────────────────────
   const getStatusBadge = () => {
     const cfg = {
-      draft:    { label: "Brouillon", className: "bg-gray-100 text-gray-700"       },
-      sent:     { label: "Envoyé",    className: "bg-blue-100 text-blue-700"       },
-      accepted: { label: "Accepté",   className: "bg-emerald-100 text-emerald-700" },
-      rejected: { label: "Refusé",    className: "bg-red-100 text-red-700"         },
-      expired:  { label: "Expiré",    className: "bg-orange-100 text-orange-700"   },
+      DRAFT:    { label: "Brouillon", className: "bg-gray-100 text-gray-700"       },
+      SENT:     { label: "Envoyé",    className: "bg-blue-100 text-blue-700"       },
+      ACCEPTED: { label: "Accepté",   className: "bg-emerald-100 text-emerald-700" },
+      REJECTED: { label: "Refusé",    className: "bg-red-100 text-red-700"         },
+      EXPIRED:  { label: "Expiré",    className: "bg-orange-100 text-orange-700"   },
     };
-    const c = cfg[quoteStatus] || cfg.draft;
+    const c = cfg[quoteStatus] || cfg.DRAFT;
     return <span className={`text-xs font-medium px-2 py-1 rounded-full ${c.className}`}>{c.label}</span>;
   };
 
@@ -1240,7 +1240,8 @@ const QuotePage = () => {
             {currentStep + 1} / {STEPS.length}
           </div>
           <div className="flex flex-col gap-2">
-            <Button type="button" onClick={handleGenerateQuote} disabled={isGenerating || !isFormValid()}
+            {/* <Button type="button" onClick={handleGenerateQuote} disabled={isGenerating || !isFormValid()} */}
+            <Button type="button" onClick={handleGenerateQuote} disabled={isGenerating}
               className="gap-2 bg-emerald-600 hover:bg-emerald-700">
               {isGenerating
                 ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</>

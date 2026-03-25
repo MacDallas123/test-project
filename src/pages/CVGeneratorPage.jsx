@@ -115,8 +115,7 @@ const defaultCvData = {
     template: "classic",
     color: "#3b82f6",
     font: "Inter",
-    showPhoto: true,
-    photoUrl: "https://randomuser.me/api/portraits/men/32.jpg"
+    showPhoto: true
   },
 };
 
@@ -328,6 +327,13 @@ const CVGeneratorPage = () => {
 
         if(thunkSucceed(importedResponse)) {
           alert("CV importe avec succes");
+
+          dispatch(clearCV());
+          setCvData(defaultCvData);
+          setCvType(null);
+          setMode(null);
+          setImportedFile(null);
+          setCurrentStep(0);
         } else {
           console.log("IMPORTED RESPONSE :", importedResponse);
           alert("Echec de l'importation");
