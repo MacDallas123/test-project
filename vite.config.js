@@ -11,4 +11,17 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Séparer les grosses librairies en chunks distincts
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-redux': ['redux', 'react-redux', '@reduxjs/toolkit'],
+          'vendor-ui': ['axios', 'framer-motion'], // adapte selon tes dépendances
+        }
+      }
+    },
+    chunkSizeWarningLimit: 600,
+  }
 });

@@ -36,12 +36,12 @@ export default function UnauthorizedDialog() {
 
   const handleLogin = () => {
     setIsViewLocked(false);
-    setTimeout(() => navigate("/auth/login"), 20);
+    setTimeout(() => navigate("/auth/login"), 100);
   };
 
   const handleClose = () => {
     setIsViewLocked(false);
-    setTimeout(() => navigate("/"), 20);
+    setTimeout(() => navigate("/"), 100);
   };
 
   if (!mounted) return null;
