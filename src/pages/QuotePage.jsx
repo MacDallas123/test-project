@@ -35,6 +35,8 @@ import {
 } from "@/redux/slices/quoteSlice";
 import { useCurrency } from "@/context/CurrencyContext";
 import QuoteHistoryDialog from "@/components/dialog/QuoteHistoryDialog";
+import { useAppMainContext } from "@/context/AppProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD  — "emetteur" ajouté
@@ -169,6 +171,14 @@ const QuotePage = () => {
 
   const { symbol } = useCurrency();
 
+  const { setIsViewLocked } = useAppMainContext();
+  const { isLoggedIn } = useAuth();
+
+
+  useEffect(() => {
+    if(!isLoggedIn()) setIsViewLocked(true);
+  }, []);
+  
   // ── Numéro de devis ─────────────────────────
   const generateQuoteNumber = () => {
     const d   = new Date();
@@ -850,7 +860,7 @@ const QuotePage = () => {
                     <div className="space-y-2">
                       <Label>Unité</Label>
                       <select value={item.unite} onChange={e => updateQuoteItem(item.id, "unite", e.target.value)}
-                        className="w-full px-3 py-2 text-sm border rounded-md h-10">
+                        className="w-full h-10 px-3 py-2 text-sm border rounded-md">
                         {unites.map(u => <option key={u} value={u}>{u}</option>)}
                       </select>
                     </div>
@@ -1095,7 +1105,7 @@ const QuotePage = () => {
               {/* Parties */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 border rounded-lg text-sm space-y-0.5">
-                  <p className="font-semibold text-gray-700 mb-1">Prestataire</p>
+                  <p className="mb-1 font-semibold text-gray-700">Prestataire</p>
                   <p className="font-bold">{formData.companyName}</p>
                   {formData.companyContact && <p>{formData.companyContact}</p>}
                   {formData.companyAddress && <p className="text-gray-600">{formData.companyAddress}</p>}
@@ -1104,7 +1114,7 @@ const QuotePage = () => {
                   {formData.companySiret   && <p className="text-gray-600">SIRET : {formData.companySiret}</p>}
                 </div>
                 <div className="p-3 border rounded-lg text-sm space-y-0.5">
-                  <p className="font-semibold text-gray-700 mb-1">Client</p>
+                  <p className="mb-1 font-semibold text-gray-700">Client</p>
                   <p className="font-bold">{formData.company || fullName}</p>
                   {formData.company && fullName && <p>{fullName}</p>}
                   {formData.address    && <p className="text-gray-600">{formData.address}</p>}
@@ -1116,9 +1126,9 @@ const QuotePage = () => {
 
               {/* Projet */}
               {formData.projectName && (
-                <div className="p-3 border rounded-lg bg-emerald-50/60 text-sm">
+                <div className="p-3 text-sm border rounded-lg bg-emerald-50/60">
                   <p className="font-semibold text-emerald-800">Projet : {formData.projectName}</p>
-                  {formData.projectDescription && <p className="text-gray-600 mt-1">{formData.projectDescription}</p>}
+                  {formData.projectDescription && <p className="mt-1 text-gray-600">{formData.projectDescription}</p>}
                   <div className="flex gap-4 mt-2 text-xs text-gray-500">
                     {formData.startDate  && <span>Début : {new Date(formData.startDate).toLocaleDateString("fr-FR")}</span>}
                     {formData.validUntil && <span>Valable jusqu'au : {new Date(formData.validUntil).toLocaleDateString("fr-FR")}</span>}
@@ -1142,9 +1152,9 @@ const QuotePage = () => {
                   <tbody>
                     {quoteItems.map((item, i) => (
                       <tr key={i} className={i % 2 === 1 ? "bg-gray-50" : ""}>
-                        <td className="p-2 text-center border text-xs">{item.tpsMO}</td>
+                        <td className="p-2 text-xs text-center border">{item.tpsMO}</td>
                         <td className="p-2 border">{item.description || "-"}</td>
-                        <td className="p-2 text-center border text-xs">{item.unite}</td>
+                        <td className="p-2 text-xs text-center border">{item.unite}</td>
                         <td className="p-2 text-right border">{item.unitPrice.toLocaleString()} {symbol}</td>
                         <td className="p-2 text-center border">{item.quantity}</td>
                         <td className="p-2 font-medium text-right border">{item.total.toLocaleString()} {symbol}</td>
@@ -1165,7 +1175,7 @@ const QuotePage = () => {
                     <span className="text-gray-600">TVA ({formData.taxRate}%)</span>
                     <span className="font-medium">{taxAmount.toLocaleString()} {symbol}</span>
                   </div>
-                  <div className="flex justify-between font-bold pt-1 border-t-2 border-emerald-500">
+                  <div className="flex justify-between pt-1 font-bold border-t-2 border-emerald-500">
                     <span>Montant Total T.T.C.</span>
                     <span className="text-emerald-600">{total.toLocaleString()} {symbol}</span>
                   </div>
@@ -1174,8 +1184,8 @@ const QuotePage = () => {
 
               {/* Conditions */}
               {formData.additionalNotes && (
-                <div className="p-3 border rounded-lg text-sm">
-                  <p className="font-semibold mb-1">Conditions de règlement :</p>
+                <div className="p-3 text-sm border rounded-lg">
+                  <p className="mb-1 font-semibold">Conditions de règlement :</p>
                   {formData.additionalNotes.split("\n").map((l, i) => <p key={i}>{l}</p>)}
                 </div>
               )}

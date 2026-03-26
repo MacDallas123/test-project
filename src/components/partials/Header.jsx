@@ -1,200 +1,211 @@
 import {
-  BaggageClaim,
   Bell,
-  CheckCircle,
   ChevronDown,
-  Globe,
   Home,
   LayoutDashboard,
   LogIn,
   LogOut,
   Menu,
-  MoreVertical,
-  Package,
-  Repeat,
   Search,
-  Send,
   ServerIcon,
   ShoppingCart,
-  Trash2,
   User,
   UserPlus,
   X,
+  FileText,
+  Receipt,
+  CreditCard,
+  Briefcase,
+  UserCheck,
+  Utensils,
+  Star,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { href, Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Logo from "@/assets/logo_fibem3.jpg";
 import { Input } from "../ui/input";
-import { availableLanguages } from "@/i18n/translations";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSelector from "../custom/languageSelector";
 import CollapsibleMenuItem from "../custom/CollapsibleMenuItem";
 import CurrencySelector from "../custom/CurrencySelector";
 import SiteTileForm1 from "../custom/SiteTitleForm1";
-import { useDispatch, useSelector } from "react-redux";
-import { selectIsLoggedIn, setIsLoggedIn } from "@/redux/slices/AppSlice";
 import { useAuth } from "@/hooks/useAuth";
+
+// ─────────────────────────────────────────
+// Sub-components
+// ─────────────────────────────────────────
+
+/** Indicateur de route active (barre rouge sous le label) */
+const ActiveBar = () => (
+  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full" />
+);
+
+/** Un item du mega-menu (image + label) */
+const MegaMenuItem = ({ sub, isActive, onClose }) => (
+  <Link
+    to={sub.href}
+    onClick={onClose}
+    className={`group flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200
+      ${isActive
+        ? "bg-red-50 ring-2 ring-red-500"
+        : "hover:bg-slate-50/50 hover:shadow-sm"
+      }`}
+  >
+    {/* Image / illustration */}
+    <div
+      className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-200
+        ${isActive ? "bg-red-100" : "bg-slate-100 group-hover:bg-secondary/90"}`}
+    >
+      {sub.image ? (
+        <img src={sub.image} alt={sub.label} className="object-contain w-10 h-10" />
+      ) : (
+        <sub.icon className={`w-7 h-7 ${isActive ? "text-red-600" : "text-slate-500 group-hover:text-slate-200"}`} />
+      )}
+    </div>
+    {/* Label */}
+    <span
+      className={`text-xs font-medium text-center leading-tight transition-colors
+        ${isActive ? "text-red-600" : "text-white group-hover:text-slate-900"}`}
+    >
+      {sub.label}
+    </span>
+    {isActive && (
+      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+    )}
+  </Link>
+);
+
+/** Mega-menu pleine largeur (desktop) */
+const MegaMenuPanel = ({ item, activeIdx, onClose, onMouseEnter, onMouseLeave }) => (
+  <AnimatePresence>
+    {activeIdx !== null && (
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+        // Positionné en fixed pleine largeur, juste sous le header (géré par le parent)
+        className="fixed left-0 right-0 z-[1400] border-t border-primary bg-primary shadow-2xl"
+        style={{ top: "var(--header-height, 64px)" }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <div className="container px-6 py-6 mx-auto">
+          {/* Titre de la section */}
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-white mb-5">
+            {item.label}
+          </p>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+            {item.subMenus.map((sub, i) => (
+              <MegaMenuItem
+                key={sub.href || i}
+                sub={sub}
+                isActive={false /* isSubMenuActive handled outside */}
+                onClose={onClose}
+              />
+            ))}
+          </div>
+        </div>
+        {/* Ligne décorative en bas */}
+        {/* <div className="h-1 bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400" /> */}
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+/** Bouton du menu principal (desktop) */
+const DesktopNavItem = ({ item, idx, isActive, hoveredMenu, onEnter, onLeave }) => {
+  const Icon = item.icon;
+
+  if (!item.subMenus) {
+    return (
+      <Link
+        to={item.href}
+        className={`relative flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors rounded-md
+          ${isActive ? "text-red-600" : "text-primary-foreground hover:text-black"}`}
+      >
+        <Icon className="w-4 h-4" />
+        {item.label}
+        {isActive && <ActiveBar />}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => onEnter(idx)}
+      onMouseLeave={onLeave}
+    >
+      <button
+        className={`relative flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors rounded-md group
+          ${isActive ? "text-red-600" : "text-primary-foreground hover:text-black"}`}
+      >
+        <Icon className="w-4 h-4" />
+        {item.label}
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform duration-200
+            ${hoveredMenu === idx ? "rotate-180" : ""}`}
+        />
+        {isActive && <ActiveBar />}
+      </button>
+    </div>
+  );
+};
+
+/** Menu mobile — liste d'items */
+const MobileMenuList = ({ items, closeMobileMenu }) =>
+  items.map((item, index) => {
+    const Icon = item.icon;
+    if (item.subMenus) {
+      return (
+        <CollapsibleMenuItem
+          key={index}
+          label={item.label}
+          icon={<Icon className="w-4 h-4" />}
+          children={item.subMenus}
+          closeMobileMenu={closeMobileMenu}
+        />
+      );
+    }
+    return (
+      <Link key={index} to={item.href} className="w-full" onClick={closeMobileMenu}>
+        <Button
+          variant="ghost"
+          className="justify-start w-full text-sm text-orange-300 transition-colors hover:text-foreground hover:bg-accent/50"
+        >
+          <Icon className="w-4 h-4 mr-3 text-red-500" />
+          {item.label}
+          {item.badge != null && <Badge className="ml-auto bg-secondary">{item.badge}</Badge>}
+        </Button>
+      </Link>
+    );
+  });
+
+// ─────────────────────────────────────────
+// Main Header
+// ─────────────────────────────────────────
 
 const Header = ({ authPage = false, dasboardPage = false }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const { language, changeLanguage, t } = useLanguage();
-  const [userInitials, setUserInitials] = useState("U");
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const [cartSize, setCartSize] = useState(0);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState(null);
-  const [hoverTimeout, setHoverTimeout] = useState(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const hoverTimeoutRef = useRef(null);
+  const headerRef = useRef(null);
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  // const isLoggedIn = useSelector(selectIsLoggedIn);
   const location = useLocation();
-
+  const { t } = useLanguage();
   const { isLoggedIn, user, logout } = useAuth();
 
-  // Fonction pour vérifier si un menu est actif
-  const isMenuActive = (menuItem) => {
-    if (menuItem.href) {
-      // Pour les liens directs
-      return (
-        location.pathname === menuItem.href ||
-        location.pathname.startsWith(menuItem.href + "/")
-      );
-    }
+  const userInitials = user
+    ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() || "U"
+    : "U";
 
-    // Pour les menus avec sous-menus
-    if (menuItem.subMenus) {
-      return menuItem.subMenus.some((subMenu) => {
-        // Handle root path "/"
-        if (subMenu.href === "/" && location.pathname === "/") return true;
-
-        // Handle anchors (e.g. "/#us")
-        if (typeof subMenu.href === "string" && subMenu.href.includes("#")) {
-          const [hrefPath, hrefHash] = subMenu.href.split("#");
-          // hrefPath could be '' or '/'
-          const matchPath = hrefPath === "" ? "/" : hrefPath;
-          const locHash = location.hash.replace("#", "");
-          return (
-            (location.pathname === matchPath && locHash === hrefHash) ||
-            location.pathname + location.hash === subMenu.href
-          );
-        }
-
-        // Normal handling for other paths
-        return (
-          location.pathname === subMenu.href ||
-          location.pathname.startsWith((subMenu.href || "") + "/")
-        );
-      });
-    }
-
-    return false;
-  };
-
-  // Fonction pour vérifier si un sous-menu spécifique est actif
-  const isSubMenuActive = (subMenu) => {
-    if (subMenu.href) {
-      if (subMenu.href.startsWith("#")) {
-        // Pour les ancres (ex: /#about)
-        return location.pathname + location.hash === subMenu.href;
-      }
-      return (
-        location.pathname === subMenu.href ||
-        location.pathname.startsWith(subMenu.href + "/")
-      );
-    }
-    return false;
-  };
-
-  // Fonction pour obtenir la classe CSS conditionnelle pour les menus
-  const getMenuClass = (menuItem, isAuthMenu = false) => {
-    const isActive = isMenuActive(menuItem);
-
-    if (isAuthMenu) {
-      return menuItem.className;
-    }
-
-    const baseClass =
-      `relative flex items-center gap-2 px-1 transition-colors cursor-pointer text-xs lg:text-md `;
-
-    if (isActive) {
-      return baseClass + "text-red-600 font-semibold";
-    }
-
-    return baseClass + "text-primary-foreground hover:text-black";
-  };
-
-  // Fonction pour obtenir la classe CSS du bouton menu déroulant
-  const getDropdownButtonClass = (menuItem) => {
-    const isActive = isMenuActive(menuItem);
-
-    if (isActive) {
-      return "relative group text-red-600 font-semibold hover:text-red-700 px-1";
-    }
-
-    return "relative group text-primary-foreground hover:text-black px-1";
-  };
-
-  // Pré remplissement
-  /*const user = {
-    firstName: "First Name",
-    lastName: "Last Name",
-    role: "admin",
-    email: "admin@gmail.com",
-  };*/
-  //const isLoggedIn = () => false;
-
-  // Contenu du menu utilisateur
-  const userMenuItems = [
-    {
-      icon: ShoppingCart,
-      label: t("userMenu.shoppingCart", "Panier"),
-      href: "/cart",
-      badge: 4,
-    },
-    // {
-    //   icon: Package,
-    //   label: t("userMenu.orders", "Historique des commandes"),
-    //   href: "/order-history",
-    // },
-    {
-      icon: LayoutDashboard,
-      label: t("userMenu.dashboard", "Tableau de bord"),
-      href: "/dashboard",
-    },
-    // {
-    //   icon: Repeat,
-    //   label: t("userMenu.subscriptions", "Abonnements"),
-    //   href: "/abonnements",
-    // },
-    { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
-
-    // Temporary
-    /*{
-      icon: LogIn,
-      label: t("authMenu.login", "Connexion"),
-      href: "/auth/login",
-    },
-    {
-      icon: UserPlus,
-      label: t("authMenu.register", "Inscription"),
-      href: "/auth/register",
-    },*/
-  ];
+  // ── Menu data ──────────────────────────────────────────────────────────────
 
   const mainMenus = [
     {
@@ -202,66 +213,29 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       label: t("mainMenu.home.label", "Accueil"),
       href: "/",
       subMenus: [
-        {
-          label: t("mainMenu.home.about", "A propos"),
-          href: "/#about",
-        },
-        {
-          label: t("mainMenu.home.us", "Qui sommes nous ?"),
-          href: "/#us",
-        },
-        {
-          label: t("mainMenu.home.blog", "Blog"),
-          href: "/#blog",
-        },
+        { label: t("mainMenu.home.about", "À propos"), href: "/#about", icon: Star },
+        { label: t("mainMenu.home.us", "Qui sommes-nous ?"), href: "/#us", icon: User },
+        { label: t("mainMenu.home.blog", "Blog"), href: "/#blog", icon: FileText },
       ],
     },
     {
       icon: ServerIcon,
-      label: t("mainMenu.service.label", "Service"),
+      label: t("mainMenu.service.label", "Services"),
       subMenus: [
-        {
-          label: t("mainMenu.service.prestation", "Rechercher un repas"),
-          href: "/services",
-        },
-        {
-          label: t("mainMenu.service.formulaireCV", "Formulaire CV FIBEM"),
-          href: "/cv",
-        },
-        {
-          label: t("mainMenu.service.formulaireDevis", "Devis"),
-          href: "/devis",
-        },
-        {
-          label: t("mainMenu.service.formulaireFacture", "Facture"),
-          href: "/facture",
-        },
-        {
-          label: t("mainMenu.service.formulaireAvoirs", "Avoirs"),
-          href: "/avoirs",
-        },
-        {
-          label: t("mainMenu.emploi.espaceAbonnement", "Espace abonnement"),
-          href: "/abonnements",
-        },
+        { label: t("mainMenu.service.prestation", "Rechercher un repas"), href: "/services", icon: Utensils },
+        { label: t("mainMenu.service.formulaireCV", "Formulaire CV FIBEM"), href: "/cv", icon: FileText },
+        { label: t("mainMenu.service.formulaireDevis", "Devis"), href: "/devis", icon: Receipt },
+        { label: t("mainMenu.service.formulaireFacture", "Facture"), href: "/facture", icon: FileText },
+        { label: t("mainMenu.service.formulaireAvoirs", "Avoirs"), href: "/avoirs", icon: CreditCard },
+        { label: t("mainMenu.emploi.espaceAbonnement", "Espace abonnement"), href: "/abonnements", icon: Star },
       ],
     },
     {
       icon: LayoutDashboard,
       label: t("mainMenu.emploi.label", "Emploi"),
       subMenus: [
-        {
-          label: t("mainMenu.emploi.espaceCandidat", "Espace candidat"),
-          href: "/emploi",
-        },
-        {
-          label: t("mainMenu.emploi.espaceRecruteur", "Espace recruteur"),
-          href: "/dashboard/offres",
-        },
-        /* {
-          label: t("mainMenu.emploi.espaceStagiaire", "Espace stagiaire"),
-          href: "/emploi/stagiaire",
-        }, */
+        { label: t("mainMenu.emploi.espaceCandidat", "Espace candidat"), href: "/emploi", icon: UserCheck },
+        { label: t("mainMenu.emploi.espaceRecruteur", "Espace recruteur"), href: "/dashboard/offres", icon: Briefcase },
       ],
     },
     {
@@ -277,88 +251,106 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       label: t("authMenu.login", "Connexion"),
       href: "/auth/login",
       className:
-        "px-4 py-2 text-xs rounded-md text-white border border-primary bg-destructive/90 transition-colors duration-200 hover:bg-destructive hover:text-white",
+        "px-4 py-2 text-xs rounded-md text-white border border-primary bg-destructive/90 transition-colors hover:bg-destructive hover:text-white",
     },
     {
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
       href: "/auth/register",
       className:
-        "px-4 py-2 text-xs rounded-md bg-primary/70 text-white border border-primary transition-colors duration-200 hover:text-destructive hover:bg-transparent",
+        "px-4 py-2 text-xs rounded-md bg-primary/70 text-white border border-primary transition-colors hover:text-destructive hover:bg-transparent",
     },
   ];
 
-  // Scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+  const userMenuItems = [
+    { icon: ShoppingCart, label: t("userMenu.shoppingCart", "Panier"), href: "/cart", badge: 4 },
+    { icon: LayoutDashboard, label: t("userMenu.dashboard", "Tableau de bord"), href: "/dashboard" },
+    { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
+  ];
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // ── Active route helpers ───────────────────────────────────────────────────
 
-  // Fermer le menu mobile quand on redimensionne vers le desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Empêcher le scroll du body quand le menu mobile est ouvert
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
+  const isMenuActive = (menuItem) => {
+    if (menuItem.href) {
+      return (
+        location.pathname === menuItem.href ||
+        location.pathname.startsWith(menuItem.href + "/")
+      );
     }
+    return menuItem.subMenus?.some((sub) => {
+      if (sub.href === "/" && location.pathname === "/") return true;
+      if (sub.href?.includes("#")) {
+        const [p, h] = sub.href.split("#");
+        const base = p === "" ? "/" : p;
+        return location.pathname === base && location.hash.replace("#", "") === h;
+      }
+      return (
+        location.pathname === sub.href ||
+        location.pathname.startsWith((sub.href || "") + "/")
+      );
+    }) ?? false;
+  };
 
-    return () => {
-      document.body.style.overflow = "unset";
+  const isSubMenuActive = (sub) => {
+    if (!sub.href) return false;
+    if (sub.href.startsWith("#")) return location.pathname + location.hash === sub.href;
+    return (
+      location.pathname === sub.href ||
+      location.pathname.startsWith(sub.href + "/")
+    );
+  };
+
+  // ── Hover management ──────────────────────────────────────────────────────
+
+  const handleMouseEnter = (idx) => {
+    clearTimeout(hoverTimeoutRef.current);
+    setHoveredMenu(idx);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => setHoveredMenu(null), 150);
+  };
+
+  // ── Side effects ──────────────────────────────────────────────────────────
+
+  // Update CSS variable --header-height for mega menu positioning
+  useEffect(() => {
+    const update = () => {
+      if (headerRef.current) {
+        document.documentElement.style.setProperty(
+          "--header-height",
+          `${headerRef.current.offsetHeight}px`
+        );
+      }
     };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1280) setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [isMobileMenuOpen]);
 
-  // Close submenu when mouse leaves (with delay)
-  const handleMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setHoveredMenu(null);
-    }, 150);
-    setHoverTimeout(timeout);
-  };
-
-  // Cancel timeout when mouse re-enters
-  const handleMouseEnter = (index) => {
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-      setHoverTimeout(null);
-    }
-    setHoveredMenu(index);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    console.log("LOGOUT DONE.");
-    window.location.reload();
-    //navigate("/");
-  };
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   const toggleMobileMenu = () => {
-    if (isMobileSearchOpen) setIsMobileSearchOpen(false);
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileSearchOpen(false);
+    setIsMobileMenuOpen((v) => !v);
   };
 
   const toggleMobileSearch = () => {
-    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-    setIsMobileSearchOpen(!isMobileSearchOpen);
+    setIsMobileMenuOpen(false);
+    setIsMobileSearchOpen((v) => !v);
   };
 
   const closeMobileMenu = () => {
@@ -366,609 +358,243 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     setIsMobileSearchOpen(false);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.reload();
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  // Index du menu actuellement survolé (pour le MegaMenuPanel)
+  const activeMegaMenu =
+    hoveredMenu !== null ? mainMenus[hoveredMenu] : null;
+
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="sticky top-0 left-0 right-0 transition-all duration-300 z-1500 bg-primary"
-    >
-      <div className="container px-2 py-1 mx-auto md:px-4 md:py-3">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex flex-col items-center gap-1 md:gap-3 md:flex-row group"
-            onClick={closeMobileMenu}
-          >
-            <div className="flex items-center justify-center w-10 h-10 transition-all duration-300 xl:w-16 xl:h-16 rounded-xl group-hover:scale-110">
-              <img src={Logo} alt="LOGO FIBEM" />
-            </div>
-            <SiteTileForm1 />
-          </Link>
+    <>
+      <motion.header
+        ref={headerRef}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="sticky top-0 left-0 right-0 z-[1500] bg-primary"
+      >
+        <div className="container px-2 py-1 mx-auto md:px-4 md:py-2">
+          <div className="flex items-center justify-between gap-4">
 
-          {/* Recherche */}
-          <div className="relative flex-1 hidden w-full max-w-md px-4 md:block">
-            <Input
-              type="text"
-              placeholder={t("search_placeholder", "Rechercher")}
-              className="w-full px-4 py-2 pl-10 pr-10 transition border rounded-full text-primary focus:outline-none focus:ring-2 focus:ring-primary bg-primary-foreground placeholder:text-gray-500"
-            />
-            <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-8 top-1/2" />
-            <Button className="absolute right-0 p-1 px-2 text-xs text-white -translate-x-1/2 -translate-y-1/2 rounded-r-full bg-destructive top-1/2">
-              OK
-            </Button>
-          </div>
-
-          {/* Mobile search icon */}
-          <div>
-            <Button
-              className="flex items-center justify-center p-2 px-2 transition text-destructive md:hidden"
-              aria-label={t("search") || "Recherche"}
-              onClick={toggleMobileSearch}
+            {/* ── Logo ── */}
+            <Link
+              to="/"
+              className="flex flex-col items-center gap-1 md:gap-3 md:flex-row group shrink-0"
+              onClick={closeMobileMenu}
             >
-              {isMobileSearchOpen ? (
-                <X className="w-4 h-4" />
-              ) : (
-                <Search className="w-4 h-4" />
-              )}
-            </Button>
-            <AnimatePresence>
-              {isMobileSearchOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute z-20 max-w-md mt-2 -translate-x-1/2 min-w-xs left-1/2"
-                >
-                  <Input
-                    type="text"
-                    placeholder={t("search_placeholder", "Rechercher...")}
-                    className="w-full px-4 py-2 pl-10 transition bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
-                    autoFocus
-                  />
-                  <Search className="absolute w-4 h-4 text-gray-800 -translate-y-1/2 left-4 top-1/2" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              <div className="flex items-center justify-center w-10 h-10 transition-transform duration-300 xl:w-14 xl:h-14 rounded-xl group-hover:scale-110">
+                <img src={Logo} alt="LOGO FIBEM" />
+              </div>
+              <SiteTileForm1 />
+            </Link>
 
-          {/* Desktop Navigation */}
-          {isLoggedIn() ? (
-            <div className="items-center hidden gap-2 2xl:flex">
-              {/* Sélecteur de langue */}
-              <LanguageSelector />
-
-              <div className="w-px h-6 bg-border"></div>
-
-              {/* Render mainMenus as navigation links/icons */}
-              {mainMenus.map((item, idx) => {
-                const Icon = item.icon;
-                const isActive = isMenuActive(item);
-
-                if (!item.subMenus) {
-                  return (
-                    <Button
-                      key={item.href || idx}
-                      asChild
-                      variant="ghost"
-                      className="relative px-1"
-                      title={item.label}
-                    >
-                      <Link className={getMenuClass(item)} to={item.href}>
-                        <div className="flex items-center gap-1">
-                          <Icon
-                            className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                          />
-                          {item.badge ? null : item.label}
-                        </div>
-
-                        {item.badge ? (
-                          <Badge className="absolute top-0 right-0 w-5 h-5 text-white translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                            {item.badge}
-                          </Badge>
-                        ) : null}
-                      </Link>
-                    </Button>
-                  );
-                }
-
-                // Menu with submenu - Hoverable
-                return (
-                  <div
-                    key={item.href || idx}
-                    className="relative"
-                    onMouseEnter={() => handleMouseEnter(idx)}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    <Button
-                      variant="ghost"
-                      className={getDropdownButtonClass(item)}
-                      title={item.label}
-                    >
-                      {item.href ? (
-                        <Link
-                          to={item.href}
-                          className="flex items-center w-full h-full gap-2 transition-colors cursor-pointer"
-                          style={{ textDecoration: "none" }}
-                        >
-                          <div className="flex items-center gap-3">
-                            {Icon && (
-                              <Icon
-                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                              />
-                            )}
-                            <span>{item.label}</span>
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
-                          />
-                        </Link>
-                      ) : (
-                        <div className="flex items-center gap-2 transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            {Icon && (
-                              <Icon
-                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                              />
-                            )}
-                            <span>{item.label}</span>
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
-                          />
-                        </div>
-                      )}
-
-                      {/* Indicateur visuel pour menu actif */}
-                      {isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full"></div>
-                      )}
-                    </Button>
-
-                    {/* Dropdown on hover */}
-                    <AnimatePresence>
-                      {hoveredMenu === idx && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute left-0 z-50 w-56 mt-2 overflow-hidden bg-white border rounded-lg shadow-xl top-full min-w-56"
-                          onMouseEnter={() => handleMouseEnter(idx)}
-                          onMouseLeave={handleMouseLeave}
-                        >
-                          <div className="p-2">
-                            <div className="flex flex-col">
-                              {item.subMenus.map((sub, i) => {
-                                const isSubActive = isSubMenuActive(sub);
-                                return (
-                                  <Link
-                                    key={sub.href || i}
-                                    to={sub.href}
-                                    className={`px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent ${isSubActive ? "text-red-600 font-medium bg-red-50 border-l-2 border-red-600" : ""}`}
-                                    onClick={() => setHoveredMenu(null)}
-                                  >
-                                    <div className="flex items-center">
-                                      {isSubActive && (
-                                        <div className="w-1 h-4 mr-2 bg-red-600 rounded-full"></div>
-                                      )}
-                                      {sub.label}
-                                    </div>
-                                  </Link>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-
-              <div className="w-px h-6 bg-border"></div>
-
-              {/* Sélecteur de devise */}
-              <CurrencySelector />
-
-              <Button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center justify-center w-10 h-10 mr-4 font-medium transition-colors rounded-full cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/90"
-              >
-                {userInitials}
+            {/* ── Barre de recherche desktop ── */}
+            <div className="relative flex-1 hidden max-w-md md:block">
+              <Input
+                type="text"
+                placeholder={t("search_placeholder", "Rechercher")}
+                className="w-full py-2 pl-10 pr-16 transition border rounded-full text-primary focus:outline-none focus:ring-2 focus:ring-primary bg-primary-foreground placeholder:text-gray-500"
+              />
+              <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-3 top-1/2" />
+              <Button className="absolute px-3 py-1 text-xs text-white -translate-y-1/2 rounded-full right-1 top-1/2 bg-destructive">
+                OK
               </Button>
+            </div>
 
+            {/* ── Icône recherche mobile ── */}
+            <div className="relative md:hidden">
+              <Button
+                variant="ghost"
+                className="p-2 text-destructive"
+                onClick={toggleMobileSearch}
+              >
+                {isMobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
+              </Button>
               <AnimatePresence>
-                {userMenuOpen && (
+                {isMobileSearchOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute z-50 p-2 border rounded-md shadow-lg right-4 top-16 w-60 bg-background"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute z-20 mt-2 -translate-x-1/2 left-1/2 min-w-[280px]"
                   >
-                    <div className="px-3 py-2 border-b">
-                      <p className="text-sm font-medium">
-                        {user?.firstName} {user?.lastName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {user?.role}
-                      </p>
-                    </div>
-
-                    <div className="py-1">
-                      {userMenuItems.map((item) => {
-                        const isActive =
-                          location.pathname === item.href ||
-                          location.pathname.startsWith(item.href + "/");
-                        return (
-                          <Link
-                            key={item.href}
-                            to={item.href}
-                            className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent hover:text-accent-foreground ${isActive ? "text-red-600 font-medium bg-red-50" : ""}`}
-                            onClick={() => setUserMenuOpen(false)}
-                          >
-                            <item.icon
-                              className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                            />
-                            {item.label}
-                            {item.badge != null ? (
-                              <Badge>{item.badge}</Badge>
-                            ) : null}
-                          </Link>
-                        );
-                      })}
-                    </div>
-
-                    <div className="pt-1 border-t">
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full gap-2 px-3 py-2 text-sm transition-colors rounded-md cursor-pointer text-destructive hover:bg-destructive/10"
-                      >
-                        <X className="w-4 h-4" />
-                        Déconnexion
-                      </button>
+                    <div className="relative">
+                      <Input
+                        type="text"
+                        autoFocus
+                        placeholder={t("search_placeholder", "Rechercher...")}
+                        className="w-full py-2 pl-10 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-3 top-1/2" />
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          ) : (
-            <div className="items-center hidden gap-2 xl:flex">
-              {/* Sélecteur de langue */}
+
+            {/* ── Navigation desktop ── */}
+            <div className="items-center hidden gap-1 xl:flex">
               <LanguageSelector />
 
-              {mainMenus.map((item, idx) => {
-                const Icon = item.icon;
-                const isActive = isMenuActive(item);
+              {mainMenus.map((item, idx) => (
+                <DesktopNavItem
+                  key={item.href || idx}
+                  item={item}
+                  idx={idx}
+                  isActive={isMenuActive(item)}
+                  hoveredMenu={hoveredMenu}
+                  onEnter={handleMouseEnter}
+                  onLeave={handleMouseLeave}
+                />
+              ))}
 
-                if (!item.subMenus) {
-                  return (
-                    <Button
-                      key={item.href || idx}
-                      asChild
-                      variant="ghost"
-                      className="relative px-1"
-                      title={item.label}
-                    >
-                      <Link className={getMenuClass(item)} to={item.href}>
-                        <div className="flex items-center gap-1">
-                          <Icon
-                            className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                          />
-                          {item.badge ? null : item.label}
-                        </div>
+              <CurrencySelector />
+              <div className="w-px h-5 mx-1 bg-white/30" />
 
-                        {item.badge ? (
-                          <Badge className="absolute top-0 right-0 w-5 h-5 text-white translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-                            {item.badge}
-                          </Badge>
-                        ) : null}
-                      </Link>
-                    </Button>
-                  );
-                }
-
-                // Menu with submenu - Hoverable
-                return (
-                  <div
-                    key={item.href || idx}
-                    className="relative"
-                    onMouseEnter={() => handleMouseEnter(idx)}
-                    onMouseLeave={handleMouseLeave}
+              {isLoggedIn() ? (
+                /* ── User avatar + dropdown ── */
+                <div className="relative">
+                  <Button
+                    onClick={() => setUserMenuOpen((v) => !v)}
+                    className="flex items-center justify-center font-semibold rounded-full w-9 h-9 bg-secondary text-secondary-foreground hover:bg-secondary/90"
                   >
-                    <Button
-                      variant="ghost"
-                      className={getDropdownButtonClass(item)}
-                      title={item.label}
-                    >
-                      {item.href ? (
-                        <Link
-                          to={item.href}
-                          className="flex items-center w-full h-full gap-2 transition-colors cursor-pointer"
-                          style={{ textDecoration: "none" }}
-                        >
-                          <div className="flex items-center gap-1">
-                            {Icon && (
-                              <Icon
-                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                              />
-                            )}
-                            <span>{item.label}</span>
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
-                          />
-                        </Link>
-                      ) : (
-                        <div className="flex items-center gap-2 transition-colors cursor-pointer">
-                          <div className="flex items-center gap-1">
-                            {Icon && (
-                              <Icon
-                                className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`}
-                              />
-                            )}
-                            <span>{item.label}</span>
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 group-hover:rotate-180 ${isActive ? "text-red-600" : ""}`}
-                          />
-                        </div>
-                      )}
+                    {userInitials}
+                  </Button>
 
-                      {/* Indicateur visuel pour menu actif */}
-                      {isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full"></div>
-                      )}
-                    </Button>
-
-                    {/* Dropdown on hover */}
-                    <AnimatePresence>
-                      {hoveredMenu === idx && (
+                  <AnimatePresence>
+                    {userMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setUserMenuOpen(false)}
+                        />
                         <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute left-0 z-50 w-56 mt-2 overflow-hidden bg-white border rounded-lg shadow-xl top-full min-w-56"
-                          onMouseEnter={() => handleMouseEnter(idx)}
-                          onMouseLeave={handleMouseLeave}
+                          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 z-50 w-56 p-2 mt-2 border shadow-xl rounded-xl bg-background top-full"
                         >
-                          <div className="p-2">
-                            <div className="flex flex-col">
-                              {item.subMenus.map((sub, i) => {
-                                const isSubActive = isSubMenuActive(sub);
-                                return (
-                                  <Link
-                                    key={sub.href || i}
-                                    to={sub.href}
-                                    className={`px-3 py-2 text-sm transition-colors rounded-md hover:bg-accent ${isSubActive ? "text-red-600 font-medium bg-red-50 border-l-2 border-red-600" : ""}`}
-                                    onClick={() => setHoveredMenu(null)}
-                                  >
-                                    <div className="flex items-center">
-                                      {isSubActive && (
-                                        <div className="w-1 h-4 mr-2 bg-red-600 rounded-full"></div>
-                                      )}
-                                      {sub.label}
-                                    </div>
-                                  </Link>
-                                );
-                              })}
-                            </div>
+                          <div className="px-3 py-2 mb-1 border-b">
+                            <p className="text-sm font-medium truncate">
+                              {user?.firstName} {user?.lastName}
+                            </p>
+                            <p className="text-xs truncate text-muted-foreground">{user?.role}</p>
+                          </div>
+
+                          {userMenuItems.map((item) => {
+                            const isActive =
+                              location.pathname === item.href ||
+                              location.pathname.startsWith(item.href + "/");
+                            return (
+                              <Link
+                                key={item.href}
+                                to={item.href}
+                                onClick={() => setUserMenuOpen(false)}
+                                className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent
+                                  ${isActive ? "text-red-600 font-medium bg-red-50" : ""}`}
+                              >
+                                <item.icon className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`} />
+                                {item.label}
+                                {item.badge != null && <Badge className="ml-auto">{item.badge}</Badge>}
+                              </Link>
+                            );
+                          })}
+
+                          <div className="pt-1 mt-1 border-t">
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center w-full gap-2 px-3 py-2 text-sm rounded-md cursor-pointer text-destructive hover:bg-destructive/10"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              Déconnexion
+                            </button>
                           </div>
                         </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-              
-              {/* Sélecteur de devise */}
-              <CurrencySelector />
-
-              <div className="w-px h-6 bg-border"></div>
-
-              {authMenus.map((item) => (
-                <Link to={item.href} key={item.href}>
-                  <Button variant="ghost" className={item.className}>
-                    {item.label}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 xl:hidden">
-            {/* Sélecteur de langue mobile */}
-            <LanguageSelector />
-
-            {/* Sélecteur de devise */}
-            <CurrencySelector />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleMobileMenu}
-              className="p-0 cursor-pointer h-9 w-9"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <div className="relative">
-                  <Menu className="w-5 h-5" />
-
-                  {unreadNotifications > 0 && (
-                    <Badge className="absolute top-0 right-0 w-5 h-5 text-xs text-center text-white bg-red-500 rounded-full translate-x-2/3 -translate-y-2/3">
-                      {unreadNotifications}
-                    </Badge>
-                  )}
+                      </>
+                    )}
+                  </AnimatePresence>
                 </div>
+              ) : (
+                /* ── Auth buttons ── */
+                <>
+                  {authMenus.map((item) => (
+                    <Link to={item.href} key={item.href}>
+                      <Button variant="ghost" className={item.className}>
+                        {item.label}
+                      </Button>
+                    </Link>
+                  ))}
+                </>
               )}
-            </Button>
+            </div>
+
+            {/* ── Contrôles mobiles ── */}
+            <div className="flex items-center gap-1 xl:hidden">
+              <LanguageSelector />
+              <CurrencySelector />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleMobileMenu}
+                className="relative p-0 h-9 w-9 text-primary-foreground"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isLoggedIn()
-          ? isMobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="my-2 overflow-auto bg-primary shadow-lg xl:hidden max-h-[500px]"
-              >
-                <div className="flex items-center gap-3 p-3 border border-border/50 bg-accent/10">
-                  <div className="flex items-center justify-center w-10 h-10 text-sm font-medium rounded-full text-secondary-foreground bg-secondary">
+        {/* ── Menu mobile ── */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-auto bg-primary shadow-lg xl:hidden max-h-[80vh]"
+            >
+              {isLoggedIn() && (
+                <div className="flex items-center gap-3 p-3 border-b border-white/10">
+                  <div className="flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-full bg-secondary text-secondary-foreground">
                     {userInitials}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0">
                     <p className="text-sm font-medium truncate text-secondary">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs truncate text-accent">
-                      {user?.email}
-                    </p>
+                    <p className="text-xs truncate text-accent">{user?.email}</p>
                   </div>
                 </div>
+              )}
 
-                <div className="container flex flex-col gap-3 px-3 py-2">
-                  {mainMenus.map((item, index) => {
-                    const IconComponent = item.icon;
-                    if (item.subMenus) {
-                      return (
-                        <CollapsibleMenuItem
-                          key={index}
-                          label={item.label}
-                          icon={<IconComponent className="w-4 h-4" />}
-                          children={item.subMenus}
-                          closeMobileMenu={closeMobileMenu}
-                        />
-                      );
-                    }
+              <div className="container flex flex-col gap-2 px-3 py-3">
+                <MobileMenuList items={mainMenus} closeMobileMenu={closeMobileMenu} />
 
-                    return (
-                      <Link
-                        key={index}
-                        to={item.href}
-                        className="w-full"
-                        onClick={closeMobileMenu}
-                      >
-                        <Button
-                          variant="ghost"
-                          //className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
-                          className="justify-start w-full text-sm text-orange-300 transition-colors cursor-pointer hover:text-foreground hover:bg-accent/50"
-                          onClick={closeMobileMenu}
-                        >
-                          {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
-                          <IconComponent className="w-4 h-4 mr-3 text-red-500" />
-                          {item.label}
-                          {item.badge != null ? (
-                            <Badge>{item.badge}</Badge>
-                          ) : null}
-                        </Button>
-                      </Link>
-                    );
-                  })}
-
-                  {userMenuItems.map((item, index) => {
-                    const IconComponent = item.icon;
-                    return (
-                      <Link
-                        key={index}
-                        to={item.href}
-                        className="w-full"
-                        onClick={closeMobileMenu}
-                      >
-                        <Button
-                          variant="ghost"
-                          className="justify-start w-full text-sm text-orange-300 transition-colors cursor-pointer hover:text-foreground hover:bg-accent/50"
-                          onClick={closeMobileMenu}
-                        >
-                          {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
-                          <IconComponent className="w-4 h-4 mr-3 text-red-500" />
-                          {item.label}
-                          {item.badge != null ? (
-                            <Badge className="bg-secondary">{item.badge}</Badge>
-                          ) : null}
-                        </Button>
-                      </Link>
-                    );
-                  })}
-
-                  <div className="flex flex-col gap-2 pt-2">
+                {isLoggedIn() ? (
+                  <>
+                    <div className="my-1 border-t border-white/10" />
+                    <MobileMenuList items={userMenuItems} closeMobileMenu={closeMobileMenu} />
                     <Button
                       variant="destructive"
-                      onClick={(e) => {
-                        closeMobileMenu();
-                        handleLogout(e);
-                      }}
-                      className="flex items-center gap-2 py-2"
+                      onClick={() => { closeMobileMenu(); handleLogout(); }}
+                      className="flex items-center gap-2 mt-2"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Déconnexion</span>
+                      Déconnexion
                     </Button>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          : isMobileMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mr-2 overflow-hidden shadow-lg bg-primary xl:hidden"
-              >
-                <div className="container flex flex-col gap-2 py-4">
-                  
-                  {mainMenus.map((item, index) => {
-                    const IconComponent = item.icon;
-                    if (item.subMenus) {
-                      return (
-                        <CollapsibleMenuItem
-                          key={index}
-                          label={item.label}
-                          icon={<IconComponent className="w-4 h-4" />}
-                          children={item.subMenus}
-                          closeMobileMenu={closeMobileMenu}
-                        />
-                      );
-                    }
-
-                    return (
-                      <Link
-                        key={index}
-                        to={item.href}
-                        className="w-full"
-                        onClick={closeMobileMenu}
-                      >
-                        <Button
-                          variant="ghost"
-                          //className="justify-start w-full text-sm transition-colors cursor-pointer text-primary-foreground/80 hover:text-foreground hover:bg-accent/50"
-                          className="justify-start w-full text-sm text-orange-300 transition-colors cursor-pointer hover:text-foreground hover:bg-accent/50"
-                          onClick={closeMobileMenu}
-                        >
-                          {/* <IconComponent className="w-4 h-4 mr-3 text-destructive" /> */}
-                          <IconComponent className="w-4 h-4 mr-3 text-red-500" />
-                          {item.label}
-                          {item.badge != null ? (
-                            <Badge>{item.badge}</Badge>
-                          ) : null}
-                        </Button>
-                      </Link>
-                    );
-                  })}
-
-                  {authMenus.map((item) => {
-                    const isActive = location.pathname === item.href;
-                    return (
+                  </>
+                ) : (
+                  <>
+                    <div className="my-1 border-t border-white/10" />
+                    {authMenus.map((item) => (
                       <Link
                         key={item.href}
                         to={item.href}
@@ -976,42 +602,39 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <span
-                          className={`
-                            absolute left-0 top-0 h-full w-0 ${
-                              item.label === "Connexion"
-                                ? "bg-accent/30"
-                                : "bg-accent/20"
-                            }
-                            group-active:w-full group-hover:w-full
-                            transition-all duration-300 ease-in-out
-                            z-0
-                          `}
+                          className={`absolute inset-0 w-0 group-hover:w-full transition-all duration-300
+                            ${item.label === t("authMenu.login", "Connexion") ? "bg-accent/30" : "bg-accent/20"}`}
                         />
-                        <span
-                          className={`relative z-10 flex items-center gap-2 px-4 py-2 font-medium transition-colors duration-200 group-hover:bg-accent/10 group-active:bg-accent/40 ${isActive ? "text-yellow-500" : "text-orange-300"}`}
-                        >
-                          <item.icon
-                            className={`text-destructive ${isActive ? "bg-white/20 rounded-full p-1 w-6 h-6" : "w-4 h-4"}`}
-                          />
+                        <span className="relative flex items-center gap-2 px-4 py-2 font-medium text-orange-300">
+                          <item.icon className="w-4 h-4 text-destructive" />
                           {item.label}
                         </span>
                       </Link>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-      </AnimatePresence>
+                    ))}
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
 
-      {userMenuOpen && (
+      {/* ── Mega-menu pleine largeur (en dehors du header pour débordement correct) ── */}
+      {activeMegaMenu?.subMenus && (
         <div
-          className="fixed inset-0 z-40"
-          onClick={() => {
-            setUserMenuOpen(false);
-          }}
-        />
+          onMouseEnter={() => handleMouseEnter(hoveredMenu)}
+          onMouseLeave={handleMouseLeave}
+        >
+          <MegaMenuPanel
+            item={activeMegaMenu}
+            activeIdx={hoveredMenu}
+            onClose={() => setHoveredMenu(null)}
+            onMouseEnter={() => handleMouseEnter(hoveredMenu)}
+            onMouseLeave={handleMouseLeave}
+          />
+        </div>
       )}
-    </motion.header>
+    </>
   );
 };
 

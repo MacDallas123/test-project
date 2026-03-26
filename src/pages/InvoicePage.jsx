@@ -33,6 +33,8 @@ import {
 import { useCurrency } from "@/context/CurrencyContext";
 import InvoiceHistoryDialog from "@/components/dialog/InvoiceHistoryDialog";
 import QuoteSelectionDialog from "@/components/dialog/QuoteSelectionDialog";
+import { useAppMainContext } from "@/context/AppProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD
@@ -171,6 +173,14 @@ const InvoicePage = () => {
 
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState(null);
+
+  const { setIsViewLocked } = useAppMainContext();
+  const { isLoggedIn } = useAuth();
+
+
+  useEffect(() => {
+    if(!isLoggedIn()) setIsViewLocked(true);
+  }, []);
 
   const quotes = [
     {

@@ -34,6 +34,8 @@ import {
   sendCreditNoteByEmail, clearCreditNote, clearError, fetchCreditNoteById,
 } from "@/redux/slices/creditNoteSlice";
 import { useCurrency } from "@/context/CurrencyContext";
+import { useAppMainContext } from "@/context/AppProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 // ─────────────────────────────────────────────
 // ÉTAPES DU WIZARD
@@ -170,6 +172,14 @@ const CreditNotePage = () => {
   const [logoPreview,    setLogoPreview]    = useState("");
 
   const { symbol } = useCurrency();
+
+  const { setIsViewLocked } = useAppMainContext();
+  const { isLoggedIn } = useAuth();
+
+
+  useEffect(() => {
+    if(!isLoggedIn()) setIsViewLocked(true);
+  }, []);
 
   // ── Numéro d'avoir ──────────────────────────
   const generateCreditNoteNumber = () => {
@@ -724,7 +734,7 @@ const CreditNotePage = () => {
                 <h2 className="text-xl font-bold">Lignes de l'avoir</h2>
                 <p className="mt-1 text-sm text-gray-500">Ajoutez les articles ou prestations à créditer.</p>
               </div>
-              <Badge variant="outline" className="border-orange-300 text-orange-700">{creditItems.length} ligne(s)</Badge>
+              <Badge variant="outline" className="text-orange-700 border-orange-300">{creditItems.length} ligne(s)</Badge>
             </div>
             <HelpNotice variant="info" title="Conseils" tips={[
               "Chaque ligne doit avoir une description et un prix unitaire > 0.",
@@ -737,7 +747,7 @@ const CreditNotePage = () => {
                   transition={{ delay: index * 0.05 }}
                   className="p-4 space-y-3 border border-orange-100 rounded-xl bg-orange-50/30">
                   <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs border-orange-300 text-orange-700">Ligne {index + 1}</Badge>
+                    <Badge variant="outline" className="text-xs text-orange-700 border-orange-300">Ligne {index + 1}</Badge>
                     <div className="flex items-center gap-1">
                       <Button type="button" onClick={() => moveItem(index, "up")} disabled={index === 0}
                         variant="ghost" size="sm" className="w-8 h-8 p-0 text-gray-400">
@@ -815,7 +825,7 @@ const CreditNotePage = () => {
             </div>
 
             <Button type="button" onClick={addItem} variant="outline"
-              className="w-full gap-2 border-orange-300 text-orange-700 hover:bg-orange-50">
+              className="w-full gap-2 text-orange-700 border-orange-300 hover:bg-orange-50">
               <Plus className="w-4 h-4" /> Ajouter une ligne
             </Button>
 
@@ -887,7 +897,7 @@ const CreditNotePage = () => {
                   Envoyer
                 </Button>
                 <Button type="button" size="sm" onClick={handleDownloadPDF} disabled={isGenerating}
-                  className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
+                  className="gap-2 text-white bg-orange-600 hover:bg-orange-700">
                   {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   Télécharger PDF
                 </Button>
@@ -913,7 +923,7 @@ const CreditNotePage = () => {
                   <p className="font-mono text-sm text-gray-600">
                     N° {formData.creditNoteNumber}{formData.bisNumber ? ` ${formData.bisNumber}` : ""}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="mt-1 text-xs text-gray-500">
                     {new Date(formData.creditNoteDate).toLocaleDateString("fr-FR")}
                   </p>
                   {formData.originalInvoiceNumber && (
@@ -925,12 +935,12 @@ const CreditNotePage = () => {
 
               {/* Raison + méthode */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 border border-orange-100 rounded-lg bg-orange-50/30 text-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Raison</p>
+                <div className="p-3 text-sm border border-orange-100 rounded-lg bg-orange-50/30">
+                  <p className="mb-1 text-xs font-semibold text-gray-500 uppercase">Raison</p>
                   <p className="font-medium text-orange-700">{reasonLabel}</p>
                 </div>
-                <div className="p-3 border border-orange-100 rounded-lg bg-orange-50/30 text-sm">
-                  <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Remboursement</p>
+                <div className="p-3 text-sm border border-orange-100 rounded-lg bg-orange-50/30">
+                  <p className="mb-1 text-xs font-semibold text-gray-500 uppercase">Remboursement</p>
                   <p className="font-medium text-orange-700">{refundLabel}</p>
                 </div>
               </div>
@@ -938,7 +948,7 @@ const CreditNotePage = () => {
               {/* Parties */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 border rounded-lg text-sm space-y-0.5">
-                  <p className="font-semibold text-gray-700 mb-1">Émetteur</p>
+                  <p className="mb-1 font-semibold text-gray-700">Émetteur</p>
                   <p className="font-bold">{formData.companyName}</p>
                   {formData.companyAddress  && <p className="text-gray-600">{formData.companyAddress}</p>}
                   {formData.companyCity     && <p className="text-gray-600">{formData.companyCity}</p>}
@@ -946,7 +956,7 @@ const CreditNotePage = () => {
                   {formData.companySiret    && <p className="text-gray-600">SIRET : {formData.companySiret}</p>}
                 </div>
                 <div className="p-3 border rounded-lg text-sm space-y-0.5">
-                  <p className="font-semibold text-gray-700 mb-1">Client</p>
+                  <p className="mb-1 font-semibold text-gray-700">Client</p>
                   <p className="font-bold">{formData.clientCompany || formData.clientName || "—"}</p>
                   {formData.clientName && formData.clientCompany && <p>{formData.clientName}</p>}
                   {formData.clientAddress   && <p className="text-gray-600">{formData.clientAddress}</p>}
@@ -979,7 +989,7 @@ const CreditNotePage = () => {
                         <td className="p-2 text-right border">{item.unitPrice.toLocaleString()} {symbol}</td>
                         <td className="p-2 text-center border">{item.discount > 0 ? `${item.discount}%` : "—"}</td>
                         <td className="p-2 text-center border">{item.taxRate}%</td>
-                        <td className="p-2 font-semibold text-right border text-orange-700">
+                        <td className="p-2 font-semibold text-right text-orange-700 border">
                           {item.total.toLocaleString()} {symbol}
                         </td>
                       </tr>
@@ -999,7 +1009,7 @@ const CreditNotePage = () => {
                     <span className="text-gray-600">TVA estimée</span>
                     <span className="font-medium">{totalTVA.toLocaleString()} {symbol}</span>
                   </div>
-                  <div className="flex justify-between font-bold pt-1 border-t-2 border-orange-500">
+                  <div className="flex justify-between pt-1 font-bold border-t-2 border-orange-500">
                     <span>Net à rembourser T.T.C.</span>
                     <span className="text-orange-600">{totalTTC.toLocaleString()} {symbol}</span>
                   </div>
@@ -1008,8 +1018,8 @@ const CreditNotePage = () => {
 
               {/* Notes */}
               {formData.notes && (
-                <div className="p-3 border border-orange-100 rounded-lg text-sm">
-                  <p className="font-semibold mb-1">Références :</p>
+                <div className="p-3 text-sm border border-orange-100 rounded-lg">
+                  <p className="mb-1 font-semibold">Références :</p>
                   <p className="text-gray-600">{formData.notes}</p>
                 </div>
               )}
@@ -1031,8 +1041,8 @@ const CreditNotePage = () => {
       <div className="bg-gradient-to-r from-orange-500/10 via-orange-400/5 to-white">
         <div className="container px-4 py-10 mx-auto">
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center mb-4 rounded-full w-14 h-14 bg-orange-100">
-              <RotateCcw className="w-7 h-7 text-orange-600" />
+            <div className="inline-flex items-center justify-center mb-4 bg-orange-100 rounded-full w-14 h-14">
+              <RotateCcw className="text-orange-600 w-7 h-7" />
             </div>
             <h1 className="mb-2 text-3xl font-bold">Générateur d'Avoirs</h1>
             <div className="flex items-center justify-center gap-3 mt-2">
@@ -1069,7 +1079,7 @@ const CreditNotePage = () => {
           </div>
           <div className="flex gap-2">
             <Button type="button" onClick={handleGenerateCreditNote} disabled={isGenerating || !isFormValid()}
-              className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
+              className="gap-2 text-white bg-orange-600 hover:bg-orange-700">
               {isGenerating
                 ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération…</>
                 : <><Download className="w-4 h-4" /> Générer l'avoir</>}

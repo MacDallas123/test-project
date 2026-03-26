@@ -28,11 +28,13 @@ import QuotePage from "./pages/QuotePage";
 import InvoicePage from "./pages/InvoicePage";
 import CreditNotePage from "./pages/CreditNotePage";
 import SubscriptionPage from "./pages/SubscriptionPage";
+import UnauthorizedDialog from "./components/dialog/UnauthorizedDialog";
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <UnauthorizedDialog />
       <Routes>
         <Route path="/auth" element={<AuthLayout />}>
           <Route path="/auth/login" element={<LoginPage />} />
@@ -85,6 +87,7 @@ function App() {
         </Route>
 
         <Route path="/403" element={<IsForbidden />} />
+        {/* <Route path="/protection-view" element={<IsForbidden />} /> */}
       </Routes>
     </BrowserRouter>
   );

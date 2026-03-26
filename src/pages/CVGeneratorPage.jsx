@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +25,7 @@ import {
 import CVHistoryDialog from "@/components/dialog/CvHistoryDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { thunkSucceed } from "@/lib/tools";
+import { useAppMainContext } from "@/context/AppProvider";
 
 // ─────────────────────────────────────────────
 // DONNÉES PAR DÉFAUT
@@ -248,8 +249,15 @@ const CVGeneratorPage = () => {
   const [newSkill,      setNewSkill]      = useState({ name: "", level: "Intermédiaire" });
   const [editingSkill,  setEditingSkill]  = useState(null);
 
+  const { setIsViewLocked } = useAppMainContext();
+  const { isLoggedIn } = useAuth();
+
   const isImported = mode === "import" && !!importedFile;
   const isLocked   = isImported;
+
+  useEffect(() => {
+    if(!isLoggedIn()) setIsViewLocked(true);
+  }, []);
 
   // ── Définition des étapes ────────────────────
   const STEPS = [
