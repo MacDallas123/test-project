@@ -1,12 +1,11 @@
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_API_URL: https://api.livrernourriture-fibem.com/api/v1
     container_name: livrer-nourriture-frontend
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=https://api.livrernourriture-fibem.com/api/v1
     networks:
-      # - app-network
       - livraison-nourriture_app-network
     labels:
       - "traefik.enable=true"
@@ -18,5 +17,3 @@ services:
 networks:
   livraison-nourriture_app-network:
     external: true
-  # app-network:
-  #   external: true
