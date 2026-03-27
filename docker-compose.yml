@@ -6,7 +6,8 @@ services:
       - NODE_ENV=production
       - VITE_API_URL=https://api.livrernourriture-fibem.com/api/v1
     networks:
-      - app-network
+      # - app-network
+      - livraison-nourriture_app-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.front.rule=Host(`app.livrernourriture-fibem.com`)"
@@ -15,5 +16,7 @@ services:
       - "traefik.http.services.front.loadbalancer.server.port=3070"
 
 networks:
-  app-network:
+  livraison-nourriture_app-network:
     external: true
+  # app-network:
+  #   external: true
