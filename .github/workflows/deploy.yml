@@ -23,12 +23,6 @@ jobs:
             mkdir -p ${{ secrets.VPS_PATH }}
           "
 
-      - name: Ensure uploads directory exists on VPS
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
-            mkdir -p ${{ secrets.VPS_PATH }}/uploads/announces
-          "
-
       - name: Copy project to VPS (excluding uploads content)
         run: |
           rsync -avz --delete \
