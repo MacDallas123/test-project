@@ -1,13 +1,19 @@
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3070:3070"
+    build: .
+    container_name: livrer-nourriture-frontend
     environment:
       - NODE_ENV=production
-      - VITE_API_URL=https://test-project-api.reimca-app.com/api
+      - VITE_API_URL=https://api.livrernourriture-fibem.com/api/v1
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.front.rule=Host(`app.livrernourriture-fibem.com`)"
+      - "traefik.http.routers.front.entrypoints=websecure"
+      - "traefik.http.routers.front.tls.certresolver=le"
+      - "traefik.http.services.front.loadbalancer.server.port=3070"
 
-volumes:
-  geoserver_data:
+networks:
+  app-network:
+    external: true

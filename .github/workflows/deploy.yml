@@ -2,7 +2,7 @@ name: 🚀 Deploy LIVRER NOURRITURE
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "docker-deploy" ]
 
 jobs:
   deploy:
@@ -22,11 +22,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             mkdir -p ${{ secrets.VPS_PATH }}
           "
-    
-      - name: Copy env files to VPS
-        run: |
-          scp -o StrictHostKeyChecking=no .env.production ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/.env.production
-          scp -o StrictHostKeyChecking=no database.env ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/database.env
 
       - name: Ensure uploads directory exists on VPS
         run: |
@@ -39,8 +34,9 @@ jobs:
           rsync -avz --delete \
             --exclude '.git' \
             --exclude 'node_modules' \
+            --exclude 'letsencrypt' \
+            --exclude 'uploads' \
             --exclude '.env*' \
-            --exclude 'uploads/announces/*' \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/
 
@@ -48,6 +44,5 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             cd ${{ secrets.VPS_PATH }} &&
-            docker compose down &&
-            docker compose up -d --build
+            docker compose up -d --build --remove-orphans
           "
