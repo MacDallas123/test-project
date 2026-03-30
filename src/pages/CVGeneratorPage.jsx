@@ -45,7 +45,8 @@ const defaultCvData = {
     github: "https://github.com/jeandupont",
     portfolio: "https://jeandupont.dev",
     summary: "Développeur passionné avec plus de 5 ans d'expérience dans la conception de solutions web modernes et performantes. Compétences solides en React, Node.js et gestion de projet Agile.",
-    photoUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    // photoUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    photoUrl: "",
     showPhoto: true,
   },
   skills: [

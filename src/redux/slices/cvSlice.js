@@ -169,7 +169,7 @@ const cvSlice = createSlice({
         },
 
         resetCVsFilter: (state) => {
-            state.cvsFilter = initialState.usersFilter;
+            state.cvsFilter = initialState.cvsFilter;
         },
 
         setCVsPagination: (state, action) => {
@@ -177,7 +177,7 @@ const cvSlice = createSlice({
         },
 
         resetCVsPagination: (state) => {
-            state.cvsPagination = initialState.initialState;
+            state.cvsPagination = initialState.cvsPagination;
         },
     },
     extraReducers: (builder) => {
