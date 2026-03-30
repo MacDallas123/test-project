@@ -6,22 +6,30 @@ import axios from '@/api/axios';
 
 const initialState = {
   currentCreditNote: null,
-  creditNotes:       [],
-  loading:           false,
-  error:             null,
-  generatedPDF:      null,
-  stats:             null,
+  creditNotes: [],
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    totalCount: 0,
+    totalPages: 0,
+  },
+  filters: {},
+  loading: false,
+  error: null,
+  generatedPDF: null,
+  stats: null,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helper : convertit un objet plain en FormData (gère File/Blob et tableaux)
-// Identique à la logique de invoiceSlice pour la cohérence
-// ─────────────────────────────────────────────────────────────────────────────
+// Helper pour convertir objet en FormData (cf. invoiceSlice)
 function toFormData(data) {
   const formData = new FormData();
   Object.entries(data || {}).forEach(([key, value]) => {
     if (value instanceof File || value instanceof Blob) {
       formData.append(key, value);
+    } else if (Array.isArray(value)) {
+      value.forEach((v, idx) => {
+        formData.append(`${key}[${idx}]`, v);
+      });
     } else if (typeof value === 'object' && value !== null) {
       formData.append(key, JSON.stringify(value));
     } else if (value !== undefined) {
@@ -31,20 +39,22 @@ function toFormData(data) {
   return formData;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────
 // THUNKS
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────
 
 // GET — liste paginée avec filtres optionnels
 export const fetchCreditNotes = createAsyncThunk(
   'creditNote/fetchCreditNotes',
-  async (params = {}, { rejectWithValue }) => {
+  async ({ page = 1, pageSize = 10, filters = {}, ...rest } = {}, { rejectWithValue }) => {
     try {
-      const qs = new URLSearchParams(params).toString();
+      // Construit la query string pagination + filtres
+      const merged = { page, pageSize, ...filters, ...rest };
+      const qs = new URLSearchParams(merged).toString();
       const response = await axios.get(`/credit-notes${qs ? `?${qs}` : ''}`);
       return response.data;
     } catch (error) {
-      console.log('GET CREDIT NOTES ERROR', error);
+      console.error('GET CREDIT NOTES ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || 'Erreur lors de la récupération des avoirs'
       );
@@ -60,7 +70,7 @@ export const fetchCreditNoteById = createAsyncThunk(
       const response = await axios.get(`/credit-notes/${id}`);
       return response.data;
     } catch (error) {
-      console.log('GET CREDIT NOTE ERROR', error);
+      console.error('GET CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de la récupération de l'avoir"
       );
@@ -71,13 +81,14 @@ export const fetchCreditNoteById = createAsyncThunk(
 // GET — avoirs de l'utilisateur connecté
 export const fetchUserCreditNotes = createAsyncThunk(
   'creditNote/fetchUserCreditNotes',
-  async (params = {}, { rejectWithValue }) => {
+  async ({ page = 1, pageSize = 10, filters = {}, ...rest } = {}, { rejectWithValue }) => {
     try {
-      const qs = new URLSearchParams(params).toString();
+      const merged = { page, pageSize, ...filters, ...rest };
+      const qs = new URLSearchParams(merged).toString();
       const response = await axios.get(`/credit-notes/user/me${qs ? `?${qs}` : ''}`);
       return response.data;
     } catch (error) {
-      console.log('GET USER CREDIT NOTES ERROR', error);
+      console.error('GET USER CREDIT NOTES ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || 'Erreur lors de la récupération de vos avoirs'
       );
@@ -90,8 +101,7 @@ export const createCreditNote = createAsyncThunk(
   'creditNote/createCreditNote',
   async (data, { rejectWithValue }) => {
     try {
-      let sendData = data;
-      let config   = {};
+      let sendData, config = {};
       if (typeof FormData !== 'undefined' && data instanceof FormData) {
         sendData = data;
         config.headers = { 'Content-Type': 'multipart/form-data' };
@@ -102,7 +112,7 @@ export const createCreditNote = createAsyncThunk(
       const response = await axios.post('/credit-notes', sendData, config);
       return response.data;
     } catch (error) {
-      console.log('CREATE CREDIT NOTE ERROR', error);
+      console.error('CREATE CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de la création de l'avoir"
       );
@@ -115,8 +125,7 @@ export const updateCreditNoteById = createAsyncThunk(
   'creditNote/updateCreditNoteById',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      let sendData = data;
-      let config   = {};
+      let sendData, config = {};
       if (typeof FormData !== 'undefined' && data instanceof FormData) {
         sendData = data;
         config.headers = { 'Content-Type': 'multipart/form-data' };
@@ -127,7 +136,7 @@ export const updateCreditNoteById = createAsyncThunk(
       const response = await axios.patch(`/credit-notes/${id}`, sendData, config);
       return response.data;
     } catch (error) {
-      console.log('UPDATE CREDIT NOTE ERROR', error);
+      console.error('UPDATE CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de la mise à jour de l'avoir"
       );
@@ -143,7 +152,7 @@ export const updateCreditNoteStatus = createAsyncThunk(
       const response = await axios.patch(`/credit-notes/${id}/status`, { status });
       return response.data;
     } catch (error) {
-      console.log('UPDATE CREDIT NOTE STATUS ERROR', error);
+      console.error('UPDATE CREDIT NOTE STATUS ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || 'Erreur lors de la mise à jour du statut'
       );
@@ -159,7 +168,7 @@ export const deleteCreditNote = createAsyncThunk(
       const response = await axios.delete(`/credit-notes/${id}`);
       return { id, ...response.data };
     } catch (error) {
-      console.log('DELETE CREDIT NOTE ERROR', error);
+      console.error('DELETE CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de la suppression de l'avoir"
       );
@@ -175,7 +184,7 @@ export const duplicateCreditNote = createAsyncThunk(
       const response = await axios.post(`/credit-notes/${id}/duplicate`);
       return response.data;
     } catch (error) {
-      console.log('DUPLICATE CREDIT NOTE ERROR', error);
+      console.error('DUPLICATE CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de la duplication de l'avoir"
       );
@@ -191,7 +200,7 @@ export const generateCreditNotePDF = createAsyncThunk(
       const response = await axios.post(`/credit-notes/${id}/generate?format=${format}`);
       return response.data;
     } catch (error) {
-      console.log('GENERATE CREDIT NOTE PDF ERROR', error);
+      console.error('GENERATE CREDIT NOTE PDF ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de la génération de l'avoir"
       );
@@ -207,7 +216,7 @@ export const sendCreditNoteByEmail = createAsyncThunk(
       const response = await axios.post(`/credit-notes/${id}/send`, { email, message });
       return response.data;
     } catch (error) {
-      console.log('SEND CREDIT NOTE ERROR', error);
+      console.error('SEND CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de l'envoi de l'avoir"
       );
@@ -223,7 +232,7 @@ export const fetchCreditNoteStats = createAsyncThunk(
       const response = await axios.get('/credit-notes/dashboard/stats');
       return response.data;
     } catch (error) {
-      console.log('FETCH CREDIT NOTE STATS ERROR', error);
+      console.error('FETCH CREDIT NOTE STATS ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || 'Erreur lors de la récupération des statistiques'
       );
@@ -239,7 +248,7 @@ export const exportCreditNote = createAsyncThunk(
       const response = await axios.get(`/credit-notes/${id}/export`);
       return response.data;
     } catch (error) {
-      console.log('EXPORT CREDIT NOTE ERROR', error);
+      console.error('EXPORT CREDIT NOTE ERROR', error);
       return rejectWithValue(
         error.response?.data?.message || "Erreur lors de l'export de l'avoir"
       );
@@ -247,9 +256,9 @@ export const exportCreditNote = createAsyncThunk(
   }
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────
 // SLICE
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────
 const creditNoteSlice = createSlice({
   name: 'creditNote',
   initialState,
@@ -265,220 +274,315 @@ const creditNoteSlice = createSlice({
     },
     clearCreditNote: (state) => {
       state.currentCreditNote = null;
-      state.generatedPDF      = null;
+      state.generatedPDF = null;
     },
     clearCreditNotes: (state) => {
       state.creditNotes = [];
+      state.pagination = {
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        totalPages: 0,
+      };
     },
     clearStats: (state) => {
       state.stats = null;
     },
+    setPagination: (state, action) => {
+      state.pagination = { ...state.pagination, ...action.payload };
+    },
+    setCreditNotesFilters: (state, action) => {
+      state.filters = { ...action.payload };
+    },
+    resetCreditNotesFilters: (state) => {
+      state.filters = {};
+    },
   },
   extraReducers: (builder) => {
-
-    // ── fetchCreditNotes ──────────────────────
+    // fetchCreditNotes
     builder
       .addCase(fetchCreditNotes.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(fetchCreditNotes.fulfilled, (state, action) => {
-        state.loading     = false;
-        state.creditNotes = action.payload.content?.data || action.payload.content || [];
-        state.error       = null;
+        state.loading = false;
+        const content = action.payload.content ?? {};
+        if (content.data && Array.isArray(content.data)) {
+          state.creditNotes = content.data;
+        } else if (Array.isArray(content)) {
+          state.creditNotes = content;
+        } else if (Array.isArray(action.payload)) {
+          state.creditNotes = action.payload;
+        } else {
+          state.creditNotes = [];
+        }
+        state.pagination = {
+          page: content.page ?? 1,
+          pageSize: content.pageSize ?? 10,
+          totalCount: content.totalCount ?? (content.data ? content.data.length : 0),
+          totalPages: content.totalPages ?? 0,
+        };
+        state.error = null;
       })
       .addCase(fetchCreditNotes.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || 'Erreur lors de la récupération des avoirs';
+        state.error =
+          action.payload || 'Erreur lors de la récupération des avoirs';
       });
 
-    // ── fetchCreditNoteById ───────────────────
+    // fetchCreditNoteById
     builder
       .addCase(fetchCreditNoteById.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(fetchCreditNoteById.fulfilled, (state, action) => {
-        state.loading           = false;
+        state.loading = false;
         state.currentCreditNote = action.payload.content;
-        state.error             = null;
+        state.error = null;
       })
       .addCase(fetchCreditNoteById.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de la récupération de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de la récupération de l'avoir";
       });
 
-    // ── fetchUserCreditNotes ──────────────────
+    // fetchUserCreditNotes
     builder
       .addCase(fetchUserCreditNotes.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(fetchUserCreditNotes.fulfilled, (state, action) => {
-        state.loading     = false;
-        state.creditNotes = action.payload.content?.data || action.payload.content || [];
-        state.error       = null;
+        state.loading = false;
+        const content = action.payload.content ?? {};
+        if (content.data && Array.isArray(content.data)) {
+          state.creditNotes = content.data;
+        } else if (Array.isArray(content)) {
+          state.creditNotes = content;
+        } else if (Array.isArray(action.payload)) {
+          state.creditNotes = action.payload;
+        } else {
+          state.creditNotes = [];
+        }
+        state.pagination = {
+          page: content.page ?? 1,
+          pageSize: content.pageSize ?? 10,
+          totalCount: content.totalCount ?? (content.data ? content.data.length : 0),
+          totalPages: content.totalPages ?? 0,
+        };
+        state.error = null;
       })
       .addCase(fetchUserCreditNotes.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || 'Erreur lors de la récupération de vos avoirs';
+        state.error =
+          action.payload || 'Erreur lors de la récupération de vos avoirs';
       });
 
-    // ── createCreditNote ──────────────────────
+    // createCreditNote
     builder
       .addCase(createCreditNote.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(createCreditNote.fulfilled, (state, action) => {
-        state.loading           = false;
+        state.loading = false;
         state.currentCreditNote = action.payload.content;
-        if (state.creditNotes.length > 0) {
+        // Ajout en haut de la liste ou reload
+        if (state.creditNotes && Array.isArray(state.creditNotes) && state.creditNotes.length > 0) {
           state.creditNotes.unshift(action.payload.content);
         }
         state.error = null;
       })
       .addCase(createCreditNote.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de la création de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de la création de l'avoir";
       });
 
-    // ── updateCreditNoteById ──────────────────
+    // updateCreditNoteById
     builder
       .addCase(updateCreditNoteById.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(updateCreditNoteById.fulfilled, (state, action) => {
-        state.loading           = false;
+        state.loading = false;
         state.currentCreditNote = action.payload.content;
-        if (state.creditNotes.length > 0) {
-          const idx = state.creditNotes.findIndex(cn => cn.id === action.payload.content.id);
+        if (
+          state.creditNotes &&
+          Array.isArray(state.creditNotes) &&
+          state.creditNotes.length > 0
+        ) {
+          const idx = state.creditNotes.findIndex(
+            (cn) => cn.id === action.payload.content.id
+          );
           if (idx !== -1) state.creditNotes[idx] = action.payload.content;
         }
         state.error = null;
       })
       .addCase(updateCreditNoteById.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de la mise à jour de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de la mise à jour de l'avoir";
       });
 
-    // ── updateCreditNoteStatus ────────────────
+    // updateCreditNoteStatus
     builder
       .addCase(updateCreditNoteStatus.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(updateCreditNoteStatus.fulfilled, (state, action) => {
         state.loading = false;
-        if (state.currentCreditNote?.id === action.payload.content.id) {
+        if (
+          state.currentCreditNote?.id === action.payload.content.id
+        ) {
           state.currentCreditNote = action.payload.content;
         }
-        if (state.creditNotes.length > 0) {
-          const idx = state.creditNotes.findIndex(cn => cn.id === action.payload.content.id);
+        if (
+          state.creditNotes &&
+          Array.isArray(state.creditNotes) &&
+          state.creditNotes.length > 0
+        ) {
+          const idx = state.creditNotes.findIndex(
+            (cn) => cn.id === action.payload.content.id
+          );
           if (idx !== -1) state.creditNotes[idx] = action.payload.content;
         }
         state.error = null;
       })
       .addCase(updateCreditNoteStatus.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || 'Erreur lors de la mise à jour du statut';
+        state.error =
+          action.payload || 'Erreur lors de la mise à jour du statut';
       });
 
-    // ── deleteCreditNote ──────────────────────
+    // deleteCreditNote
     builder
       .addCase(deleteCreditNote.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(deleteCreditNote.fulfilled, (state, action) => {
         state.loading = false;
-        if (state.currentCreditNote?.id === action.payload.id) {
+        if (
+          state.currentCreditNote?.id === action.payload.id
+        ) {
           state.currentCreditNote = null;
         }
-        state.creditNotes = state.creditNotes.filter(cn => cn.id !== action.payload.id);
+        state.creditNotes = state.creditNotes.filter(
+          (cn) => cn.id !== action.payload.id
+        );
         state.error = null;
       })
       .addCase(deleteCreditNote.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de la suppression de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de la suppression de l'avoir";
       });
 
-    // ── duplicateCreditNote ───────────────────
+    // duplicateCreditNote
     builder
       .addCase(duplicateCreditNote.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(duplicateCreditNote.fulfilled, (state, action) => {
-        state.loading           = false;
+        state.loading = false;
         state.currentCreditNote = action.payload.content;
-        if (state.creditNotes.length > 0) {
+        if (
+          state.creditNotes &&
+          Array.isArray(state.creditNotes) &&
+          state.creditNotes.length > 0
+        ) {
           state.creditNotes.unshift(action.payload.content);
         }
         state.error = null;
       })
       .addCase(duplicateCreditNote.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de la duplication de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de la duplication de l'avoir";
       });
 
-    // ── generateCreditNotePDF ─────────────────
+    // generateCreditNotePDF
     builder
       .addCase(generateCreditNotePDF.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(generateCreditNotePDF.fulfilled, (state, action) => {
-        state.loading      = false;
+        state.loading = false;
         state.generatedPDF = action.payload.content;
-        if (state.currentCreditNote && action.payload.content?.filePath) {
+        if (
+          state.currentCreditNote &&
+          action.payload.content?.filePath
+        ) {
           state.currentCreditNote.file = action.payload.content.filePath;
         }
         state.error = null;
       })
       .addCase(generateCreditNotePDF.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de la génération de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de la génération de l'avoir";
       });
 
-    // ── sendCreditNoteByEmail ─────────────────
+    // sendCreditNoteByEmail
     builder
       .addCase(sendCreditNoteByEmail.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(sendCreditNoteByEmail.fulfilled, (state) => {
-        state.loading = false; state.error = null;
+        state.loading = false;
+        state.error = null;
       })
       .addCase(sendCreditNoteByEmail.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de l'envoi de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de l'envoi de l'avoir";
       });
 
-    // ── fetchCreditNoteStats ──────────────────
+    // fetchCreditNoteStats
     builder
       .addCase(fetchCreditNoteStats.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(fetchCreditNoteStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.stats   = action.payload.content;
-        state.error   = null;
+        state.stats = action.payload.content;
+        state.error = null;
       })
       .addCase(fetchCreditNoteStats.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || 'Erreur lors de la récupération des statistiques';
+        state.error =
+          action.payload ||
+          'Erreur lors de la récupération des statistiques';
       });
 
-    // ── exportCreditNote ──────────────────────
+    // exportCreditNote
     builder
       .addCase(exportCreditNote.pending, (state) => {
-        state.loading = true; state.error = null;
+        state.loading = true;
+        state.error = null;
       })
       .addCase(exportCreditNote.fulfilled, (state) => {
-        state.loading = false; state.error = null;
+        state.loading = false;
+        state.error = null;
       })
       .addCase(exportCreditNote.rejected, (state, action) => {
         state.loading = false;
-        state.error   = action.payload || "Erreur lors de l'export de l'avoir";
+        state.error =
+          action.payload || "Erreur lors de l'export de l'avoir";
       });
   },
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // EXPORTS
-// ─────────────────────────────────────────────────────────────────────────────
 export const {
   clearError,
   setPersoError,
@@ -486,14 +590,19 @@ export const {
   clearCreditNote,
   clearCreditNotes,
   clearStats,
+  setPagination,
+  setCreditNotesFilters,
+  resetCreditNotesFilters,
 } = creditNoteSlice.actions;
 
 export default creditNoteSlice.reducer;
 
 // Selectors
-export const selectCurrentCreditNote  = (state) => state.creditNote.currentCreditNote;
-export const selectCreditNotes        = (state) => state.creditNote.creditNotes;
-export const selectCreditNoteLoading  = (state) => state.creditNote.loading;
-export const selectCreditNoteError    = (state) => state.creditNote.error;
+export const selectCurrentCreditNote = (state) => state.creditNote.currentCreditNote;
+export const selectCreditNotes = (state) => state.creditNote.creditNotes;
+export const selectCreditNotePagination = (state) => state.creditNote.pagination;
+export const selectCreditNoteFilters = (state) => state.creditNote.filters;
+export const selectCreditNoteLoading = (state) => state.creditNote.loading;
+export const selectCreditNoteError = (state) => state.creditNote.error;
 export const selectGeneratedCreditPDF = (state) => state.creditNote.generatedPDF;
-export const selectCreditNoteStats    = (state) => state.creditNote.stats;
+export const selectCreditNoteStats = (state) => state.creditNote.stats;

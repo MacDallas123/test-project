@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
 import ReactCountryFlag from "react-country-flag";
-import SiteTileForm1 from "../custom/SiteTitleForm1";
+import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 
 const Footer = () => {
   const { t } = useLanguage();
