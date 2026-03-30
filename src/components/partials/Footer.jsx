@@ -82,33 +82,47 @@ const Footer = () => {
   const socialLinks = [
     {
       icon: Facebook,
-      href: "https://facebook.com/fibem",
+      href: "https://www.facebook.com/profile.php?id=61580826024280",
       label: t("footer.social.facebook", "Facebook"),
       className: "bg-[#1877f3] text-white hover:bg-[#165fc7]"
     },
     {
-      icon: Twitter,
-      href: "https://twitter.com/fibem",
-      label: t("footer.social.twitter", "Twitter"),
-      className: "bg-[#1da1f2] text-white hover:bg-[#0f8cd6]"
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/sen-fibem-france-953349213/?originalSubdomain=fr",
+      label: t("footer.social.linkedin", "LinkedIn"),
+      className: "bg-[#0077b5] text-white hover:bg-[#005983]"
     },
     {
       icon: Instagram,
-      href: "https://instagram.com/fibem",
+      href: "https://www.instagram.com/sen.fibemfrance/",
       label: t("footer.social.instagram", "Instagram"),
       className: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white hover:opacity-90"
     },
     {
+      //icon: Twitter,
+      svg: <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 462.799"><path fill="#FFFFFF" fill-rule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z"/></svg>,
+      href: "https://x.com/senfibemfrance",
+      label: t("footer.social.x", "X (Twitter)"),
+      className: "bg-black text-white hover:bg-neutral-700"
+    },
+    {
       icon: Youtube,
-      href: "https://youtube.com/fibem",
+      href: "https://www.youtube.com/channel/UC1ro5Fjh6Se9pMQ_kc-QzBw",
       label: t("footer.social.youtube", "YouTube"),
       className: "bg-[#ff0000] text-white hover:bg-[#cc0000]"
+    },
+    {
+      //icon: Tiktok,
+      svg: <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 455 512.098"><path fill="#FFFFFF" fill-rule="nonzero" d="M321.331.011h-81.882v347.887c0 45.59-32.751 74.918-72.582 74.918-39.832 0-75.238-29.327-75.238-74.918 0-52.673 41.165-80.485 96.044-74.727v-88.153c-7.966-1.333-15.932-1.77-22.576-1.77C75.249 183.248 0 255.393 0 344.794c0 94.722 74.353 167.304 165.534 167.304 80.112 0 165.097-58.868 165.097-169.96V161.109c35.406 35.406 78.341 46.476 124.369 46.476V126.14C398.35 122.151 335.494 84.975 321.331 0v.011z"/></svg>,
+      href: "https://www.tiktok.com/@senfibemfrance",
+      label: t("footer.social.tiktok", "TikTok"),
+      className: "bg-black text-white hover:bg-neutral-700"
     },
   ];
 
   return (
     <footer className="mt-20 text-white border-t bg-linear-to-b bg-primary">
-      <div className="container px-4 py-12 mx-auto">
+      <div className="container px-4 py-6 mx-auto">
         {/* Section principale */}
         <div className="grid gap-8 mb-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo et description */}
@@ -125,7 +139,7 @@ const Footer = () => {
                   <li key={item.href} className="flex flex-col items-center justify-center col-span-1 whitespace-nowrap">
                     <Link
                       to={item.href}
-                      className="w-full px-1 py-2 text-xs font-bold text-center transition-colors bg-white rounded-md border-primary text-primary hover:text-destructive"
+                      className="w-full px-1 py-1.5 text-xs font-bold text-center transition-colors bg-white rounded-md border-primary text-primary hover:text-destructive"
                     >
                       {item.label}
                     </Link>
@@ -327,7 +341,7 @@ const Footer = () => {
                     className={`flex items-center justify-center w-10 h-10 transition-all rounded-full ${social.className}`}
                     aria-label={social.label}
                   >
-                    <Icon className="w-5 h-5" />
+                    {Icon ? <Icon className="w-5 h-5" /> : social.svg}
                   </a>
                 );
               })}

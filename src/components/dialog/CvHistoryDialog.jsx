@@ -536,7 +536,7 @@ const CVHistoryDialog = ({
                 key={cv.id}
                 cv={cv}
                 index={i}
-                onPreview={onPreviewCV}
+                onPreview={() => onPreviewCV(cv)}
                 onDownload={() => onDownloadCV(cv)}
                 onDelete={handleDeleteCV}
                 onDuplicate={onDuplicateCV}

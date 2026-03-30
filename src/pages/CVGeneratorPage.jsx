@@ -376,6 +376,7 @@ const CVGeneratorPage = () => {
       
       let cvId;
       if (selectCurrentCVFS?.id) {
+        console.log("SEND CD DATA :", payload);
         await dispatch(updateCVById({ id: selectCurrentCVFS.id, data: payload })).unwrap();
         cvId = selectCurrentCVFS.id;
       } else {

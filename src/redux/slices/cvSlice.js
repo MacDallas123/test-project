@@ -252,7 +252,7 @@ const cvSlice = createSlice({
         })
         .addCase(generateCV.fulfilled, (state, action) => {
           state.loading = false;
-          state.currentCV = action.payload.content;
+          //state.currentCV = action.payload.content;
           state.error = null;
         })
         .addCase(generateCV.rejected, (state, action) => {
