@@ -23,9 +23,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+// ✅ Plus d'imports shadcn (Button, Badge, Input supprimés)
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSelector from "@/components/custom/languageSelector";
@@ -33,6 +31,54 @@ import CollapsibleMenuItem from "@/components/custom/CollapsibleMenuItem";
 import CurrencySelector from "@/components/custom/CurrencySelector";
 import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 import { useAuth } from "@/hooks/useAuth";
+
+// ─────────────────────────────────────────
+// Primitives natives (remplacent shadcn)
+// ─────────────────────────────────────────
+
+/**
+ * Remplace <Button variant="ghost"> et <Button variant="destructive"> etc.
+ * Accepte les mêmes props que shadcn Button pour une migration facile.
+ */
+const Btn = ({
+  children,
+  onClick,
+  className = "",
+  type = "button",
+  disabled = false,
+  "aria-label": ariaLabel,
+}) => (
+  <button
+    type={type}
+    onClick={onClick}
+    disabled={disabled}
+    aria-label={ariaLabel}
+    className={`inline-flex items-center justify-center gap-1.5 font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary disabled:opacity-50 disabled:pointer-events-none ${className}`}
+  >
+    {children}
+  </button>
+);
+
+/**
+ * Remplace <Badge> — petite pastille colorée.
+ */
+const Chip = ({ children, className = "" }) => (
+  <span
+    className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-semibold rounded-full ${className}`}
+  >
+    {children}
+  </span>
+);
+
+/**
+ * Remplace <Input> — champ texte natif stylisé.
+ */
+const TextInput = ({ className = "", ...props }) => (
+  <input
+    className={`block w-full rounded-full border border-gray-300 bg-white text-primary placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition ${className}`}
+    {...props}
+  />
+);
 
 // ─────────────────────────────────────────
 // Sub-components
@@ -43,18 +89,18 @@ const ActiveBar = () => (
   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-full" />
 );
 
-/** Un item du mega-menu (image + label) */
+/** Un item du mega-menu (icône + label) */
 const MegaMenuItem = ({ sub, isActive, onClose }) => (
   <Link
     to={sub.href}
     onClick={onClose}
     className={`group flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200
-      ${isActive
-        ? "bg-red-50 ring-2 ring-red-500"
-        : "hover:bg-slate-50/50 hover:shadow-sm"
+      ${
+        isActive
+          ? "bg-red-50 ring-2 ring-red-500"
+          : "hover:bg-slate-50/50 hover:shadow-sm"
       }`}
   >
-    {/* Image / illustration */}
     <div
       className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-200
         ${isActive ? "bg-red-100" : "bg-slate-100 group-hover:bg-secondary/90"}`}
@@ -62,19 +108,20 @@ const MegaMenuItem = ({ sub, isActive, onClose }) => (
       {sub.image ? (
         <img src={sub.image} alt={sub.label} className="object-contain w-10 h-10" />
       ) : (
-        <sub.icon className={`w-7 h-7 ${isActive ? "text-red-600" : "text-slate-500 group-hover:text-slate-200"}`} />
+        <sub.icon
+          className={`w-7 h-7 ${
+            isActive ? "text-red-600" : "text-slate-500 group-hover:text-slate-200"
+          }`}
+        />
       )}
     </div>
-    {/* Label */}
     <span
       className={`text-xs font-medium text-center leading-tight transition-colors
         ${isActive ? "text-red-600" : "text-white group-hover:text-slate-900"}`}
     >
       {sub.label}
     </span>
-    {isActive && (
-      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-    )}
+    {isActive && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
   </Link>
 );
 
@@ -87,14 +134,12 @@ const MegaMenuPanel = ({ item, activeIdx, onClose, onMouseEnter, onMouseLeave })
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
-        // Positionné en fixed pleine largeur, juste sous le header (géré par le parent)
         className="fixed left-0 right-0 z-[1400] border-t border-primary bg-primary shadow-2xl"
         style={{ top: "var(--header-height, 64px)" }}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
         <div className="container px-6 py-6 mx-auto">
-          {/* Titre de la section */}
           <p className="text-[11px] font-semibold uppercase tracking-widest text-white mb-5">
             {item.label}
           </p>
@@ -103,14 +148,12 @@ const MegaMenuPanel = ({ item, activeIdx, onClose, onMouseEnter, onMouseLeave })
               <MegaMenuItem
                 key={sub.href || i}
                 sub={sub}
-                isActive={false /* isSubMenuActive handled outside */}
+                isActive={false}
                 onClose={onClose}
               />
             ))}
           </div>
         </div>
-        {/* Ligne décorative en bas */}
-        {/* <div className="h-1 bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400" /> */}
       </motion.div>
     )}
   </AnimatePresence>
@@ -141,7 +184,7 @@ const DesktopNavItem = ({ item, idx, isActive, hoveredMenu, onEnter, onLeave }) 
       onMouseLeave={onLeave}
     >
       <button
-        className={`relative flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors rounded-md group
+        className={`relative flex items-center gap-1.5 px-2 py-1 text-sm font-medium transition-colors rounded-md
           ${isActive ? "text-red-600" : "text-primary-foreground hover:text-black"}`}
       >
         <Icon className="w-4 h-4" />
@@ -156,7 +199,7 @@ const DesktopNavItem = ({ item, idx, isActive, hoveredMenu, onEnter, onLeave }) 
   );
 };
 
-/** Menu mobile — liste d'items */
+/** Menu mobile — liste d'items (sans shadcn Button/Badge) */
 const MobileMenuList = ({ items, closeMobileMenu }) =>
   items.map((item, index) => {
     const Icon = item.icon;
@@ -173,14 +216,15 @@ const MobileMenuList = ({ items, closeMobileMenu }) =>
     }
     return (
       <Link key={index} to={item.href} className="w-full" onClick={closeMobileMenu}>
-        <Button
-          variant="ghost"
-          className="justify-start w-full text-sm text-orange-300 transition-colors hover:text-foreground hover:bg-accent/50"
-        >
-          <Icon className="w-4 h-4 mr-3 text-red-500" />
-          {item.label}
-          {item.badge != null && <Badge className="ml-auto bg-secondary">{item.badge}</Badge>}
-        </Button>
+        <button className="flex items-center justify-start w-full px-3 py-2 text-sm font-medium text-orange-300 transition-colors rounded-md hover:text-white hover:bg-white/10">
+          <Icon className="w-4 h-4 mr-3 text-red-400 shrink-0" />
+          <span className="flex-1 text-left">{item.label}</span>
+          {item.badge != null && (
+            <Chip className="ml-auto bg-secondary text-secondary-foreground">
+              {item.badge}
+            </Chip>
+          )}
+        </button>
       </Link>
     );
   });
@@ -205,7 +249,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() || "U"
     : "U";
 
-  // ── Menu data ──────────────────────────────────────────────────────────────
+  // ── Menu data ────────────────────────────────────────────────────────────
 
   const mainMenus = [
     {
@@ -250,15 +294,11 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
       icon: LogIn,
       label: t("authMenu.login", "Connexion"),
       href: "/auth/login",
-      className:
-        "px-4 py-2 text-xs rounded-md text-white border border-primary bg-destructive/90 transition-colors hover:bg-destructive hover:text-white",
     },
     {
       icon: UserPlus,
       label: t("authMenu.register", "Inscription"),
       href: "/auth/register",
-      className:
-        "px-4 py-2 text-xs rounded-md bg-primary/70 text-white border border-primary transition-colors hover:text-destructive hover:bg-transparent",
     },
   ];
 
@@ -268,7 +308,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     { icon: User, label: t("userMenu.profile", "Profil"), href: "/profile" },
   ];
 
-  // ── Active route helpers ───────────────────────────────────────────────────
+  // ── Active route helpers ─────────────────────────────────────────────────
 
   const isMenuActive = (menuItem) => {
     if (menuItem.href) {
@@ -277,30 +317,23 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
         location.pathname.startsWith(menuItem.href + "/")
       );
     }
-    return menuItem.subMenus?.some((sub) => {
-      if (sub.href === "/" && location.pathname === "/") return true;
-      if (sub.href?.includes("#")) {
-        const [p, h] = sub.href.split("#");
-        const base = p === "" ? "/" : p;
-        return location.pathname === base && location.hash.replace("#", "") === h;
-      }
-      return (
-        location.pathname === sub.href ||
-        location.pathname.startsWith((sub.href || "") + "/")
-      );
-    }) ?? false;
-  };
-
-  const isSubMenuActive = (sub) => {
-    if (!sub.href) return false;
-    if (sub.href.startsWith("#")) return location.pathname + location.hash === sub.href;
     return (
-      location.pathname === sub.href ||
-      location.pathname.startsWith(sub.href + "/")
+      menuItem.subMenus?.some((sub) => {
+        if (sub.href === "/" && location.pathname === "/") return true;
+        if (sub.href?.includes("#")) {
+          const [p, h] = sub.href.split("#");
+          const base = p === "" ? "/" : p;
+          return location.pathname === base && location.hash.replace("#", "") === h;
+        }
+        return (
+          location.pathname === sub.href ||
+          location.pathname.startsWith((sub.href || "") + "/")
+        );
+      }) ?? false
     );
   };
 
-  // ── Hover management ──────────────────────────────────────────────────────
+  // ── Hover management ─────────────────────────────────────────────────────
 
   const handleMouseEnter = (idx) => {
     clearTimeout(hoverTimeoutRef.current);
@@ -311,9 +344,8 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
     hoverTimeoutRef.current = setTimeout(() => setHoveredMenu(null), 150);
   };
 
-  // ── Side effects ──────────────────────────────────────────────────────────
+  // ── Side effects ─────────────────────────────────────────────────────────
 
-  // Update CSS variable --header-height for mega menu positioning
   useEffect(() => {
     const update = () => {
       if (headerRef.current) {
@@ -338,10 +370,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isMobileMenuOpen]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────────────
 
   const toggleMobileMenu = () => {
     setIsMobileSearchOpen(false);
@@ -365,9 +399,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  // Index du menu actuellement survolé (pour le MegaMenuPanel)
-  const activeMegaMenu =
-    hoveredMenu !== null ? mainMenus[hoveredMenu] : null;
+  const activeMegaMenu = hoveredMenu !== null ? mainMenus[hoveredMenu] : null;
 
   return (
     <>
@@ -395,26 +427,29 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
 
             {/* ── Barre de recherche desktop ── */}
             <div className="relative flex-1 hidden max-w-md md:block">
-              <Input
+              <TextInput
                 type="text"
                 placeholder={t("search_placeholder", "Rechercher")}
-                className="w-full py-2 pl-10 pr-16 transition border rounded-full text-primary focus:outline-none focus:ring-2 focus:ring-primary bg-primary-foreground placeholder:text-gray-500"
+                className="py-2 pl-10 pr-16"
               />
-              <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-3 top-1/2" />
-              <Button className="absolute px-3 py-1 text-xs text-white -translate-y-1/2 rounded-full right-1 top-1/2 bg-destructive">
+              <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 pointer-events-none left-3 top-1/2" />
+              <button
+                type="button"
+                className="absolute px-3 py-1 text-xs font-semibold text-white transition-colors -translate-y-1/2 rounded-full right-1 top-1/2 bg-destructive hover:bg-destructive/90"
+              >
                 OK
-              </Button>
+              </button>
             </div>
 
             {/* ── Icône recherche mobile ── */}
             <div className="relative md:hidden">
-              <Button
-                variant="ghost"
-                className="p-2 text-destructive"
+              <Btn
+                className="p-2 rounded-md text-destructive hover:bg-white/10"
                 onClick={toggleMobileSearch}
+                aria-label="Rechercher"
               >
                 {isMobileSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
-              </Button>
+              </Btn>
               <AnimatePresence>
                 {isMobileSearchOpen && (
                   <motion.div
@@ -424,13 +459,13 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                     className="absolute z-20 mt-2 -translate-x-1/2 left-1/2 min-w-[280px]"
                   >
                     <div className="relative">
-                      <Input
+                      <TextInput
                         type="text"
                         autoFocus
                         placeholder={t("search_placeholder", "Rechercher...")}
-                        className="w-full py-2 pl-10 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="py-2 pl-10"
                       />
-                      <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 left-3 top-1/2" />
+                      <Search className="absolute w-4 h-4 text-gray-500 -translate-y-1/2 pointer-events-none left-3 top-1/2" />
                     </div>
                   </motion.div>
                 )}
@@ -459,12 +494,12 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
               {isLoggedIn() ? (
                 /* ── User avatar + dropdown ── */
                 <div className="relative">
-                  <Button
+                  <Btn
                     onClick={() => setUserMenuOpen((v) => !v)}
-                    className="flex items-center justify-center font-semibold rounded-full w-9 h-9 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                    className="text-sm font-semibold rounded-full w-9 h-9 bg-secondary text-secondary-foreground hover:bg-secondary/90"
                   >
                     {userInitials}
-                  </Button>
+                  </Btn>
 
                   <AnimatePresence>
                     {userMenuOpen && (
@@ -499,9 +534,15 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                                 className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors hover:bg-accent
                                   ${isActive ? "text-red-600 font-medium bg-red-50" : ""}`}
                               >
-                                <item.icon className={`w-4 h-4 ${isActive ? "text-red-600" : ""}`} />
-                                {item.label}
-                                {item.badge != null && <Badge className="ml-auto">{item.badge}</Badge>}
+                                <item.icon
+                                  className={`w-4 h-4 shrink-0 ${isActive ? "text-red-600" : ""}`}
+                                />
+                                <span className="flex-1">{item.label}</span>
+                                {item.badge != null && (
+                                  <Chip className="ml-auto bg-secondary text-secondary-foreground">
+                                    {item.badge}
+                                  </Chip>
+                                )}
                               </Link>
                             );
                           })}
@@ -509,7 +550,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                           <div className="pt-1 mt-1 border-t">
                             <button
                               onClick={handleLogout}
-                              className="flex items-center w-full gap-2 px-3 py-2 text-sm rounded-md cursor-pointer text-destructive hover:bg-destructive/10"
+                              className="flex items-center w-full gap-2 px-3 py-2 text-sm transition-colors rounded-md cursor-pointer text-destructive hover:bg-destructive/10"
                             >
                               <LogOut className="w-4 h-4" />
                               Déconnexion
@@ -522,15 +563,24 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 </div>
               ) : (
                 /* ── Auth buttons ── */
-                <>
-                  {authMenus.map((item) => (
-                    <Link to={item.href} key={item.href}>
-                      <Button variant="ghost" className={item.className}>
-                        {item.label}
-                      </Button>
-                    </Link>
-                  ))}
-                </>
+                <div className="flex items-center gap-2">
+                  <Link to="/auth/login">
+                    <button
+                      type="button"
+                      className="px-4 py-1.5 text-xs font-semibold text-white border border-primary rounded-md bg-destructive/90 hover:bg-destructive transition-colors"
+                    >
+                      {t("authMenu.login", "Connexion")}
+                    </button>
+                  </Link>
+                  <Link to="/auth/register">
+                    <button
+                      type="button"
+                      className="px-4 py-1.5 text-xs font-semibold text-white border border-white/40 rounded-md bg-primary/70 hover:text-destructive hover:bg-transparent transition-colors"
+                    >
+                      {t("authMenu.register", "Inscription")}
+                    </button>
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -538,15 +588,13 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
             <div className="flex items-center gap-1 xl:hidden">
               <LanguageSelector />
               <CurrencySelector />
-              <Button
-                variant="ghost"
-                size="sm"
+              <Btn
                 onClick={toggleMobileMenu}
-                className="relative p-0 h-9 w-9 text-primary-foreground"
+                className="relative p-0 rounded-md h-9 w-9 text-primary-foreground hover:bg-white/10"
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
+              </Btn>
             </div>
           </div>
         </div>
@@ -563,7 +611,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
             >
               {isLoggedIn() && (
                 <div className="flex items-center gap-3 p-3 border-b border-white/10">
-                  <div className="flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-full bg-secondary text-secondary-foreground">
+                  <div className="flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-full bg-secondary text-secondary-foreground shrink-0">
                     {userInitials}
                   </div>
                   <div className="min-w-0">
@@ -575,21 +623,20 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                 </div>
               )}
 
-              <div className="container flex flex-col gap-2 px-3 py-3">
+              <div className="container flex flex-col gap-1 px-3 py-3">
                 <MobileMenuList items={mainMenus} closeMobileMenu={closeMobileMenu} />
 
                 {isLoggedIn() ? (
                   <>
                     <div className="my-1 border-t border-white/10" />
                     <MobileMenuList items={userMenuItems} closeMobileMenu={closeMobileMenu} />
-                    <Button
-                      variant="destructive"
+                    <button
                       onClick={() => { closeMobileMenu(); handleLogout(); }}
-                      className="flex items-center gap-2 mt-2"
+                      className="flex items-center justify-center w-full gap-2 px-4 py-2 mt-2 text-sm font-semibold text-white transition-colors rounded-md bg-destructive hover:bg-destructive/90"
                     >
                       <LogOut className="w-4 h-4" />
                       Déconnexion
-                    </Button>
+                    </button>
                   </>
                 ) : (
                   <>
@@ -603,7 +650,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
                       >
                         <span
                           className={`absolute inset-0 w-0 group-hover:w-full transition-all duration-300
-                            ${item.label === t("authMenu.login", "Connexion") ? "bg-accent/30" : "bg-accent/20"}`}
+                            ${item.href === "/auth/login" ? "bg-accent/30" : "bg-accent/20"}`}
                         />
                         <span className="relative flex items-center gap-2 px-4 py-2 font-medium text-orange-300">
                           <item.icon className="w-4 h-4 text-destructive" />
@@ -619,7 +666,7 @@ const Header = ({ authPage = false, dasboardPage = false }) => {
         </AnimatePresence>
       </motion.header>
 
-      {/* ── Mega-menu pleine largeur (en dehors du header pour débordement correct) ── */}
+      {/* ── Mega-menu pleine largeur ── */}
       {activeMegaMenu?.subMenus && (
         <div
           onMouseEnter={() => handleMouseEnter(hoveredMenu)}
