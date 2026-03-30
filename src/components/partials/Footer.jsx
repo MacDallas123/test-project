@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Logo from "@/assets/logo_fibem3.jpg";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 import { useLanguage } from "@/context/LanguageContext";
 import ReactCountryFlag from "react-country-flag";
-import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
+import SiteTileForm1 from "../custom/SiteTitleForm1";
 
 const Footer = () => {
   const { t } = useLanguage();
