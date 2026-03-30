@@ -8,7 +8,24 @@ const initialState = {
     loading: false,
     error: null,
     generatedPDF: null,
-    stats: null
+    stats: null,
+
+    invoicesFilter: {
+      search: "",
+      page: 1,
+      limit: 10,
+      sortBy: "createdAt",
+      sortOrder: "DESC"
+    },
+
+    invoicesPagination: {
+      total: 3,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false
+    }
 };
 
 // GET fetch all invoices (with filters)
@@ -268,7 +285,23 @@ const invoiceSlice = createSlice({
         },
         clearStats: (state) => {
             state.stats = null;
-        }
+        },
+
+        setInvoicesFilter: (state, action) => {
+          state.quotesFilter = action.payload;
+        },
+
+        resetInvoicesFilter: (state) => {
+            state.quotesFilter = initialState.quotesFilter;
+        },
+
+        setInvoicesPagination: (state, action) => {
+            state.quotesPagination = action.payload;
+        },
+
+        resetInvoicesPagination: (state) => {
+            state.quotesPagination = initialState.quotesPagination;
+        },
     },
     extraReducers: (builder) => {
         // fetchInvoices
@@ -498,7 +531,11 @@ export const {
   setCurrentInvoice,
   clearInvoice,
   clearInvoices,
-  clearStats
+  clearStats,
+  setInvoicesFilter,
+  resetInvoicesFilter,
+  setInvoicesPagination,
+  resetInvoicesPagination
 } = invoiceSlice.actions;
 
 export default invoiceSlice.reducer;
@@ -510,3 +547,5 @@ export const selectInvoiceLoading = (state) => state.invoice.loading;
 export const selectInvoiceError = (state) => state.invoice.error;
 export const selectGeneratedPDF = (state) => state.invoice.generatedPDF;
 export const selectInvoiceStats = (state) => state.invoice.stats;
+export const selectInvoicesFilter = (state) => state.cv.invoicesFilter;
+export const selectInvoicesPagination = (state) => state.cv.invoicesPagination;

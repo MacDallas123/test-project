@@ -24,7 +24,11 @@ dist-ssr
 *.sw?
 
 .env
-#
+
+# OLD FILES
 src/index.old.css
 src/pages/CVGeneratorPage.old.jsx
 src/components/partials/Header.old.jsx
+docker-compose.old*.yml
+*.old*
+*-old*

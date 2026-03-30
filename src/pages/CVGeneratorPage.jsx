@@ -45,7 +45,8 @@ const defaultCvData = {
     github: "https://github.com/jeandupont",
     portfolio: "https://jeandupont.dev",
     summary: "Développeur passionné avec plus de 5 ans d'expérience dans la conception de solutions web modernes et performantes. Compétences solides en React, Node.js et gestion de projet Agile.",
-    photoUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    // photoUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    photoUrl: "",
     showPhoto: true,
   },
   skills: [
@@ -259,6 +260,21 @@ const CVGeneratorPage = () => {
     if(!isLoggedIn()) setIsViewLocked(true);
   }, []);
 
+  useEffect(() => {
+    if(selectCurrentCVFS) {
+      console.log("CURRENT CV ", selectCurrentCVFS);
+      // Create a deep clone to avoid mutating Redux state (which is readonly/immutable)
+      let currentCVData = JSON.parse(JSON.stringify(selectCurrentCVFS));
+      currentCVData.personal = selectCurrentCVFS?.personalInfo;
+      delete currentCVData.personalInfo;
+      setCvData(currentCVData);
+      setCvType(currentCVData?.type?.toLowerCase());
+      setMode("create");
+      setImportedFile(null);
+      //setCurrentStep(0);
+    }
+  }, [selectCurrentCVFS]);
+
   // ── Définition des étapes ────────────────────
   const STEPS = [
     { id: "type",           label: "Démarrage",         shortLabel: "Démarrage",  icon: LayoutTemplate },
@@ -361,6 +377,7 @@ const CVGeneratorPage = () => {
       
       let cvId;
       if (selectCurrentCVFS?.id) {
+        console.log("SEND CD DATA :", payload);
         await dispatch(updateCVById({ id: selectCurrentCVFS.id, data: payload })).unwrap();
         cvId = selectCurrentCVFS.id;
       } else {

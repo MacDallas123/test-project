@@ -8,7 +8,24 @@ const initialState = {
     loading: false,
     error: null,
     generatedPDF: null,
-    stats: null
+    stats: null,
+
+    quotesFilter: {
+      search: "",
+      page: 1,
+      limit: 10,
+      sortBy: "createdAt",
+      sortOrder: "DESC"
+    },
+
+    quotesPagination: {
+      total: 3,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false
+    }
 };
 
 // GET fetch all quotes (with filters)
@@ -266,7 +283,23 @@ const quoteSlice = createSlice({
         },
         clearStats: (state) => {
             state.stats = null;
-        }
+        },
+
+        setQuotesFilter: (state, action) => {
+          state.quotesFilter = action.payload;
+        },
+
+        resetQuotesFilter: (state) => {
+            state.quotesFilter = initialState.quotesFilter;
+        },
+
+        setQuotesPagination: (state, action) => {
+            state.quotesPagination = action.payload;
+        },
+
+        resetQuotesPagination: (state) => {
+            state.quotesPagination = initialState.quotesPagination;
+        },
     },
     extraReducers: (builder) => {
         // fetchQuotes
@@ -496,7 +529,11 @@ export const {
   setCurrentQuote,
   clearQuote,
   clearQuotes,
-  clearStats
+  clearStats,
+  setQuotesFilter,
+  resetQuotesFilter,
+  setQuotesPagination,
+  resetQuotesPagination
 } = quoteSlice.actions;
 
 export default quoteSlice.reducer;
@@ -508,3 +545,5 @@ export const selectQuoteLoading = (state) => state.quote.loading;
 export const selectQuoteError = (state) => state.quote.error;
 export const selectGeneratedQuotePDF = (state) => state.quote.generatedPDF;
 export const selectQuoteStats = (state) => state.quote.stats;
+export const selectQuotesFilter = (state) => state.cv.quotesFilter;
+export const selectQuotesPagination = (state) => state.cv.quotesPagination;

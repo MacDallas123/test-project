@@ -1,131 +1,183 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FileText, Download, Eye, Trash2, Clock, Send,
   Calendar, Search, AlertCircle, CheckCircle2,
   XCircle, MoreHorizontal, RefreshCw, ThumbsUp,
   ThumbsDown, Timer, Briefcase, DollarSign, Copy,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteQuote,
+  fetchUserQuotes,
+  selectQuotes,
+  selectQuotesFilter,
+  selectQuotesPagination,
+  setCurrentQuote,
+  setQuotesFilter,
+} from "@/redux/slices/quoteSlice";
+import { UPLOADED_FILES_URL } from "@/api/axios";
+import { thunkSucceed } from "@/lib/tools";
+import { useDialog } from "@/hooks/useDialog";
 
-// ─────────────────────────────────────────────
-// MÉTADONNÉES STATUT
-// ─────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Formate une date ISO en "12 mars 2026" */
+function formatDate(isoString) {
+  if (!isoString) return null;
+  return new Date(isoString).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+/**
+ * Construit le nom d'affichage du client depuis la structure API.
+ * La réponse API imbrique les données dans clientInfo / projectInfo.
+ */
+function quoteClientName(quote) {
+  const ci = quote.clientInfo ?? quote; // compatibilité réponse plate ou imbriquée
+  const firstName = ci.firstName ?? "";
+  const lastName  = ci.lastName  ?? "";
+  const full = `${firstName} ${lastName}`.trim();
+  return full || ci.company || `Devis #${quote.id}`;
+}
+
+function quoteClientCompany(quote) {
+  return (quote.clientInfo ?? quote).company ?? null;
+}
+
+function quoteProjectName(quote) {
+  return (quote.projectInfo ?? quote).projectName ?? null;
+}
+
+// ── Méta statut ──────────────────────────────────────────────────────────────
+
 const QUOTE_STATUS_META = {
-  draft:    { label: "Brouillon", icon: RefreshCw,    bg: "bg-gray-50    text-gray-600    border-gray-200"    },
-  sent:     { label: "Envoyé",   icon: Send,          bg: "bg-sky-50     text-sky-700     border-sky-200"     },
-  accepted: { label: "Accepté",  icon: ThumbsUp,      bg: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  rejected: { label: "Refusé",   icon: ThumbsDown,    bg: "bg-red-50     text-red-700     border-red-200"     },
-  expired:  { label: "Expiré",   icon: Timer,         bg: "bg-orange-50  text-orange-700  border-orange-200"  },
+  draft:    { label: "Brouillon", Icon: RefreshCw,  pill: "bg-gray-50    text-gray-600    border border-gray-200"    },
+  sent:     { label: "Envoyé",   Icon: Send,        pill: "bg-sky-50     text-sky-700     border border-sky-200"     },
+  accepted: { label: "Accepté",  Icon: ThumbsUp,    pill: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+  rejected: { label: "Refusé",   Icon: ThumbsDown,  pill: "bg-red-50     text-red-700     border border-red-200"     },
+  expired:  { label: "Expiré",   Icon: Timer,       pill: "bg-orange-50  text-orange-700  border border-orange-200"  },
 };
 
-// ─────────────────────────────────────────────
-// BADGE STATUT
-// ─────────────────────────────────────────────
-function QuoteStatusBadge({ statut }) {
-  const meta = QUOTE_STATUS_META[statut] || QUOTE_STATUS_META.draft;
-  const Icon = meta.icon;
+function QuoteStatusBadge({ status }) {
+  // l'API renvoie quoteStatus
+  const meta = QUOTE_STATUS_META[status] ?? QUOTE_STATUS_META.draft;
+  const { Icon, label, pill } = meta;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${meta.bg}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold tracking-wide ${pill}`}>
       <Icon className="w-3 h-3" />
-      {meta.label}
+      {label}
     </span>
   );
 }
 
-// ─────────────────────────────────────────────
-// LIGNE DEVIS
-// ─────────────────────────────────────────────
+// ── Ligne devis ───────────────────────────────────────────────────────────────
+
 function QuoteRow({ quote, onPreview, onDownload, onDelete, onDuplicate, index, symbol = "FCFA" }) {
-  const canAct = ["sent", "accepted"].includes(quote.statut);
+  const clientName    = quoteClientName(quote);
+  const clientCompany = quoteClientCompany(quote);
+  const projectName   = quoteProjectName(quote);
+  const status        = quote.quoteStatus ?? "draft";
+  const created       = formatDate(quote.createdAt);
+  const updated       = formatDate(quote.updatedAt !== quote.createdAt ? quote.updatedAt : null);
+
+  // Prévisualisation disponible pour tous les statuts sauf brouillon sans fichier
+  const hasFile = !!quote.file;
 
   return (
     <div
-      className="flex items-center gap-4 p-4 transition-all duration-200 bg-white border border-gray-100 group rounded-xl hover:border-emerald-300/50 hover:bg-emerald-50/20"
-      style={{ animationDelay: `${index * 40}ms` }}
+      className="flex items-center gap-3 px-4 py-3 transition-all duration-150 bg-white border border-gray-100 group rounded-xl hover:border-emerald-200 hover:shadow-sm"
+      style={{ animationDelay: `${index * 35}ms` }}
     >
-      {/* Icône document */}
-      <div className="flex items-center justify-center flex-shrink-0 w-10 h-12 border rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-50 border-emerald-100">
-        <FileText className="w-5 h-5 text-emerald-500" />
+      {/* Icône */}
+      <div className="flex items-center justify-center flex-shrink-0 w-10 h-12 border rounded-lg bg-gradient-to-br from-emerald-50 to-white border-emerald-100">
+        <FileText className="w-5 h-5 text-emerald-400" />
       </div>
 
       {/* Infos principales */}
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <span className="font-mono text-sm font-semibold text-gray-800 truncate">
-            {quote.quoteNumber}
+            {quote.quoteNumber ?? `#${quote.id}`}
           </span>
-          <QuoteStatusBadge statut={quote.statut} />
+          {quote.bisNumber && (
+            <span className="text-[11px] text-gray-400 font-mono">bis {quote.bisNumber}</span>
+          )}
+          <QuoteStatusBadge status={status} />
         </div>
-        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-muted-foreground">
-          {quote.clientName && (
-            <span className="font-medium text-gray-600 truncate max-w-[140px]">
-              {quote.clientCompany ? `${quote.clientName} — ${quote.clientCompany}` : quote.clientName}
+
+        <div className="flex flex-wrap items-center gap-3 mt-0.5 text-[11px] text-gray-400">
+          {clientName && (
+            <span className="font-medium text-gray-600 truncate max-w-[150px]">
+              {clientCompany ? `${clientName} — ${clientCompany}` : clientName}
             </span>
           )}
-          {quote.projectName && (
-            <span className="flex items-center gap-1 text-gray-500 truncate max-w-[160px]">
+          {projectName && (
+            <span className="flex items-center gap-1 truncate max-w-[160px]">
               <Briefcase className="flex-shrink-0 w-3 h-3" />
-              {quote.projectName}
+              {projectName}
             </span>
           )}
           {quote.total !== undefined && (
             <span className="flex items-center gap-1 font-semibold text-emerald-600">
               <DollarSign className="w-3 h-3" />
-              {quote.total.toLocaleString()} {symbol}
+              {Number(quote.total).toLocaleString("fr-FR")} {symbol}
             </span>
           )}
-          <span className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            Créé le {quote.dateCreation}
-          </span>
-          {quote.validUntil && (
+          {created && (
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              Valable jusqu'au {quote.validUntil}
+              <Calendar className="w-3 h-3" /> {created}
+            </span>
+          )}
+          {updated && (
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" /> modifié {updated}
             </span>
           )}
         </div>
       </div>
 
-      {/* Actions hover (desktop) */}
-      <div className="flex items-center gap-1 transition-opacity opacity-0 group-hover:opacity-100">
-        {canAct && (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50"
-              onClick={() => onPreview(quote)}
-              title="Aperçu"
-            >
-              <Eye className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50"
-              onClick={() => onDownload(quote)}
-              title="Télécharger"
-            >
-              <Download className="w-4 h-4" />
-            </Button>
-          </>
+      {/* Actions desktop (hover) */}
+      <div className="items-center hidden gap-1 transition-opacity opacity-0 sm:flex group-hover:opacity-100">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-gray-400 hover:text-primary hover:bg-primary/10"
+          onClick={() => onPreview(quote)}
+          title="Aperçu / Réutiliser"
+        >
+          <Eye className="w-4 h-4" />
+        </Button>
+        {hasFile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-8 h-8 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
+            onClick={() => onDownload(quote)}
+            title="Télécharger le PDF"
+          >
+            <Download className="w-4 h-4" />
+          </Button>
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -133,16 +185,14 @@ function QuoteRow({ quote, onPreview, onDownload, onDelete, onDuplicate, index, 
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44 z-2010">
-            {canAct && (
-              <>
-                <DropdownMenuItem onClick={() => onPreview(quote)} className="gap-2 text-sm">
-                  <Eye className="w-4 h-4" /> Aperçu
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDownload(quote)} className="gap-2 text-sm">
-                  <Download className="w-4 h-4" /> Télécharger
-                </DropdownMenuItem>
-              </>
+          <DropdownMenuContent align="end" className="w-44 z-[2010]">
+            <DropdownMenuItem onClick={() => onPreview(quote)} className="gap-2 text-sm">
+              <Eye className="w-4 h-4" /> Aperçu / Réutiliser
+            </DropdownMenuItem>
+            {hasFile && (
+              <DropdownMenuItem onClick={() => onDownload(quote)} className="gap-2 text-sm">
+                <Download className="w-4 h-4" /> Télécharger le PDF
+              </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={() => onDuplicate(quote)} className="gap-2 text-sm">
               <Copy className="w-4 h-4" /> Dupliquer
@@ -160,12 +210,20 @@ function QuoteRow({ quote, onPreview, onDownload, onDelete, onDuplicate, index, 
 
       {/* Actions mobiles */}
       <div className="flex items-center gap-1 sm:hidden">
-        {canAct && (
-          <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => onDownload(quote)}>
-            <Download className="w-4 h-4" />
-          </Button>
-        )}
-        <Button variant="ghost" size="icon" className="w-8 h-8 text-red-400" onClick={() => onDelete(quote)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-gray-400"
+          onClick={() => onPreview(quote)}
+        >
+          <Eye className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-8 h-8 text-red-400"
+          onClick={() => onDelete(quote)}
+        >
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
@@ -173,163 +231,272 @@ function QuoteRow({ quote, onPreview, onDownload, onDelete, onDuplicate, index, 
   );
 }
 
-// ─────────────────────────────────────────────
-// COMPOSANT PRINCIPAL
-// ─────────────────────────────────────────────
+// ── Pagination ────────────────────────────────────────────────────────────────
+
+function Pagination({ pagination, onPageChange }) {
+  if (!pagination || pagination.totalPages <= 1) return null;
+
+  const { page, totalPages, hasNext, hasPrev } = pagination;
+
+  const getPages = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(1, page - delta);
+      i <= Math.min(totalPages, page + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    if (range[0] > 1) { range.unshift("..."); range.unshift(1); }
+    if (range[range.length - 1] < totalPages) { range.push("..."); range.push(totalPages); }
+    return range;
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {hasPrev && (
+        <button
+          onClick={() => onPageChange(page - 1)}
+          className="flex items-center justify-center text-gray-500 transition-colors rounded-lg w-7 h-7 hover:bg-gray-100"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+      )}
+      {getPages().map((p, i) =>
+        p === "..." ? (
+          <span key={`dots-${i}`} className="text-xs text-center text-gray-400 w-7">…</span>
+        ) : (
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`flex items-center justify-center w-7 h-7 rounded-lg text-xs font-medium transition-colors
+              ${page === p ? "bg-emerald-600 text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
+          >
+            {p}
+          </button>
+        )
+      )}
+      {hasNext && (
+        <button
+          onClick={() => onPageChange(page + 1)}
+          className="flex items-center justify-center text-gray-500 transition-colors rounded-lg w-7 h-7 hover:bg-gray-100"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ── Filtres statut ────────────────────────────────────────────────────────────
+
+const STATUS_FILTERS = [
+  { val: "ALL",      label: "Tous"       },
+  { val: "draft",    label: "Brouillons" },
+  { val: "sent",     label: "Envoyés"    },
+  { val: "accepted", label: "Acceptés"   },
+  { val: "rejected", label: "Refusés"    },
+  { val: "expired",  label: "Expirés"    },
+];
+
+// ── Composant principal ───────────────────────────────────────────────────────
+
 const QuoteHistoryDialog = ({
   isOpen,
   onClose,
   selectedUser,
-  quoteHistory = [],       // tableau de devis
-  onPreviewQuote,          // (quote) => void
-  onDownloadQuote,         // (quote) => void
-  onDeleteQuote,           // (quote) => void
-  onDuplicateQuote,        // (quote) => void
+  onDuplicateQuote,
   isLoading = false,
   symbol = "FCFA",
 }) => {
-  const [search,       setSearch]       = useState("");
-  const [filterStatus, setFilterStatus] = useState("tous");
+  const dispatch               = useDispatch();
+  const quotesFS               = useSelector(selectQuotes);
+  const quotesFilterFS         = useSelector(selectQuotesFilter);
+  const quotesPaginationFS     = useSelector(selectQuotesPagination);
 
-  // Filtrage
-  const filtered = quoteHistory.filter(q => {
-    const term        = search.toLowerCase();
-    const matchSearch = (
-      q.quoteNumber?.toLowerCase().includes(term)   ||
-      q.clientName?.toLowerCase().includes(term)    ||
-      q.projectName?.toLowerCase().includes(term)
+  const [search,         setSearch]         = useState("");
+  const [debounceSearch, setDebounceSearch] = useState("");
+  const [filterStatus,   setFilterStatus]   = useState("ALL");
+
+  const { showConfirm, DialogComponent } = useDialog();
+
+  // Debounce recherche
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounceSearch(search), 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  useEffect(() => {
+    console.log("QUOTE FS :", quotesFS);
+  }, [quotesFS]);
+
+  // Mise à jour filtre Redux → déclenche le fetch
+  useEffect(() => {
+    dispatch(
+      setQuotesFilter({
+        ...quotesFilterFS,
+        search: debounceSearch,
+        status: filterStatus === "ALL" ? undefined : filterStatus,
+        page: 1,
+      })
     );
-    const matchStatus = filterStatus === "tous" || q.statut === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  }, [debounceSearch, filterStatus]);
 
-  // Compteurs
-  const total    = quoteHistory.length;
-  const accepted = quoteHistory.filter(q => q.statut === "accepted").length;
-  const sent     = quoteHistory.filter(q => q.statut === "sent").length;
-  const rejected = quoteHistory.filter(q => q.statut === "rejected").length;
-  const expired  = quoteHistory.filter(q => q.statut === "expired").length;
-  const totalTTC = quoteHistory
-    .filter(q => q.total !== undefined)
-    .reduce((s, q) => s + q.total, 0);
-  const acceptanceRate = total > 0
-    ? Math.round((accepted / total) * 100)
+  const loadQuotes = () => {
+    dispatch(fetchUserQuotes(quotesFilterFS));
+  };
+
+  // Fetch à chaque changement de filtre ou ouverture
+  useEffect(() => {
+    if (isOpen) loadQuotes();
+  }, [quotesFilterFS, isOpen]);
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
+
+  const onPreviewQuote = (quote) => {
+    dispatch(setCurrentQuote(quote));
+    onClose();
+  };
+
+  const onDownloadQuote = (quote) => {
+    if (!quote?.file) {
+      console.error("Aucun fichier PDF pour ce devis");
+      return;
+    }
+    let base = UPLOADED_FILES_URL;
+    if (base && !base.endsWith("/")) base += "/";
+    const filePath = quote.file.startsWith("/") ? quote.file.substring(1) : quote.file;
+    window.open(`${base}${filePath}`, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDeleteQuote = (quote) => {
+    showConfirm({
+      title: "Supprimer le devis",
+      message: "Cette action est irréversible. Êtes-vous sûr de vouloir supprimer ce devis ?",
+      variant: "danger",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      icon: Trash2,
+      onConfirm: () => deleteAction(quote.id),
+      isLoading: false,
+    });
+  };
+
+  const deleteAction = async (id) => {
+    if (!id) return;
+    try {
+      const res = await dispatch(deleteQuote(id));
+      if (thunkSucceed(res)) await loadQuotes();
+    } catch (err) {
+      console.error("Erreur suppression devis :", err);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    dispatch(setQuotesFilter({ ...quotesFilterFS, page: newPage }));
+  };
+
+  // ── Données ───────────────────────────────────────────────────────────────
+
+  const { total, page, totalPages } = quotesPaginationFS ?? {};
+  const quoteList = Array.isArray(quotesFS) ? quotesFS : [];
+
+  // Compteurs (calculés sur les données de la page courante uniquement —
+  // pour des totaux globaux, le backend doit les renvoyer dans la pagination)
+  const accepted      = quoteList.filter(q => q.quoteStatus === "accepted").length;
+  const sent          = quoteList.filter(q => q.quoteStatus === "sent").length;
+  const rejected      = quoteList.filter(q => q.quoteStatus === "rejected").length;
+  const expired       = quoteList.filter(q => q.quoteStatus === "expired").length;
+  const totalTTC      = quoteList.reduce((s, q) => s + (Number(q.total) || 0), 0);
+  const acceptanceRate = quoteList.length > 0
+    ? Math.round((accepted / quoteList.length) * 100)
     : 0;
+
+  // ── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[860px] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[860px] max-h-[92vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl">
 
-        {/* ── En-tête ───────────────────────────── */}
-        <div className="px-6 pt-6 pb-4 border-b bg-gradient-to-br from-emerald-50 to-transparent">
+        {/* ── En-tête ──────────────────────────────── */}
+        <div className="px-6 pt-5 pb-4 bg-white border-b">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-emerald-600" />
+            <DialogTitle className="flex items-center gap-2 text-base font-bold text-gray-900">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50">
+                <FileText className="w-4 h-4 text-emerald-600" />
+              </div>
               Historique des devis
             </DialogTitle>
             {selectedUser && (
-              <DialogDescription className="flex items-center gap-2 mt-1">
+              <DialogDescription className="flex items-center gap-2 mt-1.5">
                 <Avatar className="w-5 h-5">
                   <AvatarImage src={selectedUser.avatar} />
-                  <AvatarFallback className="text-[9px]">
+                  <AvatarFallback className="text-[9px] bg-gray-200">
                     {selectedUser.prenom?.[0]}{selectedUser.nom?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <span>
-                  {selectedUser.prenom} {selectedUser.nom} — {selectedUser.email}
+                <span className="text-xs text-gray-500">
+                  {selectedUser.prenom} {selectedUser.nom}
+                  {selectedUser.email && ` · ${selectedUser.email}`}
                 </span>
               </DialogDescription>
             )}
           </DialogHeader>
 
-          {/* Résumé chiffré */}
-          <div className="flex flex-wrap items-center gap-4 mt-4">
-            <div className="flex items-center gap-1.5 text-sm">
-              <span className="font-bold text-gray-800">{total}</span>
-              <span className="text-muted-foreground">devis au total</span>
+          {/* Statistiques rapides */}
+          {quoteList.length > 0 && (
+            <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-gray-100">
+              <Stat value={accepted} label="accepté" Icon={ThumbsUp}  color="text-emerald-500" bold="text-emerald-700" />
+              <Sep />
+              <Stat value={sent}     label="envoyé"  Icon={Send}       color="text-sky-500"    bold="text-sky-700"     />
+              {rejected > 0 && <><Sep /><Stat value={rejected} label="refusé"  Icon={ThumbsDown} color="text-red-400"    bold="text-red-600"     /></>}
+              {expired  > 0 && <><Sep /><Stat value={expired}  label="expiré"  Icon={Timer}      color="text-orange-400" bold="text-orange-600"   /></>}
+              <Sep />
+              <div className="flex items-center gap-1 text-sm">
+                <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="font-bold text-gray-800">{totalTTC.toLocaleString("fr-FR")}</span>
+                <span className="text-gray-400">{symbol}</span>
+              </div>
+              {quoteList.length > 0 && (
+                <>
+                  <Sep />
+                  <div className="flex items-center gap-1 text-sm">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="font-bold text-emerald-600">{acceptanceRate}%</span>
+                    <span className="text-gray-400">acceptation</span>
+                  </div>
+                </>
+              )}
             </div>
-            <div className="w-px h-4 bg-gray-200" />
-            <div className="flex items-center gap-1.5 text-sm">
-              <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="font-bold text-gray-800">{accepted}</span>
-              <span className="text-muted-foreground">accepté{accepted !== 1 ? "s" : ""}</span>
-            </div>
-            <div className="w-px h-4 bg-gray-200" />
-            <div className="flex items-center gap-1.5 text-sm">
-              <Send className="w-3.5 h-3.5 text-sky-500" />
-              <span className="font-bold text-gray-800">{sent}</span>
-              <span className="text-muted-foreground">envoyé{sent !== 1 ? "s" : ""}</span>
-            </div>
-            {rejected > 0 && (
-              <>
-                <div className="w-px h-4 bg-gray-200" />
-                <div className="flex items-center gap-1.5 text-sm">
-                  <ThumbsDown className="w-3.5 h-3.5 text-red-500" />
-                  <span className="font-bold text-red-600">{rejected}</span>
-                  <span className="text-muted-foreground">refusé{rejected !== 1 ? "s" : ""}</span>
-                </div>
-              </>
-            )}
-            {expired > 0 && (
-              <>
-                <div className="w-px h-4 bg-gray-200" />
-                <div className="flex items-center gap-1.5 text-sm">
-                  <Timer className="w-3.5 h-3.5 text-orange-500" />
-                  <span className="font-bold text-orange-600">{expired}</span>
-                  <span className="text-muted-foreground">expiré{expired !== 1 ? "s" : ""}</span>
-                </div>
-              </>
-            )}
-            <div className="w-px h-4 bg-gray-200" />
-            <div className="flex items-center gap-1.5 text-sm">
-              <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="font-bold text-gray-800">{totalTTC.toLocaleString()}</span>
-              <span className="text-muted-foreground">{symbol} total</span>
-            </div>
-            {total > 0 && (
-              <>
-                <div className="w-px h-4 bg-gray-200" />
-                <div className="flex items-center gap-1.5 text-sm">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="font-bold text-emerald-600">{acceptanceRate}%</span>
-                  <span className="text-muted-foreground">taux d'acceptation</span>
-                </div>
-              </>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* ── Filtres ───────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-2 px-6 py-3 bg-white border-b">
+        {/* ── Filtres ───────────────────────────────── */}
+        <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b bg-gray-50">
           {/* Recherche */}
           <div className="relative flex-1 min-w-[180px]">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
             <Input
-              className="h-8 pl-8 text-sm"
+              className="h-8 pl-8 pr-3 text-xs bg-white border-gray-200 rounded-lg focus-visible:ring-1 focus-visible:ring-emerald-300"
               placeholder="N° devis, client, projet…"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
           {/* Filtre statut */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5 flex-wrap">
-            {[
-              { val: "tous",     label: "Tous"       },
-              { val: "draft",    label: "Brouillons" },
-              { val: "sent",     label: "Envoyés"    },
-              { val: "accepted", label: "Acceptés"   },
-              { val: "rejected", label: "Refusés"    },
-              { val: "expired",  label: "Expirés"    },
-            ].map(opt => (
+          <div className="flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg p-0.5 flex-wrap">
+            {STATUS_FILTERS.map((opt) => (
               <button
                 key={opt.val}
                 type="button"
                 onClick={() => setFilterStatus(opt.val)}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all
                   ${filterStatus === opt.val
-                    ? "bg-white shadow-sm text-emerald-600"
-                    : "text-gray-500 hover:text-gray-700"}`}
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-800"
+                  }`}
               >
                 {opt.label}
               </button>
@@ -337,28 +504,24 @@ const QuoteHistoryDialog = ({
           </div>
         </div>
 
-        {/* ── Liste ─────────────────────────────── */}
-        <div className="flex-1 px-6 py-4 space-y-2 overflow-y-auto bg-gray-50/50">
+        {/* ── Liste ─────────────────────────────────── */}
+        <div className="flex-1 px-5 py-4 space-y-2 overflow-y-auto bg-gray-50/60">
           {isLoading ? (
             <div className="space-y-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-[72px] rounded-xl bg-gray-100 animate-pulse" />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-[60px] rounded-xl bg-gray-100 animate-pulse" />
               ))}
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex items-center justify-center mb-3 bg-gray-100 rounded-full w-14 h-14">
-                <AlertCircle className="w-6 h-6 text-gray-300" />
+          ) : quoteList.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="flex items-center justify-center w-12 h-12 mb-3 bg-gray-100 rounded-full">
+                <AlertCircle className="w-5 h-5 text-gray-300" />
               </div>
-              <p className="text-sm font-medium text-gray-500">
-                {quoteHistory.length === 0
-                  ? "Aucun devis généré pour le moment"
-                  : "Aucun résultat pour ces filtres"}
-              </p>
-              {quoteHistory.length > 0 && (
+              <p className="text-sm font-medium text-gray-500">Aucun devis trouvé</p>
+              {(search || filterStatus !== "ALL") && (
                 <button
                   type="button"
-                  onClick={() => { setSearch(""); setFilterStatus("tous"); }}
+                  onClick={() => { setSearch(""); setFilterStatus("ALL"); }}
                   className="mt-2 text-xs text-emerald-600 hover:underline"
                 >
                   Réinitialiser les filtres
@@ -366,7 +529,7 @@ const QuoteHistoryDialog = ({
               )}
             </div>
           ) : (
-            filtered.map((quote, i) => (
+            quoteList.map((quote, i) => (
               <QuoteRow
                 key={quote.id}
                 quote={quote}
@@ -374,62 +537,53 @@ const QuoteHistoryDialog = ({
                 symbol={symbol}
                 onPreview={onPreviewQuote}
                 onDownload={onDownloadQuote}
-                onDelete={onDeleteQuote}
+                onDelete={handleDeleteQuote}
                 onDuplicate={onDuplicateQuote}
               />
             ))
           )}
         </div>
 
-        {/* ── Pied ──────────────────────────────── */}
-        <div className="flex items-center justify-between gap-2 px-6 py-4 bg-white border-t">
-          <p className="text-xs text-muted-foreground">
-            {filtered.length} résultat{filtered.length !== 1 ? "s" : ""}
-            {filtered.length !== total && ` sur ${total}`}
+        {/* ── Pied ──────────────────────────────────── */}
+        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-white border-t">
+          <p className="text-xs text-gray-400 shrink-0">
+            {total != null ? (
+              <>
+                <span className="font-semibold text-gray-700">{total}</span> devis
+                {totalPages > 1 && ` · page ${page} / ${totalPages}`}
+              </>
+            ) : (
+              `${quoteList.length} résultat${quoteList.length !== 1 ? "s" : ""}`
+            )}
           </p>
-          <Button variant="outline" size="sm" onClick={onClose}>
+
+          <Pagination pagination={quotesPaginationFS} onPageChange={handlePageChange} />
+
+          <Button variant="outline" size="sm" className="text-xs rounded-lg shrink-0" onClick={onClose}>
             Fermer
           </Button>
         </div>
 
+        <DialogComponent />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default QuoteHistoryDialog;
+// ── Micro-composants stats ────────────────────────────────────────────────────
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EXEMPLE D'UTILISATION :
-//
-// const [isQuoteHistoryOpen, setIsQuoteHistoryOpen] = useState(false);
-//
-// <Button variant="outline" onClick={() => setIsQuoteHistoryOpen(true)}>
-//   <FileText className="w-4 h-4 mr-2" /> Historique des devis
-// </Button>
-//
-// <QuoteHistoryDialog
-//   isOpen={isQuoteHistoryOpen}
-//   onClose={() => setIsQuoteHistoryOpen(false)}
-//   selectedUser={user}
-//   symbol="FCFA"
-//   quoteHistory={[
-//     {
-//       id: "1",
-//       quoteNumber:   "DEV-202603-0017",
-//       clientName:    "Samuel Bikoko",
-//       clientCompany: "Bikoko Génie Civil SARL",
-//       projectName:   "Construction Résidence Makepe",
-//       total:         2500000,
-//       statut:        "accepted",  // "draft"|"sent"|"accepted"|"rejected"|"expired"
-//       dateCreation:  "12/03/2026",
-//       validUntil:    "11/04/2026",
-//       url:           "https://...",
-//     },
-//   ]}
-//   onPreviewQuote={(q)   => window.open(q.url, "_blank")}
-//   onDownloadQuote={(q)  => { /* download logic */ }}
-//   onDeleteQuote={(q)    => { /* delete logic  */ }}
-//   onDuplicateQuote={(q) => { /* duplicate logic */ }}
-// />
-// ─────────────────────────────────────────────────────────────────────────────
+function Sep() {
+  return <div className="w-px h-4 bg-gray-200 shrink-0" />;
+}
+
+function Stat({ value, label, Icon, color, bold }) {
+  return (
+    <div className="flex items-center gap-1 text-sm">
+      <Icon className={`w-3.5 h-3.5 ${color}`} />
+      <span className={`font-bold ${bold}`}>{value}</span>
+      <span className="text-gray-400">{label}{value !== 1 ? "s" : ""}</span>
+    </div>
+  );
+}
+
+export default QuoteHistoryDialog;

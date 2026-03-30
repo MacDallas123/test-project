@@ -117,6 +117,32 @@ export const importCV = createAsyncThunk(
   }
 );
 
+export const downloadCv = createAsyncThunk(
+  "cv/downloadCv",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/cv/${id}/download`);
+      return response.data;
+    } catch (error) {
+      console.log("DOWNLOAD CV ERROR", error);
+      return rejectWithValue(error.response?.data?.message || "Erreur lors du telechargement du CV");
+    }
+  }
+);
+
+export const deleteCV = createAsyncThunk(
+  "cv/deleteCV",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`/cv/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log("DELETE CV ERROR", error);
+      return rejectWithValue(error.response?.data?.message || "Erreur lors de la suppression du CV");
+    }
+  }
+);
+
 // Slice
 const cvSlice = createSlice({
     name: 'cv',
@@ -131,7 +157,7 @@ const cvSlice = createSlice({
         },
 
         setCurrentCV: (state, action) => {
-            state.currentCV = action.payload.CV;
+            state.currentCV = action.payload;
         },
 
         clearCV: (state) => {
@@ -143,7 +169,7 @@ const cvSlice = createSlice({
         },
 
         resetCVsFilter: (state) => {
-            state.cvsFilter = initialState.usersFilter;
+            state.cvsFilter = initialState.cvsFilter;
         },
 
         setCVsPagination: (state, action) => {
@@ -151,7 +177,7 @@ const cvSlice = createSlice({
         },
 
         resetCVsPagination: (state) => {
-            state.cvsPagination = initialState.initialState;
+            state.cvsPagination = initialState.cvsPagination;
         },
     },
     extraReducers: (builder) => {
@@ -226,7 +252,7 @@ const cvSlice = createSlice({
         })
         .addCase(generateCV.fulfilled, (state, action) => {
           state.loading = false;
-          state.currentCV = action.payload.content;
+          //state.currentCV = action.payload.content;
           state.error = null;
         })
         .addCase(generateCV.rejected, (state, action) => {
@@ -247,6 +273,35 @@ const cvSlice = createSlice({
         .addCase(importCV.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload || "Erreur lors de l'import du CV";
+        });
+
+        builder
+        .addCase(downloadCv.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(downloadCv.fulfilled, (state, action) => {
+          state.loading = false;
+          state.error = null;
+        })
+        .addCase(downloadCv.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || "Erreur lors du telechargement du CV";
+        });
+
+        builder
+        .addCase(deleteCV.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(deleteCV.fulfilled, (state, action) => {
+          state.loading = false;
+          state.currentCV = null;
+          state.error = null;
+        })
+        .addCase(deleteCV.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload || "Erreur lors de la suppression du CV";
         });
     }
 });

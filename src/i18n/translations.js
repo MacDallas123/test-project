@@ -13,10 +13,18 @@ export const translations = {
 };
 
 export const availableLanguages = [
-  { code: "fr", name: "Français", flag: "🇫🇷", reactFlag: "FR", value: "fr", },
-  { code: "en", name: "English", flag: "🇬🇧", reactFlag: "GB", value: "en", },
-  { code: "es", name: "Español", flag: "🇪🇸", reactFlag: "ES", value: "es", },
-  { code: "ch", name: "Chinese", flag: "🇨🇳", reactFlag: "CN", value: "ch", },
-  { code: "de", name: "Deutsch", flag: "🇩🇪", reactFlag: "DE", value: "de", },
-  // { code: "ch", name: "中文", flag: "🇨🇳" },
+  { code: "fr",   name: "Français",      flag: "🇫🇷", reactFlag: "FR", value: "fr"   },
+  { code: "en",   name: "English",       flag: "🇬🇧", reactFlag: "GB", value: "en"   },
+  { code: "es",   name: "Español",       flag: "🇪🇸", reactFlag: "ES", value: "es"   },
+  { code: "ch",   name: "Chinese",       flag: "🇨🇳", reactFlag: "CN", value: "ch"   },
+  { code: "de",   name: "Deutsch",       flag: "🇩🇪", reactFlag: "DE", value: "de"   },
+  { code: "it",   name: "Italiano",      flag: "🇮🇹", reactFlag: "IT", value: "it"   },
+  { code: "pt",   name: "Português",     flag: "🇵🇹", reactFlag: "PT", value: "pt"   },
+  { code: "nl",   name: "Nederlands",    flag: "🇳🇱", reactFlag: "NL", value: "nl"   },
+  { code: "ru",   name: "Русский",       flag: "🇷🇺", reactFlag: "RU", value: "ru"   },
+  { code: "ar",   name: "العربية",       flag: "🇸🇦", reactFlag: "SA", value: "ar"   },
+  { code: "ja",   name: "日本語",        flag: "🇯🇵", reactFlag: "JP", value: "ja"   },
+  { code: "tr",   name: "Türkçe",        flag: "🇹🇷", reactFlag: "TR", value: "tr"   },
+  { code: "pl",   name: "Polski",        flag: "🇵🇱", reactFlag: "PL", value: "pl"   },
+  { code: "hi",   name: "हिन्दी",        flag: "🇮🇳", reactFlag: "IN", value: "hi"   },
 ];

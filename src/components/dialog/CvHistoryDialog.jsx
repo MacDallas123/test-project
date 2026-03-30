@@ -5,31 +5,37 @@ import {
   AlertCircle, MoreHorizontal, RefreshCw,
   Upload, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  deleteCV,
+  downloadCv,
   fetchCVsByUser,
   selectCVs,
   selectCVsFilter,
   selectCVsPagination,
+  setCurrentCV,
   setCVsFilter,
 } from "@/redux/slices/cvSlice";
+import { UPLOADED_FILES_URL } from "@/api/axios";
+import { thunkSucceed } from "@/lib/tools";
+import { useDialog } from "@/hooks/useDialog";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -318,9 +324,6 @@ const CVHistoryDialog = ({
   isOpen,
   onClose,
   selectedUser,
-  onPreviewCV,
-  onDownloadCV,
-  onDeleteCV,
   onDuplicateCV,
   isLoading = false,
 }) => {
@@ -332,6 +335,8 @@ const CVHistoryDialog = ({
   const [search,         setSearch]         = useState("");
   const [debounceSearch, setDebounceSearch] = useState("");
   const [filterType,     setFilterType]     = useState("ALL");
+
+  const { showConfirm, showMessage, DialogComponent } = useDialog();
 
   // Debounce recherche
   useEffect(() => {
@@ -351,12 +356,79 @@ const CVHistoryDialog = ({
     );
   }, [debounceSearch, filterType]);
 
+  // Function for load userCV
+  const loadCV = async () => {
+    dispatch(fetchCVsByUser(selectCVsFiltersFS));
+  }
+
   // Fetch à chaque changement de filtre (inclus changement de page)
   useEffect(() => {
     if (isOpen) {
-      dispatch(fetchCVsByUser(selectCVsFiltersFS));
+      loadCV();
     }
   }, [selectCVsFiltersFS, isOpen]);
+
+  const onPreviewCV = (cv) => {
+    const response = dispatch(setCurrentCV(cv));
+
+    onClose();
+  }
+
+  const onDownloadCV = (cv) => {
+    // Ici UPLOADED_FILES_URL doit être défini dans l'env ou quelque part de façon accessible globalement
+    if (!cv?.file) {
+      console.error("Aucun fichier à télécharger pour ce CV");
+      return;
+    }
+    // S'assurer que UPLOADED_FILES_URL finit par un /, sinon ajoutez-le
+    let base = UPLOADED_FILES_URL;
+    if (base && !base.endsWith("/")) base += "/";
+    // Supprime le premier / du path si présent (pour éviter double //)
+    const filePath = cv.file.startsWith("/") ? cv.file.substring(1) : cv.file;
+    const url = `${base}${filePath}`;
+
+    /*
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cv.pdf";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+    }, 100);
+    */
+    // Ouvre le PDF dans un nouvel onglet du navigateur
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  const handleDeleteCV = (cv) => {
+    showConfirm({
+      title: "Supprimer le CV",
+      message: "Cette action est irréversible. Êtes-vous sûr de vouloir supprimer ce cv ?",
+      variant: "danger",
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      icon: Trash2,
+      onConfirm: () => deleteAction(cv.id),
+      isLoading: false
+    })
+  };
+
+  const deleteAction = async (id) => {
+    if (!id) {
+      console.error("Erreur donnees de CV");
+      return;
+    }
+
+    try {
+      const deletionResponse = await dispatch(deleteCV(id));
+      if(thunkSucceed(deletionResponse)) {
+          await loadCV();
+      }
+    } catch (err) {
+        console.log("ERREUR LORS DE LA SUPPRESSION :", err);
+    }
+  }
 
   const handlePageChange = (newPage) => {
     dispatch(
@@ -464,9 +536,9 @@ const CVHistoryDialog = ({
                 key={cv.id}
                 cv={cv}
                 index={i}
-                onPreview={onPreviewCV}
-                onDownload={onDownloadCV}
-                onDelete={onDeleteCV}
+                onPreview={() => onPreviewCV(cv)}
+                onDownload={() => onDownloadCV(cv)}
+                onDelete={handleDeleteCV}
                 onDuplicate={onDuplicateCV}
               />
             ))
@@ -497,7 +569,8 @@ const CVHistoryDialog = ({
             Fermer
           </Button>
         </div>
-
+        
+        <DialogComponent />
       </DialogContent>
     </Dialog>
   );

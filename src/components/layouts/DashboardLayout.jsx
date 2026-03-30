@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 // import QuickActionsPanel from "@/components/dashboard/QuickActionsPanel";
-import Header from "../partials/Header";
+import Header from "@/components/partials/Header";
 
 const DashboardLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
