@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { UserCheck, Briefcase, Users, ArrowRight } from "lucide-react";
 

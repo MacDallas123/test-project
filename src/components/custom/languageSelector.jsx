@@ -1,5 +1,5 @@
 import { ChevronDown, Globe } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { availableLanguages } from "@/i18n/translations";
 import { useLanguage } from "@/context/LanguageContext";
 import ReactCountryFlag from "react-country-flag";

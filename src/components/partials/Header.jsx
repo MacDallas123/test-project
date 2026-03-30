@@ -25,13 +25,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import Logo from "@/assets/logo_fibem3.jpg";
 import { useLanguage } from "@/context/LanguageContext";
-import LanguageSelector from "../custom/languageSelector";
-import CollapsibleMenuItem from "../custom/CollapsibleMenuItem";
-import CurrencySelector from "../custom/CurrencySelector";
-import SiteTileForm1 from "../custom/SiteTitleForm1";
+import LanguageSelector from "@/components/custom/languageSelector";
+import CollapsibleMenuItem from "@/components/custom/CollapsibleMenuItem";
+import CurrencySelector from "@/components/custom/CurrencySelector";
+import SiteTileForm1 from "@/components/custom/SiteTitleForm1";
 import { useAuth } from "@/hooks/useAuth";
 
 // ─────────────────────────────────────────
