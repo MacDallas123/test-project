@@ -19,7 +19,8 @@ export default defineConfig({
     // Injecter le CSS directement dans le JS évite les problèmes de chargement
     // asynchrone du fichier .css sur certains réseaux/CDN lents.
     // cssCodeSplit: false force un seul fichier CSS groupé avec le bundle.
-    cssCodeSplit: false,
+    // cssCodeSplit: false,
+    cssCodeSplit: true,
 
     // ─── Chunks ─────────────────────────────────────────────────────────────
     rollupOptions: {
