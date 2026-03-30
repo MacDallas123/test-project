@@ -259,6 +259,21 @@ const CVGeneratorPage = () => {
     if(!isLoggedIn()) setIsViewLocked(true);
   }, []);
 
+  useEffect(() => {
+    if(selectCurrentCVFS) {
+      console.log("CURRENT CV ", selectCurrentCVFS);
+      // Create a deep clone to avoid mutating Redux state (which is readonly/immutable)
+      let currentCVData = JSON.parse(JSON.stringify(selectCurrentCVFS));
+      currentCVData.personal = selectCurrentCVFS?.personalInfo;
+      delete currentCVData.personalInfo;
+      setCvData(currentCVData);
+      setCvType(currentCVData?.type?.toLowerCase());
+      setMode("create");
+      setImportedFile(null);
+      //setCurrentStep(0);
+    }
+  }, [selectCurrentCVFS]);
+
   // ── Définition des étapes ────────────────────
   const STEPS = [
     { id: "type",           label: "Démarrage",         shortLabel: "Démarrage",  icon: LayoutTemplate },

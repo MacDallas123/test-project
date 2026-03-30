@@ -6,14 +6,8 @@ services:
         VITE_API_URL: https://api.livrernourriture-fibem.com/api/v1
     container_name: livrer-nourriture-frontend
     networks:
-      - livraison-nourriture_app-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.front.rule=Host(`app.livrernourriture-fibem.com`)"
-      - "traefik.http.routers.front.entrypoints=websecure"
-      - "traefik.http.routers.front.tls.certresolver=le"
-      - "traefik.http.services.front.loadbalancer.server.port=3070"
+      - frontend-network
 
 networks:
-  livraison-nourriture_app-network:
-    external: true
+  frontend-network:
+    driver: bridge
